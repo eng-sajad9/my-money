@@ -1,0 +1,979 @@
+<!doctype html>
+<html lang="ar">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>نظام إدارة المصاريف</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      /* Modern comfortable light theme */
+      --bg: linear-gradient(180deg,#f9fbff 0%, #f6f8fb 100%);
+      --card: #ffffff;
+  --text: #0f172a; --muted: #556074;
+      --accent-start:#7c6cff; --accent-end:#5ad0ff; --danger:#ff6b6b; --success:#34d399;
+      --glass: rgba(255,255,255,0.6);
+      --radius:12px;
+      font-family: 'Poppins', system-ui, Arial;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0; background:var(--bg); color:var(--text); -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale; padding:20px;
+    }
+    .app{
+      max-width:1100px; margin:0 auto; display:grid; gap:18px; grid-template-columns: 1fr 360px;
+    }
+    header{display:flex;justify-content:space-between;align-items:center}
+    h1{font-size:18px;margin:0}
+    .top-actions{display:flex;gap:10px;align-items:center}
+  .btn{background:linear-gradient(90deg,var(--accent-start),var(--accent-end));color:#fff;padding:10px 14px;border-radius:12px;border:0;cursor:pointer;transition:transform .12s ease, box-shadow .12s;box-shadow:0 8px 26px rgba(92,88,200,.12)}
+  .btn:active{transform:translateY(1px)}
+  .ghost{background:transparent;color:var(--accent-start);box-shadow:none;border:1px solid rgba(124,108,255,.12)}
+    .search{display:flex;gap:10px;align-items:center}
+  input,select,textarea{padding:10px;border-radius:10px;border:1px solid #e6e9ef;background:var(--card);font-family:inherit;color:var(--text)}
+  input::placeholder, textarea::placeholder{color:#9aa3b2}
+  .card{background:var(--card);border-radius:var(--radius);padding:14px;box-shadow:0 8px 24px rgba(16,24,40,.04);transition:transform .12s ease}
+  .card:hover{transform:translateY(-4px)}
+
+    /* left column */
+    .main{display:flex;flex-direction:column;gap:12px}
+    .summary{display:flex;gap:12px}
+    .summary .item{flex:1;padding:12px;border-radius:10px;background:linear-gradient(180deg,rgba(255,255,255,.6),rgba(255,255,255,.4));}
+    .month-list{display:flex;gap:8px;overflow:auto;padding-bottom:6px}
+  .month-chip{padding:8px 12px;border-radius:999px;background:linear-gradient(90deg, rgba(124,108,255,0.12), rgba(90,208,255,0.06));border:1px solid rgba(124,108,255,0.12);color:var(--muted);cursor:pointer}
+
+    .expenses-list{display:flex;flex-direction:column;gap:8px;max-height:420px;overflow:auto;padding-right:6px}
+    .expense{display:flex;justify-content:space-between;align-items:center;padding:10px;border-radius:10px}
+    .expense .left{display:flex;gap:12px;align-items:center}
+  .cat-badge{width:44px;height:44px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;color:#fff;background:linear-gradient(135deg, rgba(124,108,255,0.9), rgba(90,208,255,0.8));}
+  .muted{color:var(--muted);font-size:13px}
+
+  /* entry meta (date + notes) clearer and separated */
+  .entry-meta{display:none}
+  .entry-date{color:var(--muted);font-size:12px;margin-top:6px}
+  .entry-notes{color:var(--text);font-size:13px;margin-top:4px;opacity:0.98;line-height:1.25}
+
+    /* right column */
+    aside{display:flex;flex-direction:column;gap:12px}
+    .small{font-size:13px}
+
+    /* modals */
+    .modal-backdrop{position:fixed;inset:0;background:rgba(2,6,23,.5);display:none;align-items:center;justify-content:center;z-index:60}
+    .modal{width:420px;max-width:95%;}
+    .modal .card{padding:18px}
+    .row{display:flex;gap:8px}
+    @media (max-width:900px){.app{grid-template-columns:1fr; padding-bottom:40px}.aside-hidden{display:none}}
+    @media (max-width:420px){
+      .btn{padding:12px 16px;font-size:15px;border-radius:14px}
+      input,select,textarea{padding:12px;font-size:15px}
+      .month-chip{padding:10px 14px}
+      .expense{flex-direction:column;align-items:flex-start}
+      .expense .left{width:100%}
+      .expense .right{width:100%;text-align:left;margin-top:8px}
+      .summary{flex-direction:column}
+      header{flex-direction:column;align-items:stretch;gap:8px}
+      .top-actions{flex-direction:column;align-items:stretch}
+    }
+
+    /* progress */
+    .progress{height:12px;background:#eef2ff;border-radius:999px;overflow:hidden}
+  .progress > i{display:block;height:100%;background:linear-gradient(90deg,var(--accent-start),var(--accent-end));width:0;transition:width .6s ease}
+
+    /* charts */
+    canvas{width:100%;height:180px}
+
+    /* toasts */
+  .toast{position:fixed;right:18px;bottom:18px;background:linear-gradient(90deg,var(--accent-start),var(--accent-end));color:#fff;padding:12px 16px;border-radius:12px;opacity:0;transform:translateY(10px);transition:opacity .18s,transform .18s;box-shadow:0 10px 30px rgba(16,24,40,.08)}
+    .toast.show{opacity:1;transform:none}
+
+    /* tiny helpers */
+    .flex{display:flex;align-items:center}
+    .spacer{flex:1}
+
+  </style>
+</head>
+<body>
+  <div class="app">
+    <main class="main">
+      <header>
+        <div>
+          <h1>مدير المصاريف الشخصية</h1>
+        </div>
+        <div class="top-actions">
+          <div class="search">
+            <input id="searchInput" placeholder="ابحث بالملاحظة، المبلغ، أو الفئة" style="min-width:220px" />
+            <select id="filterCategory"><option value="">كل الفئات</option></select>
+            <select id="filterMonth"><option value="">كل الأشهر</option></select>
+          </div>
+          <button class="btn" id="openAddBtn">أضف مصروف</button>
+          <button class="btn" id="addSalaryBtn" title="أضف راتب الشهري">أضف راتب</button>
+          <button class="btn ghost" id="clearMonthBtn" title="حذف كل المصاريف للشهر المحدد">حذف الشهر</button>
+        </div>
+      </header>
+
+      <section class="card summary" id="summaryBar">
+        <div class="item">
+          <div class="small muted">الإجمالي (دخل)</div>
+          <div style="font-weight:700;font-size:18px" id="totalIncome">0</div>
+        </div>
+        <div class="item">
+          <div class="small muted">المصروف</div>
+          <div style="font-weight:700;font-size:18px;color:var(--danger)" id="totalExpense">0</div>
+        </div>
+        <div class="item">
+          <div class="small muted">البـاقي</div>
+          <div style="font-weight:700;font-size:18px;color:var(--accent-start)" id="balance">0</div>
+        </div>
+      </section>
+
+      <section class="card">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+          <strong>المصاريف حسب الشهر</strong>
+          <div class="muted small">استخدم الفلاتر أو اضغط على شهر لعرض التفاصيل</div>
+        </div>
+        <div class="month-list" id="monthChips"></div>
+      </section>
+
+      <section class="card" style="padding-bottom:12px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+          <strong>تفاصيل المصاريف</strong>
+          <div class="flex"><div class="muted small" id="selectedMonthTitle">كل الأشهر</div></div>
+        </div>
+        <div class="expenses-list" id="expensesList"></div>
+      </section>
+
+      <section class="card">
+        <strong>مقارنة الأشهر (آخر 6 أشهر)</strong>
+        <canvas id="barChart"></canvas>
+      </section>
+
+    </main>
+
+    <aside class="card" style="min-width:260px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px"><strong>لوحة التحكم</strong>
+        <button class="btn ghost" id="openCatsBtn">الفئات</button>
+      </div>
+
+      <div style="margin-bottom:10px">
+        <div class="small muted">الميزانية الشهرية</div>
+        <div style="display:flex;gap:8px;margin-top:8px">
+          <input id="budgetInput" placeholder="أدخل المبلغ" />
+          <button class="btn" id="saveBudgetBtn">حفظ</button>
+        </div>
+        <div style="margin-top:10px">
+          <div class="progress"><i id="budgetBar"></i></div>
+          <div class="flex" style="margin-top:6px"><div class="muted small">استخدام الميزانية</div><div class="spacer"></div><div id="budgetPercent" class="muted small">0%</div></div>
+        </div>
+      </div>
+
+      <div style="margin-top:10px">
+        <div class="small muted">التقرير الشهري - أكثر فئة</div>
+        <div style="margin-top:10px"><canvas id="pieChart"></canvas></div>
+      </div>
+
+      <div style="margin-top:12px" class="small muted">إعدادات Firebase</div>
+      <div style="margin-top:8px" class="muted small">قم بلصق config ثم اضغط Initialize</div>
+    </aside>
+  </div>
+
+  <!-- Modals -->
+  <div class="modal-backdrop" id="modalBackdrop">
+    <div class="modal card" id="addModal" style="display:none">
+      <h3>أضف مصروف / دخل</h3>
+      <div style="margin-top:10px;display:flex;flex-direction:column;gap:8px">
+  <div class="row"><input id="amountInput" placeholder="المبلغ" type="text" inputmode="decimal" pattern="[0-9,\.]+" style="flex:1" /><select id="typeInput" style="width:130px"><option value="expense">مصروف</option></select></div>
+        <div class="row"><select id="categoryInput" style="flex:1"></select><input id="dateInput" type="date" style="width:150px" /></div>
+        <textarea id="notesInput" placeholder="ملاحظات..." rows="2"></textarea>
+        <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:6px">
+          <button class="btn ghost" id="cancelAdd">إلغاء</button>
+          <button class="btn" id="saveAdd">أضف</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal card" id="catsModal" style="display:none">
+      <h3>إدارة الفئات</h3>
+      <div styl
+      e="margin-top:10px;display:flex;flex-direction:column;gap:8px">
+        <div style="display:flex;gap:8px"><input id="newCatName" placeholder="اسم الفئة" /><input id="newCatColor" type="color" value="#ff7b7b" style="width:60px" /><input id="newCatIcon" placeholder="أيقونة (رمز)" style="width:72px" /><button class="btn" id="addCatBtn">أضف</button></div>
+        <div id="catsList"></div>
+        <div style="display:flex;justify-content:flex-end"><button class="btn ghost" id="closeCats">إغلاق</button></div>
+      </div>
+    </div>
+
+    <div class="modal card" id="salaryModal" style="display:none">
+      <h3>أضف / عدل الراتب</h3>
+      <div style="margin-top:10px;display:flex;flex-direction:column;gap:8px">
+        <div style="display:flex;gap:8px;align-items:center">
+          <input id="salaryAmount" placeholder="المبلغ" style="flex:1" />
+          <input id="salaryDate" type="date" style="width:150px" title="تاريخ الإضافة (اختياري)" />
+        </div>
+        <label style="display:flex;gap:8px;align-items:center"><input id="salaryAddNow" type="checkbox" checked /> أضف الراتب الآن إلى هذا الشهر</label>
+        <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:6px">
+          <button class="btn ghost" id="salaryDelete">حذف</button>
+          <button class="btn ghost" id="salaryCancel">إلغاء</button>
+          <button class="btn" id="salarySave">حفظ</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal card" id="configModal" style="display:none">
+      <h3>إعداد Firebase</h3>
+      <div style="margin-top:10px;display:flex;flex-direction:column;gap:8px">
+        <textarea id="firebaseConfigInput" rows="6" placeholder='انسخ هنا محتوى firebase config JSON (object) من لوحة Firebase'></textarea>
+        <div style="display:flex;gap:8px;justify-content:flex-end">
+          <button class="btn ghost" id="closeConfig">إغلاق</button>
+          <button class="btn" id="initFirebaseBtn">Initialize</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast">تمت الإضافة ✅</div>
+
+  <!-- Firebase SDKs (compat) -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+
+  <!-- User-provided Firebase config (saved to localStorage so the app auto-initializes) -->
+  <script>
+    // Firebase config provided by user
+    const firebaseConfig = {
+      apiKey: "AIzaSyDQxzIZjBuk5ngd2c7ZHhmfvzUq9TU26Yw",
+      authDomain: "mony-ecb81.firebaseapp.com",
+      databaseURL: "https://mony-ecb81-default-rtdb.firebaseio.com",
+      projectId: "mony-ecb81",
+      storageBucket: "mony-ecb81.firebasestorage.app",
+      messagingSenderId: "1099032510981",
+      appId: "1:1099032510981:web:36e36003b13ffe6d72926c",
+      measurementId: "G-PVHFMZ82XL"
+    };
+    try{
+      localStorage.setItem('firebaseConfig', JSON.stringify(firebaseConfig));
+      // The main script will pick this up and initialize on load
+      console.info('Firebase config injected to localStorage');
+    }catch(e){console.warn('Could not save firebase config to localStorage', e)}
+  </script>
+
+  <script>
+    /***** Helpers and state *****/
+    // Simple todo: format numbers with comma separators
+    const fmt = (v) => Number(v || 0).toLocaleString('en-US',{maximumFractionDigits:2});
+
+    // Short id generator for local use
+    const uid = ()=> 'id'+Math.random().toString(36).slice(2,9);
+
+  // App state
+  let db = null;
+  let app = null;
+  let categories = {};
+  let expenses = {};
+  let editingExpenseId = null;
+
+    // DOM refs
+    const refs = {};
+
+    function $(id){return document.getElementById(id)}
+
+  // Toast — accepts HTML string
+  function showToast(msg='تمت الإضافة ✅',dur=3500){const t=$('toast'); t.innerHTML = String(msg); t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),dur)}
+
+    // Number formatting helpers (global) - used across functions
+    function formatNumberWithCommas(value){
+      if(value === null || value === undefined) return '';
+      const parts = String(value).replace(/[^0-9.\-]/g,'').split('.');
+      // remove leading zeros except if single zero
+      parts[0] = parts[0].replace(/^0+(?=\d)/, '') || '0';
+      parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+      return parts.length>1 ? parts[0] + '.' + parts[1].slice(0,2) : parts[0];
+    }
+
+    function parseFormattedNumber(str){
+      if(!str) return 0;
+      const cleaned = String(str).replace(/,/g,'').replace(/[^0-9.\-]/g,'');
+      return Number(cleaned) || 0;
+    }
+
+    // Date formatting helper: accept ISO 'YYYY-MM-DD' or other strings and return 'DD/MM/YYYY'
+    function formatDisplayDate(d){
+      if(!d) return '';
+      try{
+        // if already looks like YYYY-MM-DD
+        if(/^\d{4}-\d{1,2}-\d{1,2}$/.test(d)){
+          const [y,m,day] = d.split('-');
+          return String(day).padStart(2,'0') + '/' + String(m).padStart(2,'0') + '/' + y;
+        }
+        // try parsing as Date
+        const dt = new Date(d);
+        if(!isNaN(dt.getTime())){
+          const dd = String(dt.getDate()).padStart(2,'0');
+          const mm = String(dt.getMonth()+1).padStart(2,'0');
+          const yy = dt.getFullYear();
+          return dd + '/' + mm + '/' + yy;
+        }
+      }catch(e){}
+      return String(d);
+    }
+
+    // Offline helpers: pending expenses queue stored locally until synced
+    const PENDING_KEY = 'pendingExpenses';
+    function getPendingExpenses(){ try{ return JSON.parse(localStorage.getItem(PENDING_KEY)||'{}'); }catch(e){ return {}; } }
+    function savePendingExpenses(obj){ localStorage.setItem(PENDING_KEY, JSON.stringify(obj)); }
+    function enqueuePendingExpense(payload){ const id = 'local_'+uid(); const p = {...payload, _localId:id, _createdAt:Date.now()}; const all = getPendingExpenses(); all[id]=p; savePendingExpenses(all); return id; }
+    function removePendingExpense(id){ const all = getPendingExpenses(); delete all[id]; savePendingExpenses(all); }
+
+    // Try to sync pending expenses to Firebase when possible
+    async function syncPendingExpenses(){
+      const pending = getPendingExpenses(); const keys = Object.keys(pending||{}); if(!keys.length) return 0;
+      if(!db) return 0;
+      let synced = 0;
+      for(const id of keys){
+        const p = {...pending[id]};
+        // strip local-only fields
+        delete p._localId; delete p._createdAt;
+        try{
+          await db.ref('expenses').push().set(p);
+          removePendingExpense(id);
+          synced++;
+        }catch(e){ console.warn('sync failed for', id, e); }
+      }
+      if(synced) showToast('تمت مزامنة ' + synced + ' عنصر(عناصر) إلى Firebase ✅', 3500);
+      return synced;
+    }
+
+    // Month placeholders helpers (so months appear even if empty)
+    const MONTHS_PLACEHOLDER_KEY = 'localMonthPlaceholders';
+    function getLocalMonthPlaceholders(){ try{ return JSON.parse(localStorage.getItem(MONTHS_PLACEHOLDER_KEY)||'{}'); }catch(e){return{}} }
+    function saveLocalMonthPlaceholders(obj){ localStorage.setItem(MONTHS_PLACEHOLDER_KEY, JSON.stringify(obj)); }
+    function ensureMonthPlaceholder(yyyyMM){
+      // persist placeholder either in Firebase (recommended) or localStorage
+      if(db){
+        db.ref('settings/monthPlaceholders/'+yyyyMM).set(true).catch(e=>console.warn('could not set month placeholder',e));
+      } else {
+        const p = getLocalMonthPlaceholders(); p[yyyyMM]=true; saveLocalMonthPlaceholders(p);
+      }
+    }
+    // Return merged months placeholders from settings (firebase) and local
+    function getMergedMonthPlaceholders(){
+      const res = {};
+      try{ if(window.settings && window.settings.monthPlaceholders) Object.assign(res, window.settings.monthPlaceholders); }catch(e){}
+      const local = getLocalMonthPlaceholders(); Object.assign(res, local);
+      return res;
+    }
+
+    // Return merged expenses object (Firebase + pending local)
+    function getAllExpensesObject(){
+      const merged = {};
+      try{ Object.assign(merged, expenses); }catch(e){}
+      const pending = getPendingExpenses();
+      for(const [id,p] of Object.entries(pending||{})){
+        merged[id] = {...p}; // keep local id
+      }
+      return merged;
+    }
+
+    function attachFormattedInput(el){
+      if(!el) return;
+      el.addEventListener('input', (ev) => {
+        const selectionStart = el.selectionStart;
+        const oldValue = el.value;
+        const raw = String(oldValue).replace(/,/g,'');
+        const formatted = formatNumberWithCommas(raw);
+        el.value = formatted;
+        try{ const newPos = Math.max(0, formatted.length - (oldValue.length - selectionStart)); el.setSelectionRange(newPos, newPos); }catch(e){}
+      });
+      el.addEventListener('blur', ()=>{ el.value = formatNumberWithCommas(el.value); });
+    }
+
+    /***** Firebase initialization (user pastes config JSON) *****/
+    function initFirebaseFromConfigString(cfgStr){
+      try{
+        const cfg = JSON.parse(cfgStr);
+        // Save locally so user doesn't need to paste again
+        localStorage.setItem('firebaseConfig', JSON.stringify(cfg));
+        if(app){app.delete && app.delete();}
+        app = firebase.initializeApp(cfg);
+        db = firebase.database();
+        attachListeners();
+        showToast('Firebase متصل ✅');
+        closeModalAndBackdrop();
+        return true;
+      }catch(e){alert('خطأ بملف config: '+e.message);return false}
+    }
+
+    /***** Realtime listeners and syncing *****/
+    function attachListeners(){
+      if(!db) return;
+      // Categories
+      db.ref('categories').on('value', snap=>{
+        categories = snap.val() || {};
+        renderCategoriesUI();
+        populateCategorySelects();
+        computeAndRender();
+      });
+
+      // Expenses
+      db.ref('expenses').on('value', snap=>{
+        expenses = snap.val() || {};
+        computeAndRender();
+      });
+
+      // Settings (budgets)
+      db.ref('settings').on('value', snap=>{
+        window.settings = snap.val() || {};
+        computeAndRender();
+      });
+    }
+
+    /***** CRUD operations *****/
+    function addExpense(payload){
+      payload.createdAt = Date.now();
+      // if Firebase available, write directly
+      if(db){
+        const ref = db.ref('expenses').push();
+        ref.set(payload).then(()=>{
+          const tmsg = `<div style="font-weight:700;color:#fff">${payload.type==='income'?'+':'-'} ${fmt(payload.amount)}</div><div style="font-size:12px;color:rgba(255,255,255,0.95)">${formatDisplayDate(payload.date)}${payload.notes? ' • '+(payload.notes||'') : ''}</div>`;
+          showToast(tmsg, 4200);
+          // try sync any pending too
+          try{ syncPendingExpenses(); }catch(e){}
+        }).catch(e=>alert('خطأ الحفظ: '+e.message));
+      } else {
+        // offline: enqueue locally and show toast
+        const localId = enqueuePendingExpense(payload);
+        const tmsg = `<div style="font-weight:700;color:#111">محليًا محفوظ: ${fmt(payload.amount)}</div><div style="font-size:12px;color:#333">${formatDisplayDate(payload.date)}${payload.notes? ' • '+(payload.notes||'') : ''}</div>`;
+        showToast(tmsg, 4200);
+        // update UI immediately by adding to local in-memory view
+      }
+    }
+
+    function addCategory(cat){
+      if(!db){alert('ربط Firebase مطلوب.');return}
+      const ref = db.ref('categories').push();
+      ref.set(cat);
+    }
+
+    // Ensure there is a category called 'راتب' and return its id (creates it if missing)
+    function ensureSalaryCategory(){
+      return new Promise((resolve, reject)=>{
+        // try find existing
+        for(const [id,c] of Object.entries(categories||{})){
+          if((c.name||'').toLowerCase() === 'راتب') return resolve(id);
+        }
+        if(!db) return reject(new Error('Firebase غير متصل. لا يمكن إنشاء فئة جديدة بدون اتصال.'));
+        // create new category and return its key
+        const ref = db.ref('categories').push();
+        const payload = { name:'راتب', color:'#60a5fa', icon:'💰' };
+        ref.set(payload, (err)=>{
+          if(err) return reject(err);
+          // small delay until listener refreshes categories; but we can still resolve with ref.key
+          resolve(ref.key);
+        });
+      });
+    }
+
+    // find recurring 'راتب' entry if exists (firebase or local)
+    function findSalaryRecurring(){
+      const recs = (window.settings && window.settings.recurringIncomes) || {};
+      for(const [id,r] of Object.entries(recs||{})){
+        if((r.name||'').toLowerCase() === 'راتب') return {id, item:r};
+      }
+      try{ const local = JSON.parse(localStorage.getItem('localRecurringIncomes')||'{}'); for(const [id,r] of Object.entries(local||{})){ if((r.name||'').toLowerCase()==='راتب') return {id, item:r}; } }catch(e){}
+      return null;
+    }
+
+    function updateExpense(id, payload){
+      if(!db){alert('ربط Firebase مطلوب.');return}
+      db.ref('expenses/'+id).update({...payload}).then(()=>{
+        showToast('تم التعديل ✅');
+      }).catch(e=>alert('خطأ التعديل: '+e.message));
+    }
+
+    function deleteExpense(id){
+      if(!db){alert('ربط Firebase مطلوب.');return}
+      if(!confirm('هل تريد حذف هذا المصروف؟')) return;
+      db.ref('expenses/'+id).remove().then(()=>{
+        showToast('حُذف العنصر ✅');
+      }).catch(e=>alert('خطأ الحذف: '+e.message));
+    }
+
+    function exportExpensesCSV(filteredList){
+      const rows = [['id','date','type','category','amount','notes']];
+      for(const e of filteredList){
+        rows.push([e.id, e.date, e.type, (categories[e.categoryId]?.name)||e.categoryId||'', Number(e.amount)||0, (e.notes||'')]);
+      }
+      const csv = rows.map(r=>r.map(c=>`"${String(c).replace(/"/g,'""')}"`).join(',')).join('\n');
+      const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a'); a.href = url; a.download = 'expenses.csv'; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+      showToast('تم تنزيل CSV ✅');
+    }
+
+    function deleteCategory(catId){
+      if(!db) return;
+      // Reassigning or deleting expenses in that category is left to user. We'll just delete category.
+      db.ref('categories/'+catId).remove();
+    }
+
+    function saveBudgetForMonth(yyyyMM, amount){
+      if(!db) return;
+      db.ref('settings/monthlyBudgets/'+yyyyMM).set(Number(amount));
+    }
+
+    // Recurring incomes (salary) - add/update/delete with localStorage fallback when Firebase not connected
+    function addRecurringIncome(payload){
+      if(db){
+        const ref = db.ref('settings/recurringIncomes').push();
+        ref.set(payload).then(()=>{ showToast('تمت إضافة بند متكرر ✅'); }).catch(e=>alert('خطأ الحفظ: '+e.message));
+        return ref.key;
+      } else {
+        // local fallback
+        const local = JSON.parse(localStorage.getItem('localRecurringIncomes')||'{}');
+        const id = uid();
+        local[id] = payload;
+        localStorage.setItem('localRecurringIncomes', JSON.stringify(local));
+        // also reflect in window.settings for immediate UI updates
+        window.settings = window.settings || {};
+        window.settings.recurringIncomes = window.settings.recurringIncomes || {};
+        window.settings.recurringIncomes['local_'+id] = payload;
+        computeAndRender();
+        showToast('تمت إضافة بند متكرر (محلي) ✅');
+        return 'local_'+id;
+      }
+    }
+
+    function updateRecurringIncome(id, payload){
+      if(db){
+        db.ref('settings/recurringIncomes/'+id).set(payload).then(()=>{ showToast('تم تحديث البند المتكرر ✅'); }).catch(e=>alert('خطأ التعديل: '+e.message));
+      } else {
+        try{
+          const local = JSON.parse(localStorage.getItem('localRecurringIncomes')||'{}');
+          const realId = id.startsWith('local_') ? id.slice(6) : id;
+          if(local[realId]) local[realId] = payload;
+          localStorage.setItem('localRecurringIncomes', JSON.stringify(local));
+          window.settings = window.settings || {};
+          window.settings.recurringIncomes = window.settings.recurringIncomes || {};
+          window.settings.recurringIncomes[id] = payload;
+          computeAndRender();
+          showToast('تم تحديث البند المتكرر (محلي) ✅');
+        }catch(e){alert('خطأ التعديل المحلي: '+e.message)}
+      }
+    }
+
+    function deleteRecurringIncome(id){
+      if(db){
+        db.ref('settings/recurringIncomes/'+id).remove().then(()=>{ showToast('حُذف البند المتكرر ✅'); }).catch(e=>alert('خطأ الحذف: '+e.message));
+      } else {
+        try{
+          const local = JSON.parse(localStorage.getItem('localRecurringIncomes')||'{}');
+          const realId = id.startsWith('local_') ? id.slice(6) : id;
+          delete local[realId];
+          localStorage.setItem('localRecurringIncomes', JSON.stringify(local));
+          if(window.settings && window.settings.recurringIncomes) delete window.settings.recurringIncomes[id];
+          computeAndRender();
+          showToast('تم حذف البند المتكرر (محلي) ✅');
+        }catch(e){alert('خطأ الحذف المحلي: '+e.message)}
+      }
+    }
+
+    /***** UI rendering and computations *****/
+    function computeAndRender(){
+      // Group expenses by month YYYY-MM
+      const months = {};
+      const allObj = getAllExpensesObject();
+      const allExpenses = Object.entries(allObj).map(([id,e])=>({id,...e}));
+      for(const e of allExpenses){
+        const d = new Date(e.date);
+        const yyyyMM = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0');
+        months[yyyyMM] = months[yyyyMM] || [];
+        months[yyyyMM].push(e);
+      }
+
+      // Sort months desc
+      let monthKeys = Object.keys(months).sort((a,b)=>b.localeCompare(a));
+      // Include persisted month placeholders (DB or local) and ensure current/next exist
+      try{
+        const placeholders = getMergedMonthPlaceholders();
+        const s = new Set(monthKeys);
+        Object.keys(placeholders||{}).forEach(k=>s.add(k));
+        const now = new Date();
+        const currentMM = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0');
+        const next = new Date(now.getFullYear(), now.getMonth()+1, 1);
+        const nextMM = next.getFullYear() + '-' + String(next.getMonth()+1).padStart(2,'0');
+        s.add(currentMM); s.add(nextMM);
+        monthKeys = Array.from(s).sort((a,b)=>b.localeCompare(a));
+      }catch(e){}
+      renderMonthChips(monthKeys);
+      populateFilterMonths(monthKeys);
+
+      // totals
+      let totalIncome=0, totalExpense=0;
+      for(const e of allExpenses){
+        const amt = Number(e.amount)||0;
+        if(e.type==='income') totalIncome += amt; else totalExpense += amt;
+      }
+      $('totalIncome').textContent = fmt(totalIncome);
+      $('totalExpense').textContent = fmt(totalExpense);
+      $('balance').textContent = fmt(totalIncome - totalExpense);
+
+      // Render expenses list (apply filters)
+      renderExpensesList(allExpenses);
+
+  // Charts
+  renderBarChart(monthKeys.slice(0,6).reverse(), months);
+  renderPieChartForSelectedMonth();
+
+      // budget
+      updateBudgetUI();
+    }
+
+    function renderMonthChips(monthKeys){
+      const el = $('monthChips'); el.innerHTML='';
+      const addAll = document.createElement('button'); addAll.className='month-chip'; addAll.textContent='كل الأشهر'; addAll.onclick=()=>{ $('filterMonth').value=''; $('selectedMonthTitle').textContent='كل الأشهر'; computeAndRender(); };
+      el.appendChild(addAll);
+      for(const m of monthKeys){
+        const btn = document.createElement('button'); btn.className='month-chip'; btn.textContent=m; btn.onclick=()=>{ $('filterMonth').value=m; $('selectedMonthTitle').textContent=m; computeAndRender(); };
+        el.appendChild(btn);
+      }
+    }
+
+    function renderExpensesList(items){
+      const search = $('searchInput').value.trim().toLowerCase();
+      const catFilter = $('filterCategory').value;
+      const monthFilter = $('filterMonth').value;
+      let list = items.slice();
+      if(search){
+        list = list.filter(e=>((e.notes||'')+ (categories[e.categoryId]?.name||'') + (e.amount||'')).toLowerCase().includes(search));
+      }
+      if(catFilter) list = list.filter(e=>e.categoryId === catFilter);
+      if(monthFilter) list = list.filter(e=>{const d=new Date(e.date); const key = d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0'); return key===monthFilter});
+
+      const out = $('expensesList'); out.innerHTML='';
+      list.sort((a,b)=>b.createdAt - a.createdAt);
+      for(const e of list){
+        const row = document.createElement('div'); row.className='expense card';
+        const left = document.createElement('div'); left.className='left';
+        const cat = categories[e.categoryId] || {name:'بدون',color:'#999',icon:'❔'};
+        const badge = document.createElement('div'); badge.className='cat-badge'; badge.style.background=cat.color; badge.textContent = cat.icon || '•';
+  const meta = document.createElement('div');
+  const titleLine = document.createElement('div');
+  titleLine.style.fontWeight = '600';
+  titleLine.style.color = 'var(--text)';
+  titleLine.textContent = `${cat.name} • ${fmt(e.amount)}`;
+  const dateEl = document.createElement('div');
+  dateEl.className = 'entry-date';
+  dateEl.textContent = formatDisplayDate(e.date);
+  const notesEl = document.createElement('div');
+  notesEl.className = 'entry-notes';
+  notesEl.textContent = e.notes || '';
+  meta.appendChild(titleLine);
+  meta.appendChild(dateEl);
+  if(e.notes) meta.appendChild(notesEl);
+  left.appendChild(badge);
+  left.appendChild(meta);
+
+  const right = document.createElement('div'); right.className='right'; right.style.textAlign='right';
+  const mainVal = document.createElement('div'); mainVal.style.fontWeight = '700'; mainVal.style.color = e.type==='income' ? 'var(--accent-start)' : 'var(--danger)'; mainVal.textContent = (e.type==='income'?'+':'-') + ' ' + fmt(e.amount);
+        const sub = document.createElement('div'); sub.className = 'muted'; sub.textContent = e.createdAt? new Date(e.createdAt).toLocaleString() : '';
+
+        // action buttons
+        const actions = document.createElement('div'); actions.style.display='flex'; actions.style.gap='6px'; actions.style.justifyContent='flex-end'; actions.style.marginTop='6px';
+        const editBtn = document.createElement('button'); editBtn.className='btn ghost'; editBtn.style.padding='6px 8px'; editBtn.textContent='تعديل';
+        editBtn.onclick = ()=>{
+          // populate modal for editing
+          editingExpenseId = e.id;
+          refs.amountInput.value = formatNumberWithCommas(String(e.amount || '0'));
+          refs.typeInput.value = e.type || 'expense';
+          refs.categoryInput.value = e.categoryId || '';
+          refs.dateInput.value = e.date || new Date().toISOString().slice(0,10);
+          refs.notesInput.value = e.notes || '';
+          refs.saveAdd.textContent = 'تعديل';
+          openModal('addModal');
+        };
+        const delBtn = document.createElement('button'); delBtn.className='btn ghost'; delBtn.style.padding='6px 8px'; delBtn.textContent='حذف';
+        delBtn.onclick = ()=>{ deleteExpense(e.id); };
+
+        actions.appendChild(editBtn); actions.appendChild(delBtn);
+
+        right.appendChild(mainVal); right.appendChild(sub); right.appendChild(actions);
+
+        row.appendChild(left); row.appendChild(right);
+        out.appendChild(row);
+      }
+    }
+
+    function populateCategorySelects(){
+      const sel = $('categoryInput'); const filter = $('filterCategory'); sel.innerHTML=''; filter.innerHTML='<option value="">كل الفئات</option>';
+      for(const [id,c] of Object.entries(categories)){
+        const o = document.createElement('option'); o.value=id; o.textContent=c.name; sel.appendChild(o);
+        const f = document.createElement('option'); f.value=id; f.textContent=c.name; filter.appendChild(f);
+      }
+    }
+
+    function renderCategoriesUI(){
+      const list = $('catsList'); list.innerHTML='';
+      for(const [id,c] of Object.entries(categories)){
+        const el = document.createElement('div'); el.style.display='flex'; el.style.justifyContent='space-between'; el.style.alignItems='center'; el.style.padding='8px 0';
+        const left = document.createElement('div'); left.className='flex'; left.innerHTML = `<div class=cat-badge style=background:${c.color}>${c.icon||'•'}</div><div style=marginInlineStart:10px><div style=font-weight:600>${c.name}</div><div class=muted small>${c.id||id}</div></div>`;
+        const del = document.createElement('button'); del.className='btn ghost'; del.textContent='حذف'; del.onclick=()=>{ if(confirm('حذف هذه الفئة؟')) deleteCategory(id); };
+        el.appendChild(left); el.appendChild(del); list.appendChild(el);
+      }
+    }
+
+    function populateFilterMonths(monthKeys){
+      const sel = $('filterMonth'); const prev = sel.value; sel.innerHTML = '<option value="">كل الأشهر</option>';
+      for(const m of monthKeys){ const o=document.createElement('option'); o.value=m; o.textContent=m; sel.appendChild(o);} if(prev) sel.value = prev;
+    }
+
+    /***** Charts (vanilla canvas) *****/
+    function renderBarChart(monthKeys, months){
+      const c = $('barChart'); const ctx = c.getContext('2d'); c.width = c.clientWidth*devicePixelRatio; c.height = 180*devicePixelRatio; ctx.scale(devicePixelRatio,devicePixelRatio);
+      // clear
+      ctx.clearRect(0,0,c.clientWidth,180);
+      const w = c.clientWidth; const h = 160;
+      const padding = 20; const barWidth = Math.max(18, (w - padding*2) / Math.max(1, monthKeys.length) - 12);
+      // compute totals per month (expense total)
+      const totals = monthKeys.map(k=>{ const arr = months[k]||[]; return arr.reduce((s,x)=> s + (x.type==='expense'?Number(x.amount): -Number(x.amount)),0) });
+      const max = Math.max(...totals.map(Math.abs),1);
+      // draw bars
+      monthKeys.forEach((k,i)=>{
+        const val = totals[i]; const x = padding + i*(barWidth+12);
+        const barH = Math.abs(val)/max * (h-40);
+        ctx.fillStyle = val<0 ? '#ff7b7b' : 'rgba(108,92,231,0.9)';
+        ctx.fillRect(x, h - barH, barWidth, barH);
+        ctx.fillStyle = '#333'; ctx.font = '12px Poppins'; ctx.fillText(k, x, h+12);
+      });
+    }
+
+    function renderPieChartForSelectedMonth(){
+      const monthSel = $('filterMonth').value; if(!monthSel) return; // only show when a month selected
+      const month = monthSel;
+      // collect category totals in month
+      const totals = {};
+      const allObj = getAllExpensesObject();
+      for(const [id,e] of Object.entries(allObj)){
+        const d = new Date(e.date); const key = d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');
+        if(key !== month) continue;
+        const cat = e.categoryId || 'uncat';
+        totals[cat] = (totals[cat]||0) + Number(e.amount || 0);
+      }
+      const entries = Object.entries(totals).sort((a,b)=>b[1]-a[1]);
+      // draw pie
+      const c = $('pieChart'); const ctx = c.getContext('2d'); c.width = c.clientWidth*devicePixelRatio; c.height = 160*devicePixelRatio; ctx.scale(devicePixelRatio,devicePixelRatio);
+      ctx.clearRect(0,0,c.clientWidth,160);
+      const w = c.clientWidth; const cx = w/2; const cy = 80; const r = 60;
+      let start = -Math.PI/2; const total = entries.reduce((s,_)=>s+_[1],0) || 1;
+      entries.forEach(([cid,val],i)=>{
+        const slice = val/total * Math.PI*2; const end = start + slice;
+        ctx.beginPath(); ctx.moveTo(cx,cy); ctx.arc(cx,cy,r,start,end); ctx.closePath();
+        const color = categories[cid]?.color || `hsl(${(i*60)%360} 70% 60%)`;
+        ctx.fillStyle = color; ctx.fill();
+        start = end;
+      });
+      // legend
+      ctx.fillStyle='#333'; ctx.font='12px Poppins'; let yy=10; entries.forEach(([cid,val],i)=>{ ctx.fillText(`${categories[cid]?.name||cid} (${Math.round(val/total*100)}%)`, 10, yy+=14) });
+    }
+
+    /***** Budget UI *****/
+    function updateBudgetUI(){
+      const month = $('filterMonth').value || (new Date()).getFullYear()+'-'+String(new Date().getMonth()+1).padStart(2,'0');
+      const used = Object.values(expenses).filter(e=>{ const k=(new Date(e.date)).getFullYear()+'-'+String(new Date(e.date).getMonth()+1).padStart(2,'0'); return k===month }).reduce((s,e)=>s+ (e.type==='expense'?Number(e.amount): -Number(e.amount)),0);
+      const bud = (window.settings && window.settings.monthlyBudgets && window.settings.monthlyBudgets[month]) || 0;
+      const percent = bud>0 ? Math.round(used / bud * 100) : 0;
+      $('budgetBar').style.width = Math.min(100,percent) + '%';
+      $('budgetPercent').textContent = percent + '%';
+      if(bud>0 && used > bud){
+        // show alert
+        $('budgetPercent').style.color = 'var(--danger)';
+        showToast('تجاوزت الميزانية ⚠️');
+      } else $('budgetPercent').style.color='';
+    }
+
+    /***** Modal helpers *****/
+    function openModal(modalId){
+      $('modalBackdrop').style.display='flex';
+      document.querySelectorAll('.modal').forEach(m=>m.style.display='none');
+      $(modalId).style.display='block';
+    }
+    function closeModalAndBackdrop(){
+      $('modalBackdrop').style.display='none';
+      document.querySelectorAll('.modal').forEach(m=>m.style.display='none');
+    }
+
+    /***** Wire events on DOMContentLoaded *****/
+    document.addEventListener('DOMContentLoaded', ()=>{
+      // refs
+  ['searchInput','filterCategory','filterMonth','openAddBtn','addSalaryBtn','clearMonthBtn','openCatsBtn','addCatBtn','saveAdd','cancelAdd','addModal','catsModal','salaryModal','configModal','modalBackdrop','initFirebaseBtn','firebaseConfigInput','closeConfig','closeCats','newCatName','newCatColor','newCatIcon','catsList','amountInput','typeInput','categoryInput','dateInput','notesInput','salaryAmount','salaryDate','salaryAddNow','salarySave','salaryDelete','salaryCancel','saveBudgetBtn','budgetInput'].forEach(id=>refs[id]=$(id));
+
+  // buttons
+  refs.openAddBtn.onclick = ()=>{ editingExpenseId = null; refs.saveAdd.textContent = 'أضف'; openModal('addModal'); refs.dateInput.value = new Date().toISOString().slice(0,10); };
+      refs.cancelAdd.onclick = closeModalAndBackdrop;
+      refs.openCatsBtn.onclick = ()=>openModal('catsModal');
+      refs.closeCats.onclick = closeModalAndBackdrop;
+  // (config modal remains accessible via settings area) openConfigBtn removed from header
+      refs.closeConfig.onclick = closeModalAndBackdrop;
+
+      // add / edit expense
+      refs.saveAdd.onclick = ()=>{
+        const amt = parseFormattedNumber(refs.amountInput.value || '0'); if(!amt){ alert('المبلغ مطلوب'); return }
+        const payload = { amount: Math.abs(amt), categoryId: refs.categoryInput.value || '', notes: refs.notesInput.value, date: refs.dateInput.value || new Date().toISOString().slice(0,10), type: refs.typeInput.value };
+        if(editingExpenseId){
+          // update
+          updateExpense(editingExpenseId, payload);
+        } else {
+          addExpense(payload);
+        }
+        // clear
+        refs.amountInput.value=''; refs.notesInput.value=''; editingExpenseId = null; refs.saveAdd.textContent = 'أضف'; closeModalAndBackdrop();
+      };
+
+      // open salary modal for add/edit
+      if(refs.addSalaryBtn){ refs.addSalaryBtn.onclick = ()=>{
+        // prefill from existing recurring if present
+        const found = findSalaryRecurring();
+        if(found){
+          refs.salaryAmount.value = formatNumberWithCommas(String(found.item.amount||0));
+          refs.salarySave.dataset.editing = found.id;
+        } else {
+          refs.salaryAmount.value = formatNumberWithCommas(localStorage.getItem('lastSalary')||'30000');
+          delete refs.salarySave.dataset.editing;
+        }
+        refs.salaryDate.value = new Date().toISOString().slice(0,10);
+        refs.salaryAddNow.checked = true;
+        openModal('salaryModal');
+        try{ refs.salaryAmount.focus(); }catch(e){}
+      } }
+
+      // add category
+      refs.addCatBtn.onclick = ()=>{
+        const name = refs.newCatName.value.trim(); if(!name){alert('اسم الفئة مطلوب');return}
+        addCategory({name, color: refs.newCatColor.value, icon: refs.newCatIcon.value || '•'});
+        refs.newCatName.value=''; refs.newCatIcon.value='';
+      };
+
+      // salary modal actions
+      if(refs.salarySave){ refs.salarySave.onclick = async ()=>{
+        const amt = parseFormattedNumber(refs.salaryAmount.value||'0'); if(!amt){ alert('المبلغ مطلوب'); return }
+        const payload = { name: 'راتب', amount: Math.abs(amt), notes: '' };
+        const editing = refs.salarySave.dataset.editing;
+        try{
+          if(editing) updateRecurringIncome(editing, payload); else addRecurringIncome(payload);
+          localStorage.setItem('lastSalary', String(Math.abs(amt)));
+          // optionally add now to expenses
+          if(refs.salaryAddNow && refs.salaryAddNow.checked){
+            const catId = await ensureSalaryCategory();
+            const date = refs.salaryDate.value || new Date().toISOString().slice(0,10);
+            addExpense({ amount: Math.abs(amt), categoryId: catId||'', notes:'راتب', date, type:'income' });
+          }
+          closeModalAndBackdrop();
+        }catch(e){ alert('خطأ بالحفظ: '+(e.message||e)); }
+      }}
+
+      if(refs.salaryDelete){ refs.salaryDelete.onclick = ()=>{
+        const editing = refs.salarySave.dataset.editing; if(!editing){ alert('لا يوجد بند متكرر للحذف'); return }
+        deleteRecurringIncome(editing); delete refs.salarySave.dataset.editing; refs.salaryAmount.value='';
+      }}
+
+      if(refs.salaryCancel) refs.salaryCancel.onclick = closeModalAndBackdrop;
+
+      // attach formatted input to salary amount
+      try{ attachFormattedInput(refs.salaryAmount); }catch(e){}
+
+      // config initialize
+      refs.initFirebaseBtn.onclick = ()=>{
+        const txt = refs.firebaseConfigInput.value.trim(); if(!txt){alert('الصق الconfig JSON');return}
+        initFirebaseFromConfigString(txt);
+      };
+
+      // budget
+      refs.saveBudgetBtn.onclick = ()=>{
+        const val = parseFormattedNumber(refs.budgetInput.value||'0');
+        const month = $('filterMonth').value || (new Date()).getFullYear()+'-'+String(new Date().getMonth()+1).padStart(2,'0');
+        saveBudgetForMonth(month,val);
+        refs.budgetInput.value='';
+      };
+
+      // export button removed from header; exportExpensesCSV still available for future use
+
+      // clear all expenses in selected month
+      refs.clearMonthBtn.onclick = ()=>{
+        const monthFilter = refs.filterMonth.value || (new Date()).getFullYear()+'-'+String(new Date().getMonth()+1).padStart(2,'0');
+        if(!confirm('هل تريد حذف جميع المصاريف للشهر ' + monthFilter + ' ؟\nهذه العملية لا يمكن التراجع عنها.')) return;
+        for(const [id,e] of Object.entries(expenses)){
+          const d = new Date(e.date); const key = d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');
+          if(key === monthFilter){ db.ref('expenses/'+id).remove(); }
+        }
+        showToast('تم حذف مصاريف الشهر ✅');
+      };
+
+      // filters
+      refs.searchInput.oninput = debounce(()=>computeAndRender(), 300);
+      refs.filterCategory.onchange = ()=>computeAndRender();
+      refs.filterMonth.onchange = ()=>{ computeAndRender(); renderPieChartForSelectedMonth(); };
+
+      // load cached firebase config automatically if present
+      const cached = localStorage.getItem('firebaseConfig');
+      if(cached){ try{ initFirebaseFromConfigString(cached); }catch(e){console.log('no init') } }
+
+      // Try to sync pending local expenses when app loads (if firebase available later attach will call sync too)
+      try{ syncPendingExpenses(); }catch(e){}
+
+      // Ensure current and next month placeholders exist (persisted) so user can add for next month
+      try{
+        const now = new Date();
+        const currentMM = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0');
+        const next = new Date(now.getFullYear(), now.getMonth()+1, 1);
+        const nextMM = next.getFullYear() + '-' + String(next.getMonth()+1).padStart(2,'0');
+        ensureMonthPlaceholder(currentMM);
+        ensureMonthPlaceholder(nextMM);
+      }catch(e){}
+
+      // Online/offline events: attempt auto-init and sync when connection returns
+      window.addEventListener('online', ()=>{
+        showToast('تم الاتصال بالإنترنت — حاولت المزامنة',2000);
+        const cached = localStorage.getItem('firebaseConfig');
+        if(cached && !db){ try{ initFirebaseFromConfigString(cached); }catch(e){ console.warn('init on online failed', e); } }
+        try{ syncPendingExpenses(); }catch(e){console.warn(e)}
+      });
+      window.addEventListener('offline', ()=>{ showToast('أنت غير متصل. سيتم الحفظ محليًا'); });
+      // also ensure month placeholders when we go online (persist next month in DB if possible)
+      window.addEventListener('online', ()=>{
+        try{
+          const now = new Date();
+          const next = new Date(now.getFullYear(), now.getMonth()+1, 1);
+          const nextMM = next.getFullYear() + '-' + String(next.getMonth()+1).padStart(2,'0');
+          ensureMonthPlaceholder(nextMM);
+        }catch(e){}
+      });
+
+  // default to current month for quicker daily logging
+  const defaultMonth = (new Date()).getFullYear() + '-' + String((new Date()).getMonth()+1).padStart(2,'0');
+  if(!refs.filterMonth.value) { refs.filterMonth.value = defaultMonth; $('selectedMonthTitle').textContent = defaultMonth; }
+
+      // initial placeholder categories if none (local-first)
+      if(!localStorage.getItem('seededCats')){
+        const sample = {
+          food:{name:'طعام',color:'#ff8a65',icon:'🍔'},
+          transport:{name:'مواصلات',color:'#4fd1c5',icon:'🚗'},
+          clothes:{name:'ملابس',color:'#9f7aea',icon:'👗'}
+        };
+        // only show locally; will be overwritten when firebase loads
+        categories = Object.fromEntries(Object.entries(sample).map(([k,v])=>[k,{...v,id:k}]));
+        localStorage.setItem('seededCats','1');
+        renderCategoriesUI(); populateCategorySelects();
+      }
+
+      // small helpers
+        function debounce(fn,ms){let t;return (...a)=>{clearTimeout(t);t=setTimeout(()=>fn(...a),ms)}}
+
+        // attach to amount and budget inputs for nicer UX (refs available)
+        attachFormattedInput(refs.amountInput);
+        attachFormattedInput(refs.budgetInput);
+
+    });
+
+  </script>
+
+</body>
+</html>

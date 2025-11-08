@@ -7,99 +7,190 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
   <style>
     :root{
-      /* Modern comfortable light theme */
-      --bg: linear-gradient(180deg,#f9fbff 0%, #f6f8fb 100%);
+      /* Theme & palette (soft, mobile-friendly) */
+      --bg: linear-gradient(180deg,#fbfdff 0%, #f3f6fb 100%);
       --card: #ffffff;
-  --text: #0f172a; --muted: #556074;
-      --accent-start:#7c6cff; --accent-end:#5ad0ff; --danger:#ff6b6b; --success:#34d399;
+      --text: #0b1220; --muted: #5b6776;
+      --accent-start:#6b8cff; --accent-end:#5ad0ff; --danger:#ff6b6b; --success:#34d399; --blue:#3b82f6; --gray:#9aa3b2;
       --glass: rgba(255,255,255,0.6);
-      --radius:12px;
+      --radius:14px;
       font-family: 'Poppins', system-ui, Arial;
+      font-size:16px;
     }
     *{box-sizing:border-box}
     html,body{height:100%}
     body{
       margin:0; background:var(--bg); color:var(--text); -webkit-font-smoothing:antialiased;
-      -moz-osx-font-smoothing:grayscale; padding:20px;
+      -moz-osx-font-smoothing:grayscale; padding:20px 18px; -webkit-tap-highlight-color: transparent;
     }
+    /* App grid: main + sidebar */
     .app{
-      max-width:1100px; margin:0 auto; display:grid; gap:18px; grid-template-columns: 1fr 360px;
+      max-width:1100px; margin:0 auto; display:grid; gap:18px; grid-template-columns: 1fr 340px;
+      align-items:start;
     }
     header{display:flex;justify-content:space-between;align-items:center}
-    h1{font-size:18px;margin:0}
+    h1{font-size:20px;margin:0;font-weight:700}
     .top-actions{display:flex;gap:10px;align-items:center}
-  .btn{background:linear-gradient(90deg,var(--accent-start),var(--accent-end));color:#fff;padding:10px 14px;border-radius:12px;border:0;cursor:pointer;transition:transform .18s cubic-bezier(.2,.9,.2,1), box-shadow .18s, opacity .18s;box-shadow:0 8px 26px rgba(92,88,200,.12)}
-  .btn:hover{transform:translateY(-3px) scale(1.02);box-shadow:0 14px 40px rgba(92,88,200,.14)}
-  .btn:active{transform:translateY(-1px) scale(0.995)}
-  .ghost{background:transparent;color:var(--accent-start);box-shadow:none;border:1px solid rgba(124,108,255,.12)}
-    .search{display:flex;gap:10px;align-items:center}
-  input,select,textarea{padding:10px;border-radius:10px;border:1px solid #e6e9ef;background:var(--card);font-family:inherit;color:var(--text)}
-  input::placeholder, textarea::placeholder{color:#9aa3b2}
-  .card{background:var(--card);border-radius:var(--radius);padding:14px;box-shadow:0 8px 24px rgba(16,24,40,.04);transition:transform .18s cubic-bezier(.2,.9,.2,1), box-shadow .18s}
-  .card:hover{transform:translateY(-6px);box-shadow:0 18px 46px rgba(16,24,40,.07)}
+
+    /* Primary button (default) - neutral pleasant gradient */
+    .btn{background:linear-gradient(90deg,var(--accent-start),var(--accent-end));color:#fff;padding:12px 14px;border-radius:12px;border:0;cursor:pointer;transition:transform .14s ease, box-shadow .14s, opacity .14s;font-weight:600;box-shadow:0 10px 30px rgba(16,24,40,.06)}
+    .btn:hover{transform:translateY(-3px);box-shadow:0 18px 40px rgba(16,24,40,.08)}
+    .btn:active{transform:translateY(-1px)}
+
+    /* Ghost style (secondary) - subtle border */
+    .ghost{background:transparent;color:var(--muted);box-shadow:none;border:1px solid rgba(100,110,140,.08)}
+
+    /* Specific semantic colors by ID (do not change any IDs in HTML/JS) */
+    /* Add / Create (green) */
+    #openAddBtn, #addCatBtn, #openAddBtn:focus, #addCatBtn:focus{ background:linear-gradient(90deg,#34d399,#10b981); }
+    /* Save actions (blue) */
+    #saveBudgetCatBtn, #salarySave, #initFirebaseBtn{ background:linear-gradient(90deg,var(--blue),#60a5fa); }
+    /* Cancel-like actions (gray/neutral) */
+    #cancelAdd, #salaryCancel, #closeCats, #closeConfig{ background:transparent; color:var(--muted); border:1px solid rgba(100,110,140,.08); box-shadow:none }
+    /* Clear / Delete month (destructive) */
+    #clearMonthBtn{ background:linear-gradient(90deg,#ff7b7b,#ff5a5a); }
+
+  /* Make the 'الفئات' (categories) button more prominent (purple) */
+  #openCatsBtn{ background: linear-gradient(90deg,#8b5cf6,#7c3aed); color:#fff; border:0 }
+
+    /* For dynamic lists: treat the last ghost button inside an expense/card as Delete (red)
+       This matches the structure where edit then delete buttons are appended. */
+    .expense .btn.ghost:last-child{ background:linear-gradient(90deg,#ff6b6b,#ff4b4b); color:#fff; border:0 }
+
+  /* Edit buttons inside expense rows should be blue for clarity */
+  .expense .btn.ghost:first-child{ background: linear-gradient(90deg,#3b82f6,#60a5fa); color:#fff; border:0 }
+
+    /* Per-category budgets list: make the 'حذف' button visually destructive (red)
+       Target the last button inside the right cell of each budget row so we don't
+       need to change JS or add classes. Also ensure edit+delete buttons are
+       consistent and touch-friendly on phones. */
+    #catBudgetsList > div > div:last-child > button.btn.ghost:last-child{
+      background: linear-gradient(90deg,#ff6b6b,#ff4b4b) !important;
+      color: #fff !important;
+      border: 0 !important;
+      box-shadow: 0 8px 20px rgba(255,90,90,.12) !important;
+      padding: 10px 12px !important;
+      min-width: 64px;
+      font-weight: 700 !important;
+      border-radius: 10px !important;
+      display: inline-flex !important; align-items: center; justify-content: center;
+    }
+
+    /* Make edit + delete buttons inside catBudgetsList consistent */
+    #catBudgetsList button.btn.ghost{
+      padding: 10px 12px !important;
+      min-width: 64px !important;
+      font-weight: 700 !important;
+      border-radius: 10px !important;
+      display: inline-flex !important;
+      align-items: center !important;
+      gap: 8px;
+      color: inherit !important;
+      background: transparent !important;
+      border: 1px solid rgba(100,110,140,.06) !important;
+    }
+
+    /* Make the edit button in the budgets list blue (first button) */
+    #catBudgetsList > div > div:last-child > button.btn.ghost:first-child{
+      background: linear-gradient(90deg,#3b82f6,#60a5fa) !important;
+      color:#fff !important; border:0 !important;
+    }
+
+    /* On small screens make buttons slightly larger for easier touch */
+    @media (max-width:420px){
+      #catBudgetsList button.btn.ghost{ padding:12px 14px !important; min-width:72px !important; }
+      #catBudgetsList > div > div:last-child > button.btn.ghost:last-child{ padding:12px 14px !important; min-width:72px !important; }
+    }
+
+    .search{display:flex;gap:8px;align-items:center}
+    input,select,textarea{padding:12px;border-radius:12px;border:1px solid #e9eef6;background:var(--card);font-family:inherit;color:var(--text);font-size:15px}
+    input::placeholder, textarea::placeholder{color:var(--gray)}
+    .card{background:var(--card);border-radius:var(--radius);padding:16px;box-shadow:0 10px 30px rgba(16,24,40,.04);transition:transform .14s ease, box-shadow .14s}
+    .card:hover{transform:translateY(-4px);box-shadow:0 20px 50px rgba(16,24,40,.06)}
 
     /* left column */
-    .main{display:flex;flex-direction:column;gap:12px}
+    .main{display:flex;flex-direction:column;gap:14px}
     .summary{display:flex;gap:12px}
-    .summary .item{flex:1;padding:12px;border-radius:10px;background:linear-gradient(180deg,rgba(255,255,255,.6),rgba(255,255,255,.4));}
-    .month-list{display:flex;gap:8px;overflow:auto;padding-bottom:6px}
-  .month-chip{padding:8px 12px;border-radius:999px;background:linear-gradient(90deg, rgba(124,108,255,0.12), rgba(90,208,255,0.06));border:1px solid rgba(124,108,255,0.12);color:var(--muted);cursor:pointer;transition:transform .15s, box-shadow .15s}
-  .month-chip:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(124,108,255,0.06)}
+    .summary .item{flex:1;padding:14px;border-radius:12px;background:linear-gradient(180deg,rgba(255,255,255,.6),rgba(255,255,255,.4));}
+    .month-list{display:flex;gap:8px;overflow:auto;padding-bottom:6px;align-items:center}
+    .month-chip{padding:8px 12px;border-radius:999px;background:transparent;border:1px solid rgba(100,110,140,.06);color:var(--muted);cursor:pointer;transition:transform .12s, box-shadow .12s}
+    .month-chip:hover{transform:translateY(-2px);box-shadow:0 8px 18px rgba(16,24,40,.04)}
 
-    .expenses-list{display:flex;flex-direction:column;gap:8px;max-height:420px;overflow:auto;padding-right:6px}
-    .expense{display:flex;justify-content:space-between;align-items:center;padding:10px;border-radius:10px}
+   /* Allow the expenses list to grow taller so more items are visible on mobile.
+     Use a viewport-based calc so it adapts to headers/summaries and keeps scrolling. */
+   .expenses-list{display:flex;flex-direction:column;gap:10px;max-height:calc(100vh - 240px);overflow:auto;padding-right:6px}
+    .expense{display:flex;justify-content:space-between;align-items:center;padding:12px;border-radius:12px}
     .expense .left{display:flex;gap:12px;align-items:center}
-  .cat-badge{width:44px;height:44px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;color:#fff;background:linear-gradient(135deg, rgba(124,108,255,0.9), rgba(90,208,255,0.8));}
-  .muted{color:var(--muted);font-size:13px}
+    .cat-badge{width:46px;height:46px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;color:#fff;background:linear-gradient(135deg, rgba(124,108,255,0.9), rgba(90,208,255,0.8));}
+    .muted{color:var(--muted);font-size:13px}
 
-  /* entry meta (date + notes) clearer and separated */
-  .entry-meta{display:none}
-  .entry-date{color:var(--muted);font-size:13px;margin-top:6px;font-weight:600}
-  .entry-notes{color:var(--text);font-size:14px;margin-top:6px;opacity:0.98;line-height:1.3;font-weight:600}
-  .meta-label{display:inline-block;background:linear-gradient(90deg,var(--accent-start),var(--accent-end));color:#fff;padding:2px 8px;border-radius:999px;font-size:11px;margin-inline-end:8px;font-weight:700}
-  .meta-value{color:inherit}
+    /* entry meta (date + notes) clearer and separated */
+    .entry-meta{display:none}
+    .entry-date{color:var(--muted);font-size:13px;margin-top:6px;font-weight:600}
+    .entry-notes{color:var(--text);font-size:14px;margin-top:6px;opacity:0.98;line-height:1.35;font-weight:600}
+    .meta-label{display:inline-block;background:linear-gradient(90deg,var(--accent-start),var(--accent-end));color:#fff;padding:2px 8px;border-radius:999px;font-size:11px;margin-inline-end:8px;font-weight:700}
+    .meta-value{color:inherit}
 
     /* right column */
     aside{display:flex;flex-direction:column;gap:12px}
     .small{font-size:13px}
 
     /* modals */
-    .modal-backdrop{position:fixed;inset:0;background:rgba(2,6,23,.5);display:none;align-items:center;justify-content:center;z-index:60}
-    .modal{width:420px;max-width:95%;}
+    .modal-backdrop{position:fixed;inset:0;background:rgba(2,6,23,.45);display:none;align-items:center;justify-content:center;z-index:60;padding:18px}
+    .modal{width:520px;max-width:100%;border-radius:14px}
     .modal .card{padding:18px}
     .row{display:flex;gap:8px}
-    @media (max-width:900px){.app{grid-template-columns:1fr; padding-bottom:40px}.aside-hidden{display:none}}
+
+    /* Responsive: mobile-first improvements */
+    @media (max-width:900px){
+      .app{grid-template-columns:1fr; padding-bottom:40px}
+      aside{order:2}
+      .aside-hidden{display:none}
+    }
     @media (max-width:420px){
-      .btn{padding:12px 16px;font-size:15px;border-radius:14px}
-      input,select,textarea{padding:12px;font-size:15px}
+      body{padding:14px}
+      .btn{padding:14px 16px;font-size:16px;border-radius:14px}
+      input,select,textarea{padding:14px;font-size:16px}
       .month-chip{padding:10px 14px}
-      .expense{flex-direction:column;align-items:flex-start}
+  .expense{flex-direction:column;align-items:flex-start}
       .expense .left{width:100%}
-      .right{width:100%;text-align:left;margin-top:8px}
-      .entry-notes{font-size:14px}
-      .entry-date{font-size:13px}
-      .cat-badge{width:40px;height:40px;font-size:18px}
+  .right{width:100%;text-align:left;margin-top:10px}
+  /* Give more vertical space to the expenses list on small phones */
+  .expenses-list{max-height:68vh}
+      .entry-notes{font-size:15px}
+      .entry-date{font-size:14px}
+      .cat-badge{width:42px;height:42px;font-size:18px}
       .actions{display:flex;gap:8px;margin-top:8px}
       .summary{flex-direction:column}
-      header{flex-direction:column;align-items:stretch;gap:8px}
+      header{flex-direction:column;align-items:stretch;gap:10px}
       .top-actions{flex-direction:column;align-items:stretch}
+      .modal{width:100%;max-width:620px}
     }
 
     /* progress */
     .progress{height:12px;background:#eef2ff;border-radius:999px;overflow:hidden}
-  .progress > i{display:block;height:100%;background:linear-gradient(90deg,var(--accent-start),var(--accent-end));width:0;transition:width .6s ease}
+    .progress > i{display:block;height:100%;background:linear-gradient(90deg,var(--accent-start),var(--accent-end));width:0;transition:width .6s ease}
 
     /* charts */
     canvas{width:100%;height:180px}
 
     /* toasts */
-  .toast{position:fixed;right:18px;bottom:18px;background:linear-gradient(90deg,var(--accent-start),var(--accent-end));color:#fff;padding:12px 16px;border-radius:12px;opacity:0;transform:translateY(12px) scale(.98);transition:opacity .24s cubic-bezier(.2,.9,.2,1),transform .24s cubic-bezier(.2,.9,.2,1);box-shadow:0 10px 30px rgba(16,24,40,.08)}
+    .toast{position:fixed;right:18px;bottom:18px;background:linear-gradient(90deg,var(--accent-start),var(--accent-end));color:#fff;padding:12px 16px;border-radius:12px;opacity:0;transform:translateY(12px) scale(.98);transition:opacity .24s cubic-bezier(.2,.9,.2,1),transform .24s cubic-bezier(.2,.9,.2,1);box-shadow:0 10px 30px rgba(16,24,40,.08)}
     .toast.show{opacity:1;transform:translateY(0) scale(1)}
+
+  /* Lightbox for full-size image preview */
+  .lightbox{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(2,6,23,0.8);z-index:9999;padding:18px}
+  .lightbox.show{display:flex}
+  .lightbox img{max-width:100%;max-height:100%;border-radius:12px;box-shadow:0 20px 60px rgba(2,6,23,.6)}
+  img.clickable-thumb{cursor:pointer;border-radius:8px}
+  /* iOS smoothing and momentum scroll improvements */
+  .month-list, .expenses-list{ -webkit-overflow-scrolling:touch }
 
     /* tiny helpers */
     .flex{display:flex;align-items:center}
     .spacer{flex:1}
-
+    /* Hide the raw category ID text rendered as <div class="muted" small>... */
+    #catsList .muted[small], #catsList [small]{ display: none !important; }
   </style>
 </head>
 <body>
@@ -560,6 +651,31 @@
       db.ref('settings/monthlyBudgets/'+yyyyMM).set(Number(amount));
     }
 
+    // Delete per-category budget for a given month (Firebase if available, otherwise local fallback)
+    function deleteCategoryBudgetForMonth(yyyyMM, catId){
+      if(!catId) return;
+      if(db){
+        db.ref('settings/monthlyBudgets/'+yyyyMM+'/categories/'+catId).remove().then(()=>{
+          try{ showToast('تم حذف ميزانية الفئة ✅'); }catch(e){}
+        }).catch(e=>{ alert('خطأ بالحذف: '+e.message); });
+      } else {
+        try{
+          const key = 'localMonthCategoryBudgets';
+          const all = JSON.parse(localStorage.getItem(key)||'{}');
+          if(all[yyyyMM] && all[yyyyMM][catId]){ delete all[yyyyMM][catId]; localStorage.setItem(key, JSON.stringify(all)); }
+          // reflect in window.settings for UI
+          try{
+            if(window.settings && window.settings.monthlyBudgets && window.settings.monthlyBudgets[yyyyMM] && window.settings.monthlyBudgets[yyyyMM].categories){
+              delete window.settings.monthlyBudgets[yyyyMM].categories[catId];
+            }
+          }catch(e){}
+          try{ showToast('تم حذف ميزانية الفئة (محليًا) ✅'); }catch(e){}
+        }catch(e){ console.warn('deleteCategoryBudgetForMonth failed', e) }
+      }
+      // Recompute UI
+      try{ renderCategoryBudgetsList(yyyyMM); computeAndRender(); }catch(e){}
+    }
+
     // Global helper: populate budget category select (safe to call from listeners)
     function populateBudgetCatSelect(){
       const sel = $('budgetCatSelect'); if(!sel) return;
@@ -591,9 +707,16 @@
         const percent = bud>0 ? Math.round((totals[cid]||0)/bud*100) : 0;
         const right = document.createElement('div'); right.style.display='flex'; right.style.alignItems='center'; right.style.gap='8px';
         const p = document.createElement('div'); p.style.minWidth='48px'; p.style.textAlign='right'; p.textContent = percent+'%';
-        const edit = document.createElement('button'); edit.className='btn ghost'; edit.style.padding='6px 8px'; edit.textContent='تعديل';
-        edit.onclick = ()=>{ const sel = $('budgetCatSelect'); if(sel) sel.value = cid; const input = $('budgetCatInput'); if(input) input.value = formatNumberWithCommas(String(bud||0)); };
-        right.appendChild(p); right.appendChild(edit);
+  const edit = document.createElement('button'); edit.className='btn ghost'; edit.style.padding='6px 8px'; edit.textContent='تعديل';
+  edit.onclick = ()=>{ const sel = $('budgetCatSelect'); if(sel) sel.value = cid; const input = $('budgetCatInput'); if(input) input.value = formatNumberWithCommas(String(bud||0)); };
+  const del = document.createElement('button');
+  del.className='btn ghost';
+  del.style.padding='10px 12px';
+  del.style.fontWeight='700';
+  del.style.borderRadius='10px';
+  del.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-inline-end:8px;vertical-align:middle;color:inherit"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path><path d="M10 11v6"></path><path d="M14 11v6"></path><path d="M9 6V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"></path></svg>حذف';
+  del.onclick = ()=>{ if(!confirm('حذف ميزانية الفئة لهذه الفئة للشهر ' + yyyyMM + '؟')) return; deleteCategoryBudgetForMonth(yyyyMM, cid); };
+  right.appendChild(p); right.appendChild(edit); right.appendChild(del);
         row.appendChild(left); row.appendChild(right); el.appendChild(row);
       }
       if(Object.keys(catBud||{}).length===0) el.innerHTML = '<div class="muted small">لا توجد ميزانيات محددة للفئات لهذا الشهر</div>';
@@ -800,8 +923,10 @@
         // receipt thumbnail (if any)
         if(e.imageData){
           try{
-            const thumb = document.createElement('img'); thumb.src = e.imageData; thumb.style.width='56px'; thumb.style.height='56px'; thumb.style.objectFit='cover'; thumb.style.borderRadius='8px'; thumb.style.marginRight='8px'; thumb.style.cursor='pointer';
-            thumb.onclick = ()=>{ try{ window.open(e.imageData, '_blank'); }catch(ex){ console.warn(ex) } };
+            const thumb = document.createElement('img'); thumb.src = e.imageData; thumb.alt = 'صورة الإيصال'; thumb.style.width='56px'; thumb.style.height='56px'; thumb.style.objectFit='cover'; thumb.style.borderRadius='8px'; thumb.style.marginRight='8px';
+            // mark as clickable-thumb and store full image in data attribute; lightbox handler added separately
+            thumb.className = 'clickable-thumb';
+            thumb.dataset.full = e.imageData;
             right.appendChild(thumb);
           }catch(ex){console.warn(ex)}
         }
@@ -820,6 +945,19 @@
           refs.notesInput.value = e.notes || '';
           refs.saveAdd.textContent = 'تعديل';
           openModal('addModal');
+          // populate receipt preview when editing
+          try{
+            refs._removeReceipt = false;
+            if(e.imageData){
+              refs._receiptData = e.imageData;
+              if(refs.receiptPreview) { refs.receiptPreview.src = e.imageData; refs.receiptPreview.style.display = 'block'; }
+              if(refs.removeReceiptBtn) refs.removeReceiptBtn.style.display = 'inline-block';
+            } else {
+              if(refs.receiptPreview) { refs.receiptPreview.src = ''; refs.receiptPreview.style.display = 'none'; }
+              if(refs.receiptInput) refs.receiptInput.value = '';
+              if(refs.removeReceiptBtn) refs.removeReceiptBtn.style.display = 'none';
+            }
+          }catch(ex){console.warn(ex)}
         };
         const delBtn = document.createElement('button'); delBtn.className='btn ghost'; delBtn.style.padding='6px 8px'; delBtn.textContent='حذف';
         delBtn.onclick = ()=>{ deleteExpense(e.id); };
@@ -930,10 +1068,10 @@
   ['searchInput','filterCategory','filterMonth','openAddBtn','addSalaryBtn','clearMonthBtn','openCatsBtn','addCatBtn','saveAdd','cancelAdd','addModal','catsModal','salaryModal','configModal','modalBackdrop','initFirebaseBtn','firebaseConfigInput','closeConfig','closeCats','newCatName','newCatColor','newCatIcon','catsList','amountInput','typeInput','categoryInput','dateInput','notesInput','salaryAmount','salaryDate','salaryAddNow','salarySave','salaryDelete','salaryCancel'].forEach(id=>refs[id]=$(id));
 
   // extra refs added: per-category budget and receipt photo
-  ['budgetCatSelect','budgetCatInput','saveBudgetCatBtn','catBudgetsList','receiptInput','receiptPreview'].forEach(id=>{ try{ refs[id] = $(id); }catch(e){} });
+  ['budgetCatSelect','budgetCatInput','saveBudgetCatBtn','catBudgetsList','receiptInput','receiptPreview','removeReceiptBtn'].forEach(id=>{ try{ refs[id] = $(id); }catch(e){} });
 
   // buttons
-  refs.openAddBtn.onclick = ()=>{ editingExpenseId = null; refs.saveAdd.textContent = 'أضف'; openModal('addModal'); refs.dateInput.value = new Date().toISOString().slice(0,10); };
+  refs.openAddBtn.onclick = ()=>{ editingExpenseId = null; refs.saveAdd.textContent = 'أضف'; openModal('addModal'); refs.dateInput.value = new Date().toISOString().slice(0,10); try{ if(refs.receiptPreview) refs.receiptPreview.src=''; refs._receiptData = null; if(refs.receiptInput) refs.receiptInput.value=''; if(refs.removeReceiptBtn) refs.removeReceiptBtn.style.display='none'; refs._removeReceipt = false;}catch(e){} };
       refs.cancelAdd.onclick = closeModalAndBackdrop;
       refs.openCatsBtn.onclick = ()=>openModal('catsModal');
       refs.closeCats.onclick = closeModalAndBackdrop;
@@ -941,11 +1079,14 @@
       refs.closeConfig.onclick = closeModalAndBackdrop;
 
       // add / edit expense
-      refs.saveAdd.onclick = ()=>{
+        refs.saveAdd.onclick = ()=>{
         const amt = parseFormattedNumber(refs.amountInput.value || '0'); if(!amt){ alert('المبلغ مطلوب'); return }
         const payload = { amount: Math.abs(amt), categoryId: refs.categoryInput.value || '', notes: refs.notesInput.value, date: refs.dateInput.value || new Date().toISOString().slice(0,10), type: refs.typeInput.value };
-        // include receipt image data if provided
-        try{ if(refs._receiptData) payload.imageData = refs._receiptData; }catch(e){}
+        // include or remove receipt image data if requested
+        try{
+          if(refs._removeReceipt){ payload.imageData = null; }
+          else if(refs._receiptData){ payload.imageData = refs._receiptData; }
+        }catch(e){}
         if(editingExpenseId){
           // update
           updateExpense(editingExpenseId, payload);
@@ -954,8 +1095,8 @@
         }
         // clear
         refs.amountInput.value=''; refs.notesInput.value=''; editingExpenseId = null; refs.saveAdd.textContent = 'أضف'; closeModalAndBackdrop();
-        // clear receipt preview
-        try{ if(refs.receiptPreview) refs.receiptPreview.src=''; refs._receiptData = null; if(refs.receiptInput) refs.receiptInput.value=''; }catch(e){}
+        // clear receipt preview and flags
+        try{ if(refs.receiptPreview) refs.receiptPreview.src=''; refs._receiptData = null; refs._removeReceipt = false; if(refs.receiptInput) refs.receiptInput.value=''; if(refs.removeReceiptBtn) refs.removeReceiptBtn.style.display='none'; }catch(e){}
       };
 
       // open salary modal for add/edit
@@ -1038,7 +1179,14 @@
           const p = document.createElement('div'); p.style.minWidth='48px'; p.style.textAlign='right'; p.textContent = percent+'%';
           const edit = document.createElement('button'); edit.className='btn ghost'; edit.style.padding='6px 8px'; edit.textContent='تعديل';
           edit.onclick = ()=>{ refs.budgetCatSelect.value = cid; refs.budgetCatInput.value = formatNumberWithCommas(String(bud||0)); };
-          right.appendChild(p); right.appendChild(edit);
+          const del = document.createElement('button');
+          del.className='btn ghost';
+          del.style.padding='10px 12px';
+          del.style.fontWeight='700';
+          del.style.borderRadius='10px';
+          del.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-inline-end:8px;vertical-align:middle;color:inherit"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path><path d="M10 11v6"></path><path d="M14 11v6"></path><path d="M9 6V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"></path></svg>حذف';
+          del.onclick = ()=>{ if(!confirm('حذف ميزانية الفئة لهذه الفئة للشهر ' + yyyyMM + '؟')) return; deleteCategoryBudgetForMonth(yyyyMM, cid); };
+          right.appendChild(p); right.appendChild(edit); right.appendChild(del);
           row.appendChild(left); row.appendChild(right); el.appendChild(row);
         }
         if(Object.keys(catBud||{}).length===0) el.innerHTML = '<div class="muted small">لا توجد ميزانيات محددة للفئات لهذا الشهر</div>';
@@ -1078,13 +1226,14 @@
         const addModal = $('addModal');
         if(addModal && !$('receiptInput')){
           const container = document.createElement('div'); container.style.marginTop='8px';
-          container.innerHTML = `<div style="display:flex;gap:8px;align-items:center"><input id="receiptInput" type="file" accept="image/*" /><img id="receiptPreview" style="width:56px;height:56px;object-fit:cover;border-radius:8px;border:1px solid #eee;display:none" /></div>`;
+          container.innerHTML = `<div style="display:flex;gap:8px;align-items:center"><input id="receiptInput" type="file" accept="image/*" /><img id="receiptPreview" style="width:56px;height:56px;object-fit:cover;border-radius:8px;border:1px solid #eee;display:none" /><button id="removeReceiptBtn" class="btn ghost" type="button" style="padding:6px 8px;display:none;margin-left:6px">حذف الصورة</button></div>`;
           addModal.querySelector('div[style*="margin-top:10px;display:flex;flex-direction:column;gap:8px"]').appendChild(container);
-          refs.receiptInput = $('receiptInput'); refs.receiptPreview = $('receiptPreview');
+          refs.receiptInput = $('receiptInput'); refs.receiptPreview = $('receiptPreview'); refs.removeReceiptBtn = $('removeReceiptBtn');
           refs.receiptInput.onchange = async (ev)=>{
             const f = ev.target.files && ev.target.files[0]; if(!f) return;
-            try{ const data = await readImageFileAsDataURL(f, 800); refs._receiptData = data; refs.receiptPreview.src = data; refs.receiptPreview.style.display='block'; }catch(e){ console.warn(e) }
+            try{ const data = await readImageFileAsDataURL(f, 800); refs._receiptData = data; refs.receiptPreview.src = data; refs.receiptPreview.style.display='block'; refs._removeReceipt = false; if(refs.removeReceiptBtn) refs.removeReceiptBtn.style.display = 'inline-block'; }catch(e){ console.warn(e) }
           };
+          if(refs.removeReceiptBtn){ refs.removeReceiptBtn.onclick = ()=>{ try{ refs._receiptData = null; refs._removeReceipt = true; refs.receiptPreview.src=''; refs.receiptPreview.style.display='none'; if(refs.receiptInput) refs.receiptInput.value=''; refs.removeReceiptBtn.style.display='none'; }catch(e){} } }
         }
       }catch(e){console.warn(e)}
 
@@ -1219,6 +1368,53 @@
 
     });
 
+  </script>
+</script>
+
+  <!-- Lightbox element for full-size image preview -->
+  <div id="lightbox" class="lightbox" role="dialog" aria-hidden="true">
+    <img id="lightboxImg" src="" alt="الصورة الكاملة" />
+  </div>
+
+  <script>
+    // Lightweight lightbox: opens any image with class 'clickable-thumb' or the receipt preview
+    (function(){
+      const lb = document.getElementById('lightbox');
+      const lbImg = document.getElementById('lightboxImg');
+      function showImage(src){ if(!lb||!lbImg) return; lbImg.src = src; lb.classList.add('show'); document.documentElement.style.overflow = 'hidden'; lb.setAttribute('aria-hidden','false'); }
+      function hideImage(){ if(!lb||!lbImg) return; lb.classList.remove('show'); lbImg.src = ''; document.documentElement.style.overflow = ''; lb.setAttribute('aria-hidden','true'); }
+
+      // Delegate clicks for thumbnails and receipt preview
+      document.addEventListener('click', function(e){
+        const t = e.target;
+        if(!t) return;
+        // clickable thumbnail inside expense rows
+        if(t.classList && t.classList.contains('clickable-thumb')){
+          e.preventDefault(); e.stopPropagation();
+          const src = t.dataset.full || t.src;
+          if(src) showImage(src);
+          return;
+        }
+        // receipt preview image by id
+        if(t.id === 'receiptPreview'){
+          e.preventDefault(); e.stopPropagation();
+          const src = t.src;
+          if(src) showImage(src);
+          return;
+        }
+        // clicking the lightbox backdrop closes it
+        if(t.id === 'lightbox'){
+          hideImage();
+          return;
+        }
+      }, false);
+
+      // close on ESC
+      document.addEventListener('keyup', function(e){ if(e.key === 'Escape') hideImage(); });
+
+      // also close when tapping outside the image
+      if(lb){ lb.addEventListener('click', function(ev){ if(ev.target === lb) hideImage(); }); }
+    })();
   </script>
 
 </body>

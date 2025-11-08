@@ -28,21 +28,23 @@
     header{display:flex;justify-content:space-between;align-items:center}
     h1{font-size:18px;margin:0}
     .top-actions{display:flex;gap:10px;align-items:center}
-  .btn{background:linear-gradient(90deg,var(--accent-start),var(--accent-end));color:#fff;padding:10px 14px;border-radius:12px;border:0;cursor:pointer;transition:transform .12s ease, box-shadow .12s;box-shadow:0 8px 26px rgba(92,88,200,.12)}
-  .btn:active{transform:translateY(1px)}
+  .btn{background:linear-gradient(90deg,var(--accent-start),var(--accent-end));color:#fff;padding:10px 14px;border-radius:12px;border:0;cursor:pointer;transition:transform .18s cubic-bezier(.2,.9,.2,1), box-shadow .18s, opacity .18s;box-shadow:0 8px 26px rgba(92,88,200,.12)}
+  .btn:hover{transform:translateY(-3px) scale(1.02);box-shadow:0 14px 40px rgba(92,88,200,.14)}
+  .btn:active{transform:translateY(-1px) scale(0.995)}
   .ghost{background:transparent;color:var(--accent-start);box-shadow:none;border:1px solid rgba(124,108,255,.12)}
     .search{display:flex;gap:10px;align-items:center}
   input,select,textarea{padding:10px;border-radius:10px;border:1px solid #e6e9ef;background:var(--card);font-family:inherit;color:var(--text)}
   input::placeholder, textarea::placeholder{color:#9aa3b2}
-  .card{background:var(--card);border-radius:var(--radius);padding:14px;box-shadow:0 8px 24px rgba(16,24,40,.04);transition:transform .12s ease}
-  .card:hover{transform:translateY(-4px)}
+  .card{background:var(--card);border-radius:var(--radius);padding:14px;box-shadow:0 8px 24px rgba(16,24,40,.04);transition:transform .18s cubic-bezier(.2,.9,.2,1), box-shadow .18s}
+  .card:hover{transform:translateY(-6px);box-shadow:0 18px 46px rgba(16,24,40,.07)}
 
     /* left column */
     .main{display:flex;flex-direction:column;gap:12px}
     .summary{display:flex;gap:12px}
     .summary .item{flex:1;padding:12px;border-radius:10px;background:linear-gradient(180deg,rgba(255,255,255,.6),rgba(255,255,255,.4));}
     .month-list{display:flex;gap:8px;overflow:auto;padding-bottom:6px}
-  .month-chip{padding:8px 12px;border-radius:999px;background:linear-gradient(90deg, rgba(124,108,255,0.12), rgba(90,208,255,0.06));border:1px solid rgba(124,108,255,0.12);color:var(--muted);cursor:pointer}
+  .month-chip{padding:8px 12px;border-radius:999px;background:linear-gradient(90deg, rgba(124,108,255,0.12), rgba(90,208,255,0.06));border:1px solid rgba(124,108,255,0.12);color:var(--muted);cursor:pointer;transition:transform .15s, box-shadow .15s}
+  .month-chip:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(124,108,255,0.06)}
 
     .expenses-list{display:flex;flex-direction:column;gap:8px;max-height:420px;overflow:auto;padding-right:6px}
     .expense{display:flex;justify-content:space-between;align-items:center;padding:10px;border-radius:10px}
@@ -52,8 +54,10 @@
 
   /* entry meta (date + notes) clearer and separated */
   .entry-meta{display:none}
-  .entry-date{color:var(--muted);font-size:12px;margin-top:6px}
-  .entry-notes{color:var(--text);font-size:13px;margin-top:4px;opacity:0.98;line-height:1.25}
+  .entry-date{color:var(--muted);font-size:13px;margin-top:6px;font-weight:600}
+  .entry-notes{color:var(--text);font-size:14px;margin-top:6px;opacity:0.98;line-height:1.3;font-weight:600}
+  .meta-label{display:inline-block;background:linear-gradient(90deg,var(--accent-start),var(--accent-end));color:#fff;padding:2px 8px;border-radius:999px;font-size:11px;margin-inline-end:8px;font-weight:700}
+  .meta-value{color:inherit}
 
     /* right column */
     aside{display:flex;flex-direction:column;gap:12px}
@@ -71,7 +75,11 @@
       .month-chip{padding:10px 14px}
       .expense{flex-direction:column;align-items:flex-start}
       .expense .left{width:100%}
-      .expense .right{width:100%;text-align:left;margin-top:8px}
+      .right{width:100%;text-align:left;margin-top:8px}
+      .entry-notes{font-size:14px}
+      .entry-date{font-size:13px}
+      .cat-badge{width:40px;height:40px;font-size:18px}
+      .actions{display:flex;gap:8px;margin-top:8px}
       .summary{flex-direction:column}
       header{flex-direction:column;align-items:stretch;gap:8px}
       .top-actions{flex-direction:column;align-items:stretch}
@@ -85,8 +93,8 @@
     canvas{width:100%;height:180px}
 
     /* toasts */
-  .toast{position:fixed;right:18px;bottom:18px;background:linear-gradient(90deg,var(--accent-start),var(--accent-end));color:#fff;padding:12px 16px;border-radius:12px;opacity:0;transform:translateY(10px);transition:opacity .18s,transform .18s;box-shadow:0 10px 30px rgba(16,24,40,.08)}
-    .toast.show{opacity:1;transform:none}
+  .toast{position:fixed;right:18px;bottom:18px;background:linear-gradient(90deg,var(--accent-start),var(--accent-end));color:#fff;padding:12px 16px;border-radius:12px;opacity:0;transform:translateY(12px) scale(.98);transition:opacity .24s cubic-bezier(.2,.9,.2,1),transform .24s cubic-bezier(.2,.9,.2,1);box-shadow:0 10px 30px rgba(16,24,40,.08)}
+    .toast.show{opacity:1;transform:translateY(0) scale(1)}
 
     /* tiny helpers */
     .flex{display:flex;align-items:center}
@@ -119,7 +127,7 @@
           <div style="font-weight:700;font-size:18px" id="totalIncome">0</div>
         </div>
         <div class="item">
-          <div class="small muted">المصروف</div>
+          <div class="small muted" id="totalExpenseLabel">المصروف</div>
           <div style="font-weight:700;font-size:18px;color:var(--danger)" id="totalExpense">0</div>
         </div>
         <div class="item">
@@ -156,16 +164,17 @@
         <button class="btn ghost" id="openCatsBtn">الفئات</button>
       </div>
 
-      <div style="margin-bottom:10px">
-        <div class="small muted">الميزانية الشهرية</div>
-        <div style="display:flex;gap:8px;margin-top:8px">
-          <input id="budgetInput" placeholder="أدخل المبلغ" />
-          <button class="btn" id="saveBudgetBtn">حفظ</button>
+      <!-- Monthly budget removed — using per-category budgets only -->
+
+      <!-- Per-category budgets -->
+      <div style="margin-top:14px">
+        <div class="small muted">ميزانية حسب الفئة</div>
+        <div style="display:flex;gap:8px;margin-top:8px;align-items:center">
+          <select id="budgetCatSelect" style="flex:1"></select>
+          <input id="budgetCatInput" placeholder="المبلغ" style="width:110px" />
+          <button class="btn" id="saveBudgetCatBtn">حفظ</button>
         </div>
-        <div style="margin-top:10px">
-          <div class="progress"><i id="budgetBar"></i></div>
-          <div class="flex" style="margin-top:6px"><div class="muted small">استخدام الميزانية</div><div class="spacer"></div><div id="budgetPercent" class="muted small">0%</div></div>
-        </div>
+        <div id="catBudgetsList" style="margin-top:10px;display:flex;flex-direction:column;gap:8px"></div>
       </div>
 
       <div style="margin-top:10px">
@@ -173,8 +182,6 @@
         <div style="margin-top:10px"><canvas id="pieChart"></canvas></div>
       </div>
 
-      <div style="margin-top:12px" class="small muted">إعدادات Firebase</div>
-      <div style="margin-top:8px" class="muted small">قم بلصق config ثم اضغط Initialize</div>
     </aside>
   </div>
 
@@ -409,8 +416,10 @@
       // Categories
       db.ref('categories').on('value', snap=>{
         categories = snap.val() || {};
+        try{ localStorage.setItem('cachedCategories', JSON.stringify(categories)); }catch(e){}
         renderCategoriesUI();
         populateCategorySelects();
+        try{ populateBudgetCatSelect(); }catch(e){}
         computeAndRender();
       });
 
@@ -449,28 +458,58 @@
     }
 
     function addCategory(cat){
-      if(!db){alert('ربط Firebase مطلوب.');return}
-      const ref = db.ref('categories').push();
-      ref.set(cat);
+      if(db){
+        const ref = db.ref('categories').push();
+        ref.set(cat);
+      } else {
+        // local fallback: create local key and persist to cachedCategories
+        const key = 'localcat_'+uid();
+        categories = categories || {};
+        categories[key] = {...cat, id:key};
+        try{ localStorage.setItem('cachedCategories', JSON.stringify(categories)); }catch(e){console.warn(e)}
+        renderCategoriesUI(); populateCategorySelects();
+      }
     }
 
-    // Ensure there is a category called 'راتب' and return its id (creates it if missing)
+    // Ensure there is a category called 'راتب' and return its id if exists.
+    // NOTE: We no longer auto-create a 'راتب' category. Salary entries are treated as incomes
+    // and can be saved without assigning a dedicated category. This avoids cluttering the
+    // categories list with a category that represents an income source rather than an expense.
     function ensureSalaryCategory(){
-      return new Promise((resolve, reject)=>{
-        // try find existing
+      return new Promise((resolve)=>{
         for(const [id,c] of Object.entries(categories||{})){
           if((c.name||'').toLowerCase() === 'راتب') return resolve(id);
         }
-        if(!db) return reject(new Error('Firebase غير متصل. لا يمكن إنشاء فئة جديدة بدون اتصال.'));
-        // create new category and return its key
-        const ref = db.ref('categories').push();
-        const payload = { name:'راتب', color:'#60a5fa', icon:'💰' };
-        ref.set(payload, (err)=>{
-          if(err) return reject(err);
-          // small delay until listener refreshes categories; but we can still resolve with ref.key
-          resolve(ref.key);
-        });
+        // Do NOT create the category automatically. Return empty string to indicate no category.
+        resolve('');
       });
+    }
+
+    // Remove any stored category whose name is 'راتب' (case-insensitive).
+    // This removes from Firebase if connected, and from local cachedCategories.
+    function removeSalaryCategories(){
+      try{
+        const toRemove = [];
+        for(const [id,c] of Object.entries(categories||{})){
+          if((c.name||'').toLowerCase() === 'راتب') toRemove.push(id);
+        }
+        if(!toRemove.length) return;
+        for(const id of toRemove){
+          // remove from in-memory categories
+          delete categories[id];
+          // remove from firebase if available
+          if(db){ try{ db.ref('categories/'+id).remove().catch(()=>{}); }catch(e){} }
+        }
+        // also purge from cachedCategories in localStorage
+        try{
+          const cached = JSON.parse(localStorage.getItem('cachedCategories')||'{}');
+          let changed = false;
+          for(const id of toRemove){ if(cached && cached[id]){ delete cached[id]; changed = true; } }
+          if(changed) localStorage.setItem('cachedCategories', JSON.stringify(cached));
+        }catch(e){}
+        // update UI
+        try{ renderCategoriesUI(); populateCategorySelects(); populateBudgetCatSelect(); computeAndRender(); }catch(e){}
+      }catch(e){console.warn('removeSalaryCategories failed', e)}
     }
 
     // find recurring 'راتب' entry if exists (firebase or local)
@@ -519,6 +558,45 @@
     function saveBudgetForMonth(yyyyMM, amount){
       if(!db) return;
       db.ref('settings/monthlyBudgets/'+yyyyMM).set(Number(amount));
+    }
+
+    // Global helper: populate budget category select (safe to call from listeners)
+    function populateBudgetCatSelect(){
+      const sel = $('budgetCatSelect'); if(!sel) return;
+      sel.innerHTML = '';
+      const catObj = categories && Object.keys(categories).length ? categories : (()=>{ try{ return JSON.parse(localStorage.getItem('cachedCategories')||'{}')}catch(e){return{}} })();
+      for(const [id,c] of Object.entries(catObj||{})){
+        const o = document.createElement('option'); o.value=id; o.textContent=c.name; sel.appendChild(o);
+      }
+    }
+
+    // Global helper: render per-category budgets list for a given month
+    function renderCategoryBudgetsList(yyyyMM){
+      const el = $('catBudgetsList'); if(!el) return; el.innerHTML='';
+      // read budgets from settings or local
+      let catBud = {};
+      try{ if(window.settings && window.settings.monthlyBudgets && window.settings.monthlyBudgets[yyyyMM] && window.settings.monthlyBudgets[yyyyMM].categories) catBud = window.settings.monthlyBudgets[yyyyMM].categories; }catch(e){}
+      try{ const local = JSON.parse(localStorage.getItem('localMonthCategoryBudgets')||'{}'); if(local[yyyyMM]) Object.assign(catBud, local[yyyyMM]); }catch(e){}
+      // compute usage per category
+      const allObj = getAllExpensesObject();
+      const totals = {};
+      for(const [id,e] of Object.entries(allObj||{})){
+        const d = new Date(e.date); const key = d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0'); if(key!==yyyyMM) continue;
+        const cid = e.categoryId || 'uncat'; totals[cid] = (totals[cid]||0) + Number(e.amount||0);
+      }
+      const catObj = categories && Object.keys(categories).length ? categories : (()=>{ try{ return JSON.parse(localStorage.getItem('cachedCategories')||'{}')}catch(e){return{}} })();
+      for(const [cid,bud] of Object.entries(catBud||{})){
+        const row = document.createElement('div'); row.style.display='flex'; row.style.justifyContent='space-between'; row.style.alignItems='center';
+        const left = document.createElement('div'); left.innerHTML = `<div style="font-weight:600">${(catObj[cid]&&catObj[cid].name)||cid}</div><div class=muted style="font-size:12px">ميزانية: ${fmt(bud)} · مستخدم: ${fmt(totals[cid]||0)}</div>`;
+        const percent = bud>0 ? Math.round((totals[cid]||0)/bud*100) : 0;
+        const right = document.createElement('div'); right.style.display='flex'; right.style.alignItems='center'; right.style.gap='8px';
+        const p = document.createElement('div'); p.style.minWidth='48px'; p.style.textAlign='right'; p.textContent = percent+'%';
+        const edit = document.createElement('button'); edit.className='btn ghost'; edit.style.padding='6px 8px'; edit.textContent='تعديل';
+        edit.onclick = ()=>{ const sel = $('budgetCatSelect'); if(sel) sel.value = cid; const input = $('budgetCatInput'); if(input) input.value = formatNumberWithCommas(String(bud||0)); };
+        right.appendChild(p); right.appendChild(edit);
+        row.appendChild(left); row.appendChild(right); el.appendChild(row);
+      }
+      if(Object.keys(catBud||{}).length===0) el.innerHTML = '<div class="muted small">لا توجد ميزانيات محددة للفئات لهذا الشهر</div>';
     }
 
     // Recurring incomes (salary) - add/update/delete with localStorage fallback when Firebase not connected
@@ -578,7 +656,7 @@
     }
 
     /***** UI rendering and computations *****/
-    function computeAndRender(){
+  function computeAndRender(){
       // Group expenses by month YYYY-MM
       const months = {};
       const allObj = getAllExpensesObject();
@@ -606,19 +684,37 @@
       }catch(e){}
       renderMonthChips(monthKeys);
       populateFilterMonths(monthKeys);
+  // render per-category budgets for selected month
+  try{ const selMonth = $('filterMonth').value || (new Date()).getFullYear()+'-'+String((new Date()).getMonth()+1).padStart(2,'0'); renderCategoryBudgetsList(selMonth); }catch(e){}
 
-      // totals
-      let totalIncome=0, totalExpense=0;
-      for(const e of allExpenses){
-        const amt = Number(e.amount)||0;
-        if(e.type==='income') totalIncome += amt; else totalExpense += amt;
-      }
-      $('totalIncome').textContent = fmt(totalIncome);
-      $('totalExpense').textContent = fmt(totalExpense);
-      $('balance').textContent = fmt(totalIncome - totalExpense);
+      // compute global totals (all data)
+      let globalIncome = 0, globalExpense = 0;
+      for(const e of allExpenses){ const amt = Number(e.amount)||0; if(e.type==='income') globalIncome += amt; else globalExpense += amt; }
 
-      // Render expenses list (apply filters)
-      renderExpensesList(allExpenses);
+      // apply current filters (category, month, search) for the list view
+      const filtered = applyFilters(allExpenses);
+
+      // compute expense total for filtered view (used when a category filter is active)
+      let filteredExpense = 0;
+      for(const e of filtered){ if(e.type !== 'income') filteredExpense += Number(e.amount||0); }
+
+      // show global income always, show expense either filtered (when category selected) or global
+      const catFilter = $('filterCategory').value;
+      $('totalIncome').textContent = fmt(globalIncome);
+      $('totalExpense').textContent = fmt(catFilter ? filteredExpense : globalExpense);
+      // Update expense label to include selected category name when filtered
+      try{
+        const lbl = $('totalExpenseLabel');
+        if(lbl){
+          if(catFilter){ const cname = (categories[catFilter] && categories[catFilter].name) || catFilter; lbl.textContent = 'المصروف — ' + cname; }
+          else lbl.textContent = 'المصروف';
+        }
+      }catch(e){}
+      // keep balance as global balance (income - global expense)
+      $('balance').textContent = fmt(globalIncome - globalExpense);
+
+      // Render expenses list (use prefiltered list)
+      renderExpensesList(filtered, true);
 
   // Charts
   renderBarChart(monthKeys.slice(0,6).reverse(), months);
@@ -638,23 +734,39 @@
       }
     }
 
-    function renderExpensesList(items){
+    // Apply filters (search, category, month) to an array of expense objects
+    function applyFilters(items){
       const search = $('searchInput').value.trim().toLowerCase();
       const catFilter = $('filterCategory').value;
       const monthFilter = $('filterMonth').value;
       let list = items.slice();
       if(search){
-        list = list.filter(e=>((e.notes||'')+ (categories[e.categoryId]?.name||'') + (e.amount||'')).toLowerCase().includes(search));
+        list = list.filter(e=>(((e.notes||'')+ (categories[e.categoryId]?.name||'') + (e.amount||'')).toLowerCase().includes(search)));
       }
       if(catFilter) list = list.filter(e=>e.categoryId === catFilter);
       if(monthFilter) list = list.filter(e=>{const d=new Date(e.date); const key = d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0'); return key===monthFilter});
+      return list;
+    }
+
+    // renderExpensesList accepts either a full list (and will filter it) or a prefiltered
+    // list with the second argument set to true to skip filtering.
+    function renderExpensesList(items, prefiltered){
+      let list = items.slice();
+      if(!prefiltered){
+        list = applyFilters(list);
+      }
 
       const out = $('expensesList'); out.innerHTML='';
       list.sort((a,b)=>b.createdAt - a.createdAt);
       for(const e of list){
         const row = document.createElement('div'); row.className='expense card';
         const left = document.createElement('div'); left.className='left';
-        const cat = categories[e.categoryId] || {name:'بدون',color:'#999',icon:'❔'};
+        // Determine category display: if this entry is a salary (isSalary true or notes contains 'راتب')
+        // show a transient 'راتب' label in the details but do NOT require a persistent category.
+        let cat = categories[e.categoryId] || null;
+        let transientSalary = false;
+        try{ if(e.isSalary || ((e.notes||'').toLowerCase().includes('راتب') && e.type==='income')) transientSalary = true; }catch(ex){}
+        if(!cat){ if(transientSalary){ cat = { name:'راتب', color: 'linear-gradient(135deg, #60a5fa, #34d399)', icon: '💰' }; } else { cat = {name:'بدون',color:'#999',icon:'❔'}; } }
         const badge = document.createElement('div'); badge.className='cat-badge'; badge.style.background=cat.color; badge.textContent = cat.icon || '•';
   const meta = document.createElement('div');
   const titleLine = document.createElement('div');
@@ -663,10 +775,20 @@
   titleLine.textContent = `${cat.name} • ${fmt(e.amount)}`;
   const dateEl = document.createElement('div');
   dateEl.className = 'entry-date';
-  dateEl.textContent = formatDisplayDate(e.date);
+  const dateLabel = document.createElement('span'); dateLabel.className = 'meta-label'; dateLabel.textContent = 'التاريخ';
+  const dateVal = document.createElement('span'); dateVal.className = 'meta-value'; dateVal.textContent = formatDisplayDate(e.date);
+  dateEl.appendChild(dateLabel); dateEl.appendChild(dateVal);
+
   const notesEl = document.createElement('div');
   notesEl.className = 'entry-notes';
-  notesEl.textContent = e.notes || '';
+  if(e.notes){
+    const notesLabel = document.createElement('span'); notesLabel.className = 'meta-label'; notesLabel.textContent = 'ملاحظة';
+    const notesVal = document.createElement('span'); notesVal.className = 'meta-value'; notesVal.textContent = e.notes || '';
+    notesEl.appendChild(notesLabel); notesEl.appendChild(notesVal);
+  } else {
+    notesEl.textContent = '';
+  }
+
   meta.appendChild(titleLine);
   meta.appendChild(dateEl);
   if(e.notes) meta.appendChild(notesEl);
@@ -675,6 +797,14 @@
 
   const right = document.createElement('div'); right.className='right'; right.style.textAlign='right';
   const mainVal = document.createElement('div'); mainVal.style.fontWeight = '700'; mainVal.style.color = e.type==='income' ? 'var(--accent-start)' : 'var(--danger)'; mainVal.textContent = (e.type==='income'?'+':'-') + ' ' + fmt(e.amount);
+        // receipt thumbnail (if any)
+        if(e.imageData){
+          try{
+            const thumb = document.createElement('img'); thumb.src = e.imageData; thumb.style.width='56px'; thumb.style.height='56px'; thumb.style.objectFit='cover'; thumb.style.borderRadius='8px'; thumb.style.marginRight='8px'; thumb.style.cursor='pointer';
+            thumb.onclick = ()=>{ try{ window.open(e.imageData, '_blank'); }catch(ex){ console.warn(ex) } };
+            right.appendChild(thumb);
+          }catch(ex){console.warn(ex)}
+        }
         const sub = document.createElement('div'); sub.className = 'muted'; sub.textContent = e.createdAt? new Date(e.createdAt).toLocaleString() : '';
 
         // action buttons
@@ -705,7 +835,8 @@
 
     function populateCategorySelects(){
       const sel = $('categoryInput'); const filter = $('filterCategory'); sel.innerHTML=''; filter.innerHTML='<option value="">كل الفئات</option>';
-      for(const [id,c] of Object.entries(categories)){
+      const catObj = categories && Object.keys(categories).length ? categories : (()=>{ try{ return JSON.parse(localStorage.getItem('cachedCategories')||'{}')}catch(e){return{}} })();
+      for(const [id,c] of Object.entries(catObj||{})){
         const o = document.createElement('option'); o.value=id; o.textContent=c.name; sel.appendChild(o);
         const f = document.createElement('option'); f.value=id; f.textContent=c.name; filter.appendChild(f);
       }
@@ -777,17 +908,9 @@
 
     /***** Budget UI *****/
     function updateBudgetUI(){
+      // Update per-category budgets list for the selected month
       const month = $('filterMonth').value || (new Date()).getFullYear()+'-'+String(new Date().getMonth()+1).padStart(2,'0');
-      const used = Object.values(expenses).filter(e=>{ const k=(new Date(e.date)).getFullYear()+'-'+String(new Date(e.date).getMonth()+1).padStart(2,'0'); return k===month }).reduce((s,e)=>s+ (e.type==='expense'?Number(e.amount): -Number(e.amount)),0);
-      const bud = (window.settings && window.settings.monthlyBudgets && window.settings.monthlyBudgets[month]) || 0;
-      const percent = bud>0 ? Math.round(used / bud * 100) : 0;
-      $('budgetBar').style.width = Math.min(100,percent) + '%';
-      $('budgetPercent').textContent = percent + '%';
-      if(bud>0 && used > bud){
-        // show alert
-        $('budgetPercent').style.color = 'var(--danger)';
-        showToast('تجاوزت الميزانية ⚠️');
-      } else $('budgetPercent').style.color='';
+      try{ renderCategoryBudgetsList(month); }catch(e){}
     }
 
     /***** Modal helpers *****/
@@ -804,7 +927,10 @@
     /***** Wire events on DOMContentLoaded *****/
     document.addEventListener('DOMContentLoaded', ()=>{
       // refs
-  ['searchInput','filterCategory','filterMonth','openAddBtn','addSalaryBtn','clearMonthBtn','openCatsBtn','addCatBtn','saveAdd','cancelAdd','addModal','catsModal','salaryModal','configModal','modalBackdrop','initFirebaseBtn','firebaseConfigInput','closeConfig','closeCats','newCatName','newCatColor','newCatIcon','catsList','amountInput','typeInput','categoryInput','dateInput','notesInput','salaryAmount','salaryDate','salaryAddNow','salarySave','salaryDelete','salaryCancel','saveBudgetBtn','budgetInput'].forEach(id=>refs[id]=$(id));
+  ['searchInput','filterCategory','filterMonth','openAddBtn','addSalaryBtn','clearMonthBtn','openCatsBtn','addCatBtn','saveAdd','cancelAdd','addModal','catsModal','salaryModal','configModal','modalBackdrop','initFirebaseBtn','firebaseConfigInput','closeConfig','closeCats','newCatName','newCatColor','newCatIcon','catsList','amountInput','typeInput','categoryInput','dateInput','notesInput','salaryAmount','salaryDate','salaryAddNow','salarySave','salaryDelete','salaryCancel'].forEach(id=>refs[id]=$(id));
+
+  // extra refs added: per-category budget and receipt photo
+  ['budgetCatSelect','budgetCatInput','saveBudgetCatBtn','catBudgetsList','receiptInput','receiptPreview'].forEach(id=>{ try{ refs[id] = $(id); }catch(e){} });
 
   // buttons
   refs.openAddBtn.onclick = ()=>{ editingExpenseId = null; refs.saveAdd.textContent = 'أضف'; openModal('addModal'); refs.dateInput.value = new Date().toISOString().slice(0,10); };
@@ -818,6 +944,8 @@
       refs.saveAdd.onclick = ()=>{
         const amt = parseFormattedNumber(refs.amountInput.value || '0'); if(!amt){ alert('المبلغ مطلوب'); return }
         const payload = { amount: Math.abs(amt), categoryId: refs.categoryInput.value || '', notes: refs.notesInput.value, date: refs.dateInput.value || new Date().toISOString().slice(0,10), type: refs.typeInput.value };
+        // include receipt image data if provided
+        try{ if(refs._receiptData) payload.imageData = refs._receiptData; }catch(e){}
         if(editingExpenseId){
           // update
           updateExpense(editingExpenseId, payload);
@@ -826,6 +954,8 @@
         }
         // clear
         refs.amountInput.value=''; refs.notesInput.value=''; editingExpenseId = null; refs.saveAdd.textContent = 'أضف'; closeModalAndBackdrop();
+        // clear receipt preview
+        try{ if(refs.receiptPreview) refs.receiptPreview.src=''; refs._receiptData = null; if(refs.receiptInput) refs.receiptInput.value=''; }catch(e){}
       };
 
       // open salary modal for add/edit
@@ -852,6 +982,112 @@
         refs.newCatName.value=''; refs.newCatIcon.value='';
       };
 
+      // populate budget category select (uses categories or cached)
+      function populateBudgetCatSelect(){
+        const sel = refs.budgetCatSelect; if(!sel) return;
+        sel.innerHTML = '';
+        const catObj = categories && Object.keys(categories).length ? categories : (()=>{ try{ return JSON.parse(localStorage.getItem('cachedCategories')||'{}')}catch(e){return{}} })();
+        for(const [id,c] of Object.entries(catObj||{})){
+          const o = document.createElement('option'); o.value=id; o.textContent=c.name; sel.appendChild(o);
+        }
+      }
+
+      // save per-category budget for month
+      function saveCategoryBudgetForMonth(yyyyMM, catId, amount){
+        if(!catId) return;
+        if(db){
+          db.ref('settings/monthlyBudgets/'+yyyyMM+'/categories/'+catId).set(Number(amount)).then(()=>{ showToast('تم حفظ ميزانية الفئة ✅'); }).catch(e=>alert('خطأ الحفظ: '+e.message));
+        } else {
+          // local fallback
+          const key = 'localMonthCategoryBudgets';
+          const all = JSON.parse(localStorage.getItem(key)||'{}');
+          all[yyyyMM] = all[yyyyMM] || {};
+          all[yyyyMM][catId] = Number(amount);
+          localStorage.setItem(key, JSON.stringify(all));
+          // reflect in window.settings for UI
+          window.settings = window.settings || {};
+          window.settings.monthlyBudgets = window.settings.monthlyBudgets || {};
+          window.settings.monthlyBudgets[yyyyMM] = window.settings.monthlyBudgets[yyyyMM] || {};
+          window.settings.monthlyBudgets[yyyyMM].categories = window.settings.monthlyBudgets[yyyyMM].categories || {};
+          window.settings.monthlyBudgets[yyyyMM].categories[catId] = Number(amount);
+          computeAndRender();
+          showToast('تم حفظ ميزانية الفئة (محليًا) ✅');
+        }
+      }
+
+      // render per-category budgets list for selected month
+      function renderCategoryBudgetsList(yyyyMM){
+        const el = refs.catBudgetsList; if(!el) return; el.innerHTML='';
+        // read budgets from settings or local
+        let catBud = {};
+        try{ if(window.settings && window.settings.monthlyBudgets && window.settings.monthlyBudgets[yyyyMM] && window.settings.monthlyBudgets[yyyyMM].categories) catBud = window.settings.monthlyBudgets[yyyyMM].categories; }catch(e){}
+        try{ const local = JSON.parse(localStorage.getItem('localMonthCategoryBudgets')||'{}'); if(local[yyyyMM]) Object.assign(catBud, local[yyyyMM]); }catch(e){}
+        // compute usage per category
+        const allObj = getAllExpensesObject();
+        const totals = {};
+        for(const [id,e] of Object.entries(allObj||{})){
+          const d = new Date(e.date); const key = d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0'); if(key!==yyyyMM) continue;
+          const cid = e.categoryId || 'uncat'; totals[cid] = (totals[cid]||0) + Number(e.amount||0);
+        }
+        const catObj = categories && Object.keys(categories).length ? categories : (()=>{ try{ return JSON.parse(localStorage.getItem('cachedCategories')||'{}')}catch(e){return{}} })();
+        for(const [cid,bud] of Object.entries(catBud||{})){
+          const row = document.createElement('div'); row.style.display='flex'; row.style.justifyContent='space-between'; row.style.alignItems='center';
+          const left = document.createElement('div'); left.innerHTML = `<div style="font-weight:600">${(catObj[cid]&&catObj[cid].name)||cid}</div><div class=muted style="font-size:12px">ميزانية: ${fmt(bud)} · مستخدم: ${fmt(totals[cid]||0)}</div>`;
+          const percent = bud>0 ? Math.round((totals[cid]||0)/bud*100) : 0;
+          const right = document.createElement('div'); right.style.display='flex'; right.style.alignItems='center'; right.style.gap='8px';
+          const p = document.createElement('div'); p.style.minWidth='48px'; p.style.textAlign='right'; p.textContent = percent+'%';
+          const edit = document.createElement('button'); edit.className='btn ghost'; edit.style.padding='6px 8px'; edit.textContent='تعديل';
+          edit.onclick = ()=>{ refs.budgetCatSelect.value = cid; refs.budgetCatInput.value = formatNumberWithCommas(String(bud||0)); };
+          right.appendChild(p); right.appendChild(edit);
+          row.appendChild(left); row.appendChild(right); el.appendChild(row);
+        }
+        if(Object.keys(catBud||{}).length===0) el.innerHTML = '<div class="muted small">لا توجد ميزانيات محددة للفئات لهذا الشهر</div>';
+      }
+
+      // wire saveBudgetCatBtn
+      if(refs.saveBudgetCatBtn){ refs.saveBudgetCatBtn.onclick = ()=>{
+        const month = refs.filterMonth.value || (new Date()).getFullYear()+'-'+String(new Date().getMonth()+1).padStart(2,'0');
+        const cid = refs.budgetCatSelect.value; const amt = parseFormattedNumber(refs.budgetCatInput.value||'0');
+        if(!cid){ alert('اختر فئة'); return }
+        saveCategoryBudgetForMonth(month, cid, Math.abs(amt));
+        refs.budgetCatInput.value=''; renderCategoryBudgetsList(month);
+      } }
+
+      // populate select initially
+      populateBudgetCatSelect();
+
+      // receipt photo input handling (downscale & preview)
+      function readImageFileAsDataURL(file, maxWidth=1000){
+        return new Promise((res,rej)=>{
+          const reader = new FileReader(); reader.onload = (e)=>{
+            const img = new Image(); img.onload = ()=>{
+              // downscale if needed
+              const canvas = document.createElement('canvas');
+              let w = img.width; let h = img.height; if(w>maxWidth){ h = Math.round(h * (maxWidth / w)); w = maxWidth; }
+              canvas.width = w; canvas.height = h; const ctx = canvas.getContext('2d'); ctx.drawImage(img,0,0,w,h);
+              const dataUrl = canvas.toDataURL('image/jpeg', 0.8); res(dataUrl);
+            };
+            img.onerror = ()=>res(e.target.result); img.src = e.target.result;
+          };
+          reader.onerror = rej; reader.readAsDataURL(file);
+        })
+      }
+
+      // create file input and preview inside add modal if not present
+      try{
+        const addModal = $('addModal');
+        if(addModal && !$('receiptInput')){
+          const container = document.createElement('div'); container.style.marginTop='8px';
+          container.innerHTML = `<div style="display:flex;gap:8px;align-items:center"><input id="receiptInput" type="file" accept="image/*" /><img id="receiptPreview" style="width:56px;height:56px;object-fit:cover;border-radius:8px;border:1px solid #eee;display:none" /></div>`;
+          addModal.querySelector('div[style*="margin-top:10px;display:flex;flex-direction:column;gap:8px"]').appendChild(container);
+          refs.receiptInput = $('receiptInput'); refs.receiptPreview = $('receiptPreview');
+          refs.receiptInput.onchange = async (ev)=>{
+            const f = ev.target.files && ev.target.files[0]; if(!f) return;
+            try{ const data = await readImageFileAsDataURL(f, 800); refs._receiptData = data; refs.receiptPreview.src = data; refs.receiptPreview.style.display='block'; }catch(e){ console.warn(e) }
+          };
+        }
+      }catch(e){console.warn(e)}
+
       // salary modal actions
       if(refs.salarySave){ refs.salarySave.onclick = async ()=>{
         const amt = parseFormattedNumber(refs.salaryAmount.value||'0'); if(!amt){ alert('المبلغ مطلوب'); return }
@@ -864,7 +1100,8 @@
           if(refs.salaryAddNow && refs.salaryAddNow.checked){
             const catId = await ensureSalaryCategory();
             const date = refs.salaryDate.value || new Date().toISOString().slice(0,10);
-            addExpense({ amount: Math.abs(amt), categoryId: catId||'', notes:'راتب', date, type:'income' });
+            // mark the expense as a salary record but do not create a persistent category
+            addExpense({ amount: Math.abs(amt), categoryId: catId||'', notes:'راتب', date, type:'income', isSalary: true });
           }
           closeModalAndBackdrop();
         }catch(e){ alert('خطأ بالحفظ: '+(e.message||e)); }
@@ -886,13 +1123,7 @@
         initFirebaseFromConfigString(txt);
       };
 
-      // budget
-      refs.saveBudgetBtn.onclick = ()=>{
-        const val = parseFormattedNumber(refs.budgetInput.value||'0');
-        const month = $('filterMonth').value || (new Date()).getFullYear()+'-'+String(new Date().getMonth()+1).padStart(2,'0');
-        saveBudgetForMonth(month,val);
-        refs.budgetInput.value='';
-      };
+      // monthly budget removed — use per-category budgets instead
 
       // export button removed from header; exportExpensesCSV still available for future use
 
@@ -964,12 +1195,27 @@
         renderCategoriesUI(); populateCategorySelects();
       }
 
+      // If offline or no firebase yet, try load cached categories from previous session
+      try{
+        const cachedCats = localStorage.getItem('cachedCategories');
+        if(cachedCats){
+          const parsed = JSON.parse(cachedCats);
+          if(parsed && Object.keys(parsed).length){
+            categories = parsed;
+            renderCategoriesUI(); populateCategorySelects();
+          }
+        }
+      }catch(e){console.warn('failed loading cachedCategories',e)}
+
+      // Immediately remove any existing persistent 'راتب' categories per user request
+      try{ removeSalaryCategories(); }catch(e){}
+
       // small helpers
         function debounce(fn,ms){let t;return (...a)=>{clearTimeout(t);t=setTimeout(()=>fn(...a),ms)}}
 
-        // attach to amount and budget inputs for nicer UX (refs available)
-        attachFormattedInput(refs.amountInput);
-        attachFormattedInput(refs.budgetInput);
+  // attach to amount and per-category budget inputs for nicer UX (refs available)
+  attachFormattedInput(refs.amountInput);
+  try{ attachFormattedInput(refs.budgetCatInput); }catch(e){}
 
     });
 

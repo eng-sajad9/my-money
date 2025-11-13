@@ -157,31 +157,53 @@
     .modal .card{padding:18px}
     .row{display:flex;gap:8px}
 
+    /* Categories modal adjustments for better mobile layout */
+    #catsModal .card{display:flex;flex-direction:column;gap:0.75rem}
+    /* Make the new-category row inputs stack on small screens */
+    @media (max-width:420px){
+      #newCatName, #newCatIcon, #newCatColor, #addCatBtn{width:100% !important;display:block;margin:0 0 0.5rem 0}
+      #catsModal #catsList > div{flex-direction:column !important;align-items:stretch !important;gap:0.5rem;padding:0.6rem;border-bottom:1px solid rgba(2,6,23,0.04)}
+      #catsModal #catsList > div > div.flex{width:100%}
+      /* make delete button fill and easy to tap */
+      #catsModal #catsList > div > button.btn.ghost{width:100% !important;padding:0.8rem 1rem !important;border-radius:0.6rem !important;justify-content:center}
+      /* ensure badge and text wrap nicely */
+      #catsModal #catsList .cat-badge{width:3rem;height:3rem;font-size:1rem}
+    }
+
+    /* Desktop/tablet: tidy spacing for cats list rows */
+    #catsModal #catsList > div{display:flex;justify-content:space-between;align-items:center;padding:0.6rem 0;border-bottom:1px solid rgba(2,6,23,0.03)}
+    #catsModal #catsList > div > div.flex{display:flex;gap:0.6rem;align-items:center}
+    #catsModal #catsList > div button.btn.ghost{min-width:6rem}
+
     /* Responsive: mobile-first improvements */
     @media (max-width:900px){
       .app{grid-template-columns:1fr; padding-bottom:40px}
       aside{order:2}
       .aside-hidden{display:none}
     }
-    @media (max-width:420px){
-      body{padding:14px}
-      .btn{padding:0.9rem 1rem;font-size:1.025rem;border-radius:0.875rem}
+    /* Target phones up to 430px for iPhone 14/15 family */
+    @media (max-width:430px){
+      body{padding:0.9rem}
+      /* Buttons: consistent full-width stack in header/actions */
+      .btn{padding:0.9rem 1rem;font-size:1.05rem;border-radius:0.9rem;min-height:3.2rem}
       input,select,textarea{padding:0.9rem;font-size:1rem}
-      .month-chip{padding:10px 14px}
-  .expense{flex-direction:column;align-items:flex-start}
+      .month-chip{padding:0.6rem 0.9rem}
+      /* Expenses: stack and add gaps for readability */
+      .expense{flex-direction:column;align-items:flex-start;gap:0.5rem}
       .expense .left{width:100%}
-  .right{width:100%;text-align:left;margin-top:10px}
-  /* Give more vertical space to the expenses list on small phones */
-  .expenses-list{max-height:68vh}
-      .entry-notes{font-size:15px}
-      .entry-date{font-size:14px}
-      .cat-badge{width:42px;height:42px;font-size:18px}
-      .actions{display:flex;gap:8px;margin-top:8px}
+      .right{width:100%;text-align:left;margin-top:0}
+      .expenses-list{max-height:68vh}
+      .entry-notes{font-size:1rem}
+      .entry-date{font-size:0.95rem}
+      .cat-badge{width:3.0rem;height:3.0rem;font-size:1.05rem}
+      .actions{display:flex;gap:0.5rem;margin-top:0.5rem}
       .summary{flex-direction:column}
-      header{flex-direction:column;align-items:stretch;gap:10px}
+      header{flex-direction:column;align-items:stretch;gap:0.6rem}
+      /* Top actions: search + buttons stack nicely and have equal spacing */
       .top-actions{flex-direction:column;align-items:stretch;gap:0.6rem}
+      .top-actions .search{display:flex;gap:0.5rem;align-items:center}
       .top-actions .btn, .top-actions .btn.ghost{width:100%;display:flex;justify-content:center}
-      .modal{width:100%;max-width:620px}
+      .modal{width:100%;max-width:40rem}
     }
 
     /* progress */
@@ -219,6 +241,28 @@
     .spacer{flex:1}
     /* Hide the raw category ID text rendered as <div class="muted" small>... */
     #catsList .muted[small], #catsList [small]{ display: none !important; }
+
+    /* Gallery styles */
+    #galleryGrid img{width:100%;height:100%;object-fit:cover;border-radius:8px;display:block}
+    #galleryGrid .tile{background:#fff;border-radius:10px;overflow:hidden;box-shadow:0 8px 22px rgba(16,24,40,.06);height:160px}
+    #galleryModal .modal{max-width:44rem}
+    #galleryModal .modal .card{padding:0;max-height:90vh;overflow:auto}
+    #galleryModal h3{margin:0;padding:0.9rem 1rem;border-bottom:1px solid rgba(2,6,23,0.05);font-size:1.05rem}
+    #galleryModal > .card > div{padding:1rem}
+    /* Default grid: larger thumbnails (desktop/tablet) */
+    #galleryGrid{grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px}
+    @media(max-width:760px){
+      /* medium phones: 3 columns with slightly smaller tiles */
+      #galleryGrid{grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px}
+      #galleryGrid .tile{height:150px}
+    }
+    @media(max-width:430px){
+      /* small phones: 2 columns to make images larger and more usable */
+      #galleryGrid{grid-template-columns:repeat(2,1fr);gap:8px}
+      #galleryGrid .tile{height:150px}
+      #galleryModal #gallerySearch{min-width:80px}
+    }
+
   </style>
 </head>
 <body>
@@ -301,6 +345,13 @@
         <div style="margin-top:10px"><canvas id="pieChart"></canvas></div>
       </div>
 
+      <div style="margin-top:12px">
+        <div class="small muted">معرض الإيصالات</div>
+        <div style="margin-top:8px;display:flex;gap:8px;align-items:center">
+          <button class="btn" id="openGalleryBtn">افتح معرض الإيصالات</button>
+        </div>
+      </div>
+
     </aside>
   </div>
 
@@ -352,6 +403,25 @@
         <div style="display:flex;gap:8px;justify-content:flex-end">
           <button class="btn ghost" id="closeConfig">إغلاق</button>
           <button class="btn" id="initFirebaseBtn">Initialize</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Gallery Modal: Receipt gallery (thumbnails + full view) -->
+    <div class="modal card" id="galleryModal" style="display:none">
+      <h3>معرض الإيصالات</h3>
+      <div style="margin-top:10px;display:flex;flex-direction:column;gap:10px">
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+          <select id="galleryFilterCategory"><option value="">كل الفئات</option></select>
+          <select id="galleryFilterMonth"><option value="">كل الأشهر</option></select>
+          <input id="gallerySearch" placeholder="ابحث بالملاحظة أو المبلغ" style="flex:1;min-width:120px" />
+          <button class="btn ghost" id="galleryClear">بحث</button>
+        </div>
+
+        <div id="galleryGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:8px"></div>
+
+        <div style="display:flex;justify-content:center;gap:8px">
+          <button class="btn ghost" id="galleryClose">إغلاق</button>
         </div>
       </div>
     </div>
@@ -458,6 +528,8 @@
       for(const id of keys){
         const p = {...pending[id]};
         // strip local-only fields
+        // preserve original local-created timestamp if present
+        p.createdAt = pending[id]._createdAt || Date.now();
         delete p._localId; delete p._createdAt;
         try{
           await db.ref('expenses').push().set(p);
@@ -528,6 +600,28 @@
         return true;
       }catch(e){alert('خطأ بملف config: '+e.message);return false}
     }
+
+      // Dynamically load Firebase SDKs if the page was opened offline and the CDN scripts failed to load.
+      function loadFirebaseSDKs(){
+        return new Promise((resolve,reject)=>{
+          try{
+            if(window.firebase) return resolve();
+            const libs = [
+              'https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js',
+              'https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js'
+            ];
+            let i = 0;
+            function next(){
+              if(i >= libs.length) return resolve();
+              const s = document.createElement('script'); s.src = libs[i++]; s.async = true;
+              s.onload = ()=> next();
+              s.onerror = (err)=> reject(new Error('Failed loading firebase SDK: ' + libs[i-1]));
+              document.head.appendChild(s);
+            }
+            next();
+          }catch(er){ reject(er); }
+        });
+      }
 
     /***** Realtime listeners and syncing *****/
     function attachListeners(){
@@ -1341,8 +1435,19 @@
       window.addEventListener('online', ()=>{
         showToast('تم الاتصال بالإنترنت — حاولت المزامنة',2000);
         const cached = localStorage.getItem('firebaseConfig');
-        if(cached && !db){ try{ initFirebaseFromConfigString(cached); }catch(e){ console.warn('init on online failed', e); } }
-        try{ syncPendingExpenses(); }catch(e){console.warn(e)}
+        // If the page opened offline the Firebase SDKs may not be loaded. Load them dynamically
+        // then initialize and sync pending expenses.
+        (async ()=>{
+          try{
+            if(cached && !db){
+              if(typeof firebase === 'undefined'){
+                try{ await loadFirebaseSDKs(); }catch(e){ console.warn('could not load firebase SDKs', e); }
+              }
+              try{ initFirebaseFromConfigString(cached); }catch(e){ console.warn('init on online failed', e); }
+            }
+          }catch(e){ console.warn('online init error', e); }
+          try{ await syncPendingExpenses(); }catch(e){console.warn(e)}
+        })();
       });
       window.addEventListener('offline', ()=>{ showToast('أنت غير متصل. سيتم الحفظ محليًا'); });
       // also ensure month placeholders when we go online (persist next month in DB if possible)
@@ -1391,6 +1496,27 @@
         function debounce(fn,ms){let t;return (...a)=>{clearTimeout(t);t=setTimeout(()=>fn(...a),ms)}}
 
   // attach to amount and per-category budget inputs for nicer UX (refs available)
+  /* Gallery: render thumbnails from expenses with imageData and provide filters */
+  try{
+    const galleryBtn = $('openGalleryBtn'); const galleryModal = $('galleryModal'); const galleryGrid = $('galleryGrid');
+    const galleryFilterCategory = $('galleryFilterCategory'); const galleryFilterMonth = $('galleryFilterMonth'); const gallerySearch = $('gallerySearch');
+    const galleryClose = $('galleryClose'); const galleryClear = $('galleryClear');
+
+    function buildMonthKeys(){ const months = new Set(); const all = getAllExpensesObject(); for(const [id,e] of Object.entries(all||{})){ try{ const d=new Date(e.date); const k = d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0'); months.add(k); }catch(_){} } const placeholders = getMergedMonthPlaceholders(); Object.keys(placeholders||{}).forEach(k=>months.add(k)); return Array.from(months).sort((a,b)=>b.localeCompare(a)); }
+
+    function populateGalleryFilters(){ try{ galleryFilterCategory.innerHTML = '<option value="">كل الفئات</option>'; const catObj = categories && Object.keys(categories).length ? categories : (()=>{ try{ return JSON.parse(localStorage.getItem('cachedCategories')||'{}')}catch(e){return{}} })(); for(const [id,c] of Object.entries(catObj||{})){ const o=document.createElement('option'); o.value=id; o.textContent=c.name; galleryFilterCategory.appendChild(o); } galleryFilterMonth.innerHTML = '<option value="">كل الأشهر</option>'; const months = buildMonthKeys(); months.forEach(m=>{ const o=document.createElement('option'); o.value=m; o.textContent=m; galleryFilterMonth.appendChild(o); }); }catch(e){console.warn(e)} }
+
+    function renderGallery(){ if(!galleryGrid) return; galleryGrid.innerHTML = ''; const all = getAllExpensesObject(); const items = Object.entries(all||{}).map(([id,e])=>({id,...e})).filter(x=>x.imageData); const catFilter = galleryFilterCategory ? galleryFilterCategory.value : ''; const monthFilter = galleryFilterMonth ? galleryFilterMonth.value : ''; const search = gallerySearch ? gallerySearch.value.trim().toLowerCase() : ''; const filtered = items.filter(e=>{ if(catFilter && e.categoryId !== catFilter) return false; if(monthFilter){ try{ const d=new Date(e.date); const k = d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0'); if(k !== monthFilter) return false; }catch(_){} } if(search){ const hay = ((e.notes||'') + ' ' + (e.amount||'')).toLowerCase(); if(!hay.includes(search)) return false; } return true; }).sort((a,b)=> (b.createdAt||0) - (a.createdAt||0)); if(!filtered.length){ galleryGrid.innerHTML = '<div class="muted small">لا توجد إيصالات مطابقة للفلتر</div>'; return; } for(const e of filtered){ try{ const tile = document.createElement('div'); tile.className='tile'; const img = document.createElement('img'); img.src = e.imageData; img.loading = 'lazy'; img.className = 'clickable-thumb'; img.dataset.full = e.imageData; img.alt = e.notes || ('إيصال '+(e.id||'')); tile.appendChild(img); const meta = document.createElement('div'); meta.style.padding='6px'; meta.style.fontSize='12px'; meta.style.display='flex'; meta.style.justifyContent='space-between'; meta.style.alignItems='center'; meta.innerHTML = `<div style="font-weight:700">${(e.amount?fmt(e.amount):'')}</div><div class=muted style="font-size:11px">${formatDisplayDate(e.date)}</div>`; tile.appendChild(meta); galleryGrid.appendChild(tile); }catch(ex){console.warn(ex)} }
+    }
+
+    if(galleryBtn){ galleryBtn.onclick = ()=>{ populateGalleryFilters(); renderGallery(); openModal('galleryModal'); }; }
+    if(galleryClose){ galleryClose.onclick = closeModalAndBackdrop; }
+    if(galleryClear){ galleryClear.onclick = ()=>{ try{ if(galleryFilterCategory) galleryFilterCategory.value=''; if(galleryFilterMonth) galleryFilterMonth.value=''; if(gallerySearch) gallerySearch.value=''; renderGallery(); }catch(e){} } }
+    if(galleryFilterCategory) galleryFilterCategory.onchange = renderGallery;
+    if(galleryFilterMonth) galleryFilterMonth.onchange = ()=>{ renderGallery(); renderPieChartForSelectedMonth(); };
+    if(gallerySearch) gallerySearch.oninput = debounce(()=>renderGallery(), 250);
+  }catch(e){console.warn('gallery init failed', e)}
+
   attachFormattedInput(refs.amountInput);
   try{ attachFormattedInput(refs.budgetCatInput); }catch(e){}
 

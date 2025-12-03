@@ -38,23 +38,25 @@
     .btn{
       background:linear-gradient(90deg,var(--accent-start),var(--accent-end));
       color:#fff;
-      padding:0.8rem 1rem; /* comfortable touch target */
-      border-radius:0.875rem; /* ~14px */
+      padding:0.9rem 1.1rem;
+      border-radius:0.875rem;
       border:0;
       cursor:pointer;
       transition:transform .14s ease, box-shadow .14s, opacity .14s;
       font-weight:600;
-      font-size:1.025rem; /* within requested 1rem - 1.1rem */
+      font-size:1.025rem;
       box-shadow:0 0.375rem 1.125rem rgba(16,24,40,.08);
       display:inline-flex;align-items:center;justify-content:center;gap:0.5rem;line-height:1;
       text-align:center;
       vertical-align:middle;
+      min-height:44px;
+      touch-action:manipulation;
     }
     .btn:hover{transform:translateY(-0.125rem);box-shadow:0 0.75rem 1.75rem rgba(16,24,40,.10)}
     .btn:active{transform:translateY(-0.0625rem);box-shadow:0 0.375rem 1rem rgba(16,24,40,.06)}
 
-  /* Ghost style (secondary) - subtle border */
-  .ghost{background:transparent;color:var(--muted);box-shadow:none;border:1px solid rgba(100,110,140,.08);display:inline-flex;align-items:center;justify-content:center}
+    /* Ghost style (secondary) - subtle border */
+    .ghost{background:transparent;color:var(--muted);box-shadow:none;border:1px solid rgba(100,110,140,.08);display:inline-flex;align-items:center;justify-content:center}
 
     /* Specific semantic colors by ID (do not change any IDs in HTML/JS) */
     /* Add / Create (green) */
@@ -64,19 +66,20 @@
     /* Cancel-like actions (gray/neutral) */
     #cancelAdd, #salaryCancel, #closeCats, #closeConfig{ background:transparent; color:var(--muted); border:1px solid rgba(100,110,140,.08); box-shadow:none }
     /* Clear / Delete month (destructive) */
-    #clearMonthBtn{ background:linear-gradient(90deg,#ff7b7b,#ff5a5a); }
+    #clearMonthBtn{ background:linear-gradient(90deg,#ff7b7b,#ff5a5a); color:#fff; border:0; }
 
-  /* Make the 'الفئات' (categories) button more prominent (purple) */
-  #openCatsBtn{ background: linear-gradient(90deg,#8b5cf6,#7c3aed); color:#fff; border:0 }
+    /* Make the 'الفئات' (categories) button more prominent (purple) */
+    #openCatsBtn{ background: linear-gradient(90deg,#8b5cf6,#7c3aed); color:#fff; border:0; padding:0.9rem 1.1rem; }
+    
+    /* Archive button (orange) */
+    #archiveBtn{ background:linear-gradient(90deg,#f59e0b,#d97706); color:#fff; border:0; }
 
     /* For dynamic lists: treat the last ghost button inside an expense/card as Delete (red)
        This matches the structure where edit then delete buttons are appended. */
     .expense .btn.ghost:last-child{ background:linear-gradient(90deg,#ff6b6b,#ff4b4b); color:#fff; border:0 }
 
-  /* Edit buttons inside expense rows should be blue for clarity */
-  .expense .btn.ghost:first-child{ background: linear-gradient(90deg,#3b82f6,#60a5fa); color:#fff; border:0 }
-
-    /* Per-category budgets list: make the 'حذف' button visually destructive (red)
+    /* Edit buttons inside expense rows should be blue for clarity */
+    .expense .btn.ghost:first-child{ background: linear-gradient(90deg,#3b82f6,#60a5fa); color:#fff; border:0 }    /* Per-category budgets list: make the 'حذف' button visually destructive (red)
        Target the last button inside the right cell of each budget row so we don't
        need to change JS or add classes. Also ensure edit+delete buttons are
        consistent and touch-friendly on phones. */
@@ -116,6 +119,46 @@
     @media (max-width:420px){
       #catBudgetsList button.btn.ghost{ padding:12px 14px !important; min-width:72px !important; }
       #catBudgetsList > div > div:last-child > button.btn.ghost:last-child{ padding:12px 14px !important; min-width:72px !important; }
+      
+      /* Archive modal improvements for mobile */
+      #archiveModal .modal{
+        max-width:100%;
+        width:100%;
+      }
+      
+      #archiveSelectMonth,
+      #archiveViewMonth {
+        padding:12px;
+        font-size:16px;
+      }
+      
+      #executeArchiveBtn,
+      #viewArchiveDetailBtn,
+      #archiveOverallStats {
+        padding:12px 16px;
+        font-size:16px;
+        min-height:44px;
+      }
+      
+      #archiveModal h3 {
+        font-size:18px;
+      }
+      
+      #archiveModal > div > div {
+        padding:12px !important;
+        margin-bottom:10px;
+      }
+      
+      #archivePreview {
+        font-size:14px;
+        padding:12px !important;
+      }
+      
+      #archiveViewContent,
+      #archiveStatsContent {
+        font-size:14px;
+        max-height: 250px !important;
+      }
     }
 
     .search{display:flex;gap:8px;align-items:center}
@@ -153,7 +196,7 @@
 
     /* modals */
     .modal-backdrop{position:fixed;inset:0;background:rgba(2,6,23,.45);display:none;align-items:center;justify-content:center;z-index:60;padding:18px}
-    .modal{width:520px;max-width:100%;border-radius:14px}
+    .modal{width:520px;max-width:100%;border-radius:14px;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch}
     .modal .card{padding:18px}
     .row{display:flex;gap:8px}
 
@@ -201,8 +244,25 @@
       header{flex-direction:column;align-items:stretch;gap:0.6rem}
       /* Top actions: search + buttons stack nicely and have equal spacing */
       .top-actions{flex-direction:column;align-items:stretch;gap:0.6rem}
-      .top-actions .search{display:flex;gap:0.5rem;align-items:center}
-      .top-actions .btn, .top-actions .btn.ghost{width:100%;display:flex;justify-content:center}
+      .top-actions .search{display:flex;gap:0.5rem;align-items:center;flex-wrap:wrap}
+      .top-actions .btn, .top-actions .btn.ghost{
+        width:100%;
+        display:flex;
+        justify-content:center;
+        padding:0.95rem 1rem;
+        font-size:1.05rem;
+        min-height:3.2rem;
+      }
+      
+      /* Arrange action buttons in 2 rows on mobile */
+      .top-actions > .btn:nth-child(n+2){
+        order: 1;
+      }
+      
+      .top-actions .search {
+        order: 0;
+        margin-bottom: 0.5rem;
+      }
       .modal{width:100%;max-width:40rem}
     }
 
@@ -227,11 +287,26 @@
   #addModal #removeReceiptBtn{padding:0.5rem 0.6rem;margin-left:0.375rem;border-radius:0.65rem;align-self:center}
   #addModal #receiptInput{display:inline-block}
 
+  /* Archive modal content boxes - fixed heights with proper scrolling */
+  #archiveViewContent, #archiveStatsContent {
+    max-height: 320px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+    word-wrap: break-word;
+    word-break: break-word;
+  }
+
   /* On small screens, stack receipt input, preview and remove button vertically and make button full-width */
   @media (max-width:420px){
     #addModal #receiptInput{display:block !important;width:100% !important;margin-bottom:0.5rem !important}
     #addModal #receiptPreview{display:block !important;width:100% !important;height:auto !important;max-height:6rem!important;margin-bottom:0.5rem !important;object-fit:contain !important}
     #addModal #removeReceiptBtn{display:flex !important;width:100% !important;margin-left:0 !important;padding:0.8rem 1rem !important;justify-content:center !important}
+    
+    /* Archive modal: ensure content boxes scroll properly on mobile */
+    #archiveViewContent, #archiveStatsContent {
+      max-height: 250px !important;
+    }
   }
   /* iOS smoothing and momentum scroll improvements */
   .month-list, .expenses-list{ -webkit-overflow-scrolling:touch }
@@ -270,7 +345,7 @@
     <main class="main">
       <header>
         <div>
-          <h1>مدير المصاريف الشخصية</h1>
+          <h1>💳 مدير المصاريف الشخصية</h1>
         </div>
         <div class="top-actions">
           <div class="search">
@@ -278,9 +353,10 @@
             <select id="filterCategory"><option value="">كل الفئات</option></select>
             <select id="filterMonth"><option value="">كل الأشهر</option></select>
           </div>
-          <button class="btn" id="openAddBtn">أضف مصروف</button>
-          <button class="btn" id="addSalaryBtn" title="أضف راتب الشهري">أضف راتب</button>
-          <button class="btn ghost" id="clearMonthBtn" title="حذف كل المصاريف للشهر المحدد">حذف الشهر</button>
+          <button class="btn" id="openAddBtn">➕ أضف مصروف</button>
+          <button class="btn" id="addSalaryBtn" title="أضف راتب الشهري">💰 أضف راتب</button>
+          <button class="btn ghost" id="archiveBtn" title="عرض الأشهر المؤرشفة">📦 أرشيف</button>
+          <button class="btn ghost" id="clearMonthBtn" title="حذف كل المصاريف للشهر المحدد">🗑️ حذف الشهر</button>
         </div>
       </header>
 
@@ -323,32 +399,42 @@
     </main>
 
     <aside class="card" style="min-width:260px">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px"><strong>لوحة التحكم</strong>
-        <button class="btn ghost" id="openCatsBtn">الفئات</button>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px"><strong>⚙️ لوحة التحكم</strong>
+        <button class="btn ghost" id="openCatsBtn">🏷️ الفئات</button>
       </div>
 
       <!-- Monthly budget removed — using per-category budgets only -->
 
       <!-- Per-category budgets -->
       <div style="margin-top:14px">
-        <div class="small muted">ميزانية حسب الفئة</div>
+        <div class="small muted">💰 ميزانية حسب الفئة</div>
         <div style="display:flex;gap:8px;margin-top:8px;align-items:center">
-          <select id="budgetCatSelect" style="flex:1"></select>
-          <input id="budgetCatInput" placeholder="المبلغ" style="width:110px" />
-          <button class="btn" id="saveBudgetCatBtn">حفظ</button>
+          <select id="budgetCatSelect" style="flex:1;padding:10px;border-radius:8px"></select>
+          <input id="budgetCatInput" placeholder="المبلغ" style="width:100px;padding:10px;border-radius:8px" />
+          <button class="btn" id="saveBudgetCatBtn" style="min-width:60px;padding:10px">حفظ</button>
         </div>
         <div id="catBudgetsList" style="margin-top:10px;display:flex;flex-direction:column;gap:8px"></div>
       </div>
 
       <div style="margin-top:10px">
-        <div class="small muted">التقرير الشهري - أكثر فئة</div>
+        <div class="small muted">📊 التقرير الشهري</div>
         <div style="margin-top:10px"><canvas id="pieChart"></canvas></div>
       </div>
 
       <div style="margin-top:12px">
-        <div class="small muted">معرض الإيصالات</div>
+        <div class="small muted">📋 معرض الإيصالات</div>
         <div style="margin-top:8px;display:flex;gap:8px;align-items:center">
-          <button class="btn" id="openGalleryBtn">افتح معرض الإيصالات</button>
+          <button class="btn" id="openGalleryBtn" style="flex:1">🖼️ افتح المعرض</button>
+        </div>
+      </div>
+
+      <div style="margin-top:12px;padding-top:12px;border-top:1px solid #eee">
+        <div class="small muted">إدارة الأشهر</div>
+        <div style="margin-top:8px;display:flex;flex-direction:column;gap:8px">
+          <button class="btn ghost" id="newMonthBtn" title="أرشفة الشهر الحالي وبدء شهر جديد" style="background:linear-gradient(90deg,#f59e0b,#d97706);color:#fff;border:0;padding:12px;font-weight:700">🔄 شهر جديد</button>
+          <div id="currentMonthDisplay" class="small muted" style="text-align:center;padding:10px;background:linear-gradient(135deg,#f0f9ff,#f0fdf4);border-radius:8px;border-left:4px solid var(--blue);font-weight:600">
+            📅 الشهر الحالي: <strong id="currentMonthText">--</strong>
+          </div>
         </div>
       </div>
 
@@ -403,6 +489,56 @@
         <div style="display:flex;gap:8px;justify-content:flex-end">
           <button class="btn ghost" id="closeConfig">إغلاق</button>
           <button class="btn" id="initFirebaseBtn">Initialize</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Archive Modal: Advanced month management -->
+    <div class="modal card" id="archiveModal" style="display:none;min-width:600px;max-height:90vh;overflow-y:auto">
+      <h3>📦 إدارة أرشفة الأشهر</h3>
+      <div style="margin-top:10px;display:flex;flex-direction:column;gap:12px">
+        
+        <!-- Tab 1: Archive Month (Prominent) -->
+        <div style="border:2px solid var(--accent-start);border-radius:8px;padding:14px;background:linear-gradient(135deg,rgba(107,140,255,0.05),rgba(90,208,255,0.05))">
+          <div style="font-weight:700;margin-bottom:10px;color:var(--accent-start)">1️⃣ أرشفة شهر جديد</div>
+          <div style="display:flex;gap:8px;align-items:center;margin-bottom:10px">
+            <select id="archiveSelectMonth" style="flex:1;padding:12px;border-radius:8px">
+              <option value="">اختر الشهر المراد أرشفته...</option>
+            </select>
+            <button class="btn" id="executeArchiveBtn" style="min-width:110px;background:linear-gradient(90deg,#34d399,#10b981)">أرشفة</button>
+          </div>
+          <div id="archivePreview" class="small muted" style="padding:12px;background:#fff;border-radius:6px;border:1px solid #ddd;min-height:60px;line-height:1.6">
+            اختر شهراً لرؤية معلومات الأرشفة هنا
+          </div>
+        </div>
+
+        <!-- Tab 2: View Archived Months -->
+        <div style="border:1px solid #eee;border-radius:8px;padding:14px;background:#f9f9f9">
+          <div style="font-weight:700;margin-bottom:10px">2️⃣ عرض الأشهر المؤرشفة</div>
+          <div style="display:flex;gap:8px;align-items:center;margin-bottom:10px">
+            <select id="archiveViewMonth" style="flex:1;padding:12px;border-radius:8px">
+              <option value="">اختر شهراً مؤرشفاً...</option>
+            </select>
+            <button class="btn ghost" id="viewArchiveDetailBtn" style="min-width:80px;background:linear-gradient(90deg,#3b82f6,#60a5fa);color:#fff;border:0">عرض</button>
+            <button class="btn ghost" id="deleteArchiveMonthBtn" style="min-width:80px;background:linear-gradient(90deg,#ff6b6b,#ff4b4b);color:#fff;border:0;display:none">حذف</button>
+          </div>
+          <div id="archiveViewContent" style="max-height:320px;overflow-y:auto;overflow-x:hidden;border:1px solid #ddd;border-radius:6px;padding:12px;display:none;background:#fff;-webkit-overflow-scrolling:touch">
+            <!-- archived expenses will be rendered here -->
+          </div>
+        </div>
+
+        <!-- Tab 3: Statistics -->
+        <div style="border:1px solid #eee;border-radius:8px;padding:14px;background:#f9f9f9">
+          <div style="font-weight:700;margin-bottom:10px">3️⃣ إحصائيات الأرشيف</div>
+          <button class="btn ghost" id="archiveOverallStats" style="width:100%;background:linear-gradient(90deg,#8b5cf6,#7c3aed);color:#fff;border:0;padding:12px">عرض الإحصائيات الشاملة</button>
+          <div id="archiveStatsContent" style="margin-top:10px;padding:12px;background:#fff;border-radius:6px;border:1px solid #ddd;display:none;max-height:320px;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch">
+            <!-- stats will be displayed here -->
+          </div>
+        </div>
+
+        <!-- Actions -->
+        <div style="display:flex;gap:8px;justify-content:center;margin-top:12px;padding-top:12px;border-top:1px solid #eee">
+          <button class="btn ghost" id="closeArchive" style="flex:1">إغلاق</button>
         </div>
       </div>
     </div>
@@ -561,13 +697,87 @@
       return res;
     }
 
-    // Return merged expenses object (Firebase + pending local)
+    // Month archiving system - persist old months separately
+    const ARCHIVED_MONTHS_KEY = 'archivedMonths';
+    function getArchivedMonths(){ 
+      try{ 
+        // First try to get from Firebase if available
+        if(window.settings && window.settings.archivedMonths){
+          return window.settings.archivedMonths;
+        }
+        // Fallback to localStorage
+        return JSON.parse(localStorage.getItem(ARCHIVED_MONTHS_KEY)||'{}'); 
+      }catch(e){ 
+        return {}; 
+      } 
+    }
+    
+    function saveArchivedMonths(obj){ 
+      // Save to Firebase if available
+      if(db){
+        db.ref('settings/archivedMonths').set(obj).catch(e=>console.warn('Failed to save archive to Firebase', e));
+      }
+      // Also keep local backup for offline access
+      try{ localStorage.setItem(ARCHIVED_MONTHS_KEY, JSON.stringify(obj)); }catch(e){}
+    }
+    
+    // Archive a specific month's expenses to separate storage
+    function archiveMonth(yyyyMM){
+      const allObj = getAllExpensesObject();
+      const monthData = {};
+      for(const [id,e] of Object.entries(allObj||{})){
+        const d = new Date(e.date);
+        const key = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0');
+        if(key === yyyyMM) monthData[id] = e;
+      }
+      const archived = getArchivedMonths();
+      archived[yyyyMM] = monthData;
+      saveArchivedMonths(archived);
+    }
+    
+    // Get archived expenses for a month
+    function getArchivedExpenses(yyyyMM){
+      const archived = getArchivedMonths();
+      return archived[yyyyMM] || {};
+    }
+    
+    // Delete a month from archive
+    function deleteArchivedMonth(yyyyMM){
+      try{
+        const archived = getArchivedMonths();
+        if(archived[yyyyMM]){
+          delete archived[yyyyMM];
+          saveArchivedMonths(archived);
+          // Also delete from Firebase if available
+          if(db){
+            db.ref('settings/archivedMonths/'+yyyyMM).remove().catch(e=>console.warn('Failed to delete from Firebase', e));
+          }
+          return true;
+        }
+        return false;
+      }catch(e){
+        console.warn('deleteArchivedMonth failed', e);
+        return false;
+      }
+    }
+    
+    // Return merged expenses object (Firebase + pending local + archived for comparison)
     function getAllExpensesObject(){
       const merged = {};
       try{ Object.assign(merged, expenses); }catch(e){}
       const pending = getPendingExpenses();
       for(const [id,p] of Object.entries(pending||{})){
         merged[id] = {...p}; // keep local id
+      }
+      return merged;
+    }
+    
+    // Get all expenses including archived (for comparison views)
+    function getAllExpensesIncludingArchived(){
+      const merged = getAllExpensesObject();
+      const archived = getArchivedMonths();
+      for(const [month, data] of Object.entries(archived||{})){
+        Object.assign(merged, data);
       }
       return merged;
     }
@@ -698,6 +908,84 @@
       });
     }
 
+    // Comprehensive month archiving function - moves all expenses from a month to archive and removes from current
+    function archiveMonthManually(yyyyMM){
+      try{
+        if(!yyyyMM) return false;
+        
+        const allObj = getAllExpensesObject();
+        const monthData = {};
+        const idsToDelete = [];
+        
+        // Collect all expenses for this month
+        for(const [id,e] of Object.entries(allObj||{})){
+          if(!e.date) continue;
+          const d = new Date(e.date);
+          const key = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0');
+          if(key === yyyyMM) {
+            monthData[id] = e;
+            idsToDelete.push(id);
+          }
+        }
+        
+        if(Object.keys(monthData).length === 0) return false; // No data to archive
+        
+        // Save to archive
+        const archived = getArchivedMonths();
+        archived[yyyyMM] = monthData;
+        saveArchivedMonths(archived);
+        
+        // Delete from Firebase
+        for(const id of idsToDelete){
+          if(db){
+            db.ref('expenses/'+id).remove().catch(e=>console.warn('delete failed', e));
+          }
+        }
+        
+        // Delete from local pending
+        const pending = getPendingExpenses();
+        for(const id of idsToDelete){
+          if(pending[id]) delete pending[id];
+        }
+        savePendingExpenses(pending);
+        
+        // Delete budgets for this month
+        if(db){
+          db.ref('settings/monthlyBudgets/'+yyyyMM).remove().catch(e=>console.warn('budget delete failed', e));
+        }
+        
+        return true;
+      }catch(e){
+        console.warn('archiveMonthManually failed', e);
+        return false;
+      }
+    }
+    
+    // New month initialization - archive previous month and clean up for new month
+    function initializeNewMonth(){
+      try{
+        const now = new Date();
+        const currentMM = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0');
+        const lastMonthInitKey = 'lastMonthInit_' + currentMM;
+        
+        // Check if we've already initialized this month
+        if(localStorage.getItem(lastMonthInitKey)) return;
+        
+        // Get previous month
+        const prevDate = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+        const prevMM = prevDate.getFullYear() + '-' + String(prevDate.getMonth()+1).padStart(2,'0');
+        
+        // Archive previous month if it has data
+        try{
+          archiveMonthManually(prevMM);
+        }catch(e){console.warn('archiving previous month failed', e)}
+        
+        // Mark this month as initialized
+        localStorage.setItem(lastMonthInitKey, Date.now());
+        localStorage.setItem('currentMonth', currentMM);
+      }catch(e){console.warn('initializeNewMonth failed', e)}
+    }
+    
     // Remove any stored category whose name is 'راتب' (case-insensitive).
     // This removes from Firebase if connected, and from local cachedCategories.
     function removeSalaryCategories(){
@@ -1187,10 +1475,10 @@
     /***** Wire events on DOMContentLoaded *****/
     document.addEventListener('DOMContentLoaded', ()=>{
       // refs
-  ['searchInput','filterCategory','filterMonth','openAddBtn','addSalaryBtn','clearMonthBtn','openCatsBtn','addCatBtn','saveAdd','cancelAdd','addModal','catsModal','salaryModal','configModal','modalBackdrop','initFirebaseBtn','firebaseConfigInput','closeConfig','closeCats','newCatName','newCatColor','newCatIcon','catsList','amountInput','typeInput','categoryInput','dateInput','notesInput','salaryAmount','salaryDate','salaryAddNow','salarySave','salaryDelete','salaryCancel'].forEach(id=>refs[id]=$(id));
+  ['searchInput','filterCategory','filterMonth','openAddBtn','addSalaryBtn','clearMonthBtn','openCatsBtn','addCatBtn','saveAdd','cancelAdd','addModal','catsModal','salaryModal','configModal','modalBackdrop','initFirebaseBtn','firebaseConfigInput','closeConfig','closeCats','newCatName','newCatColor','newCatIcon','catsList','amountInput','typeInput','categoryInput','dateInput','notesInput','salaryAmount','salaryDate','salaryAddNow','salarySave','salaryDelete','salaryCancel','archiveBtn','archiveModal','archiveSelectMonth','executeArchiveBtn','archivePreview','archiveViewMonth','viewArchiveDetailBtn','archiveViewContent','archiveOverallStats','archiveStatsContent','closeArchive','deleteArchiveMonthBtn'].forEach(id=>refs[id]=$(id));
 
   // extra refs added: per-category budget and receipt photo
-  ['budgetCatSelect','budgetCatInput','saveBudgetCatBtn','catBudgetsList','receiptInput','receiptPreview','removeReceiptBtn'].forEach(id=>{ try{ refs[id] = $(id); }catch(e){} });
+  ['budgetCatSelect','budgetCatInput','saveBudgetCatBtn','catBudgetsList','receiptInput','receiptPreview','removeReceiptBtn','newMonthBtn','currentMonthText'].forEach(id=>{ try{ refs[id] = $(id); }catch(e){} });
 
   // buttons
   refs.openAddBtn.onclick = ()=>{ editingExpenseId = null; refs.saveAdd.textContent = 'أضف'; openModal('addModal'); refs.dateInput.value = new Date().toISOString().slice(0,10); try{ if(refs.receiptPreview) refs.receiptPreview.src=''; refs._receiptData = null; if(refs.receiptInput) refs.receiptInput.value=''; if(refs.removeReceiptBtn) refs.removeReceiptBtn.style.display='none'; refs._removeReceipt = false;}catch(e){} };
@@ -1394,6 +1682,339 @@
         initFirebaseFromConfigString(txt);
       };
 
+      // Archive modal handlers
+      if(refs.archiveBtn){ refs.archiveBtn.onclick = ()=>{
+        // Populate both selects with months that have data
+        const months = {};
+        const allObj = getAllExpensesObject();
+        
+        // Get months with current data (not yet archived)
+        for(const [id,e] of Object.entries(allObj||{})){
+          if(!e.date) continue;
+          const d = new Date(e.date);
+          const key = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0');
+          months[key] = (months[key]||0) + 1;
+        }
+        
+        // Populate archive select (current months to archive)
+        refs.archiveSelectMonth.innerHTML = '<option value="">اختر الشهر المراد أرشفته...</option>';
+        for(const month of Object.keys(months).sort().reverse()){
+          const opt = document.createElement('option');
+          opt.value = month;
+          opt.textContent = month + ' (' + months[month] + ' عنصر)';
+          refs.archiveSelectMonth.appendChild(opt);
+        }
+        
+        // Populate view select (archived months)
+        refs.archiveViewMonth.innerHTML = '<option value="">اختر شهراً مؤرشفاً...</option>';
+        const archived = getArchivedMonths();
+        for(const month of Object.keys(archived||{}).sort().reverse()){
+          const count = Object.keys(archived[month]||{}).length;
+          const opt = document.createElement('option');
+          opt.value = month;
+          opt.textContent = month + ' (' + count + ' عنصر)';
+          refs.archiveViewMonth.appendChild(opt);
+        }
+        
+        openModal('archiveModal');
+      }}
+      
+      // Show preview when selecting month to archive
+      if(refs.archiveSelectMonth){ refs.archiveSelectMonth.onchange = ()=>{
+        const month = refs.archiveSelectMonth.value;
+        if(!month){
+          refs.archivePreview.textContent = 'اختر شهراً لرؤية معلومات الأرشفة هنا';
+          return;
+        }
+        const allObj = getAllExpensesObject();
+        let count = 0, totalExpense = 0, totalIncome = 0;
+        for(const [id,e] of Object.entries(allObj||{})){
+          if(!e.date) continue;
+          const d = new Date(e.date);
+          const key = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0');
+          if(key === month){
+            count++;
+            const amt = Number(e.amount||0);
+            if(e.type === 'income') totalIncome += amt;
+            else totalExpense += amt;
+          }
+        }
+        refs.archivePreview.innerHTML = `<strong>الشهر:</strong> ${month}<br><strong>العناصر:</strong> ${count}<br><strong>الدخل:</strong> ${fmt(totalIncome)}<br><strong>المصروف:</strong> ${fmt(totalExpense)}<br><strong>الصافي:</strong> ${fmt(totalIncome - totalExpense)}<br><span class="muted small">سيتم نقل جميع البيانات إلى الأرشيف وحذفها من القائمة الحالية</span>`;
+      }}
+      
+      // Execute archiving
+      if(refs.executeArchiveBtn){ refs.executeArchiveBtn.onclick = ()=>{
+        const month = refs.archiveSelectMonth.value;
+        if(!month){ alert('اختر شهراً'); return }
+        if(!confirm('هل تريد أرشفة جميع بيانات ' + month + '؟\nلا يمكن التراجع عن هذه العملية مباشرة.')) return;
+        
+        try{
+          const success = archiveMonthManually(month);
+          if(success){
+            computeAndRender();
+            showToast('✅ تم أرشفة ' + month + ' بنجاح!', 4000);
+            
+            // Refresh the selects
+            refs.archiveSelectMonth.value = '';
+            refs.archivePreview.textContent = 'تم الأرشفة بنجاح! اختر شهراً آخر';
+            
+            // Re-populate view select
+            refs.archiveViewMonth.innerHTML = '<option value="">اختر شهراً مؤرشفاً...</option>';
+            const archived = getArchivedMonths();
+            for(const m of Object.keys(archived||{}).sort().reverse()){
+              const count = Object.keys(archived[m]||{}).length;
+              const opt = document.createElement('option');
+              opt.value = m;
+              opt.textContent = m + ' (' + count + ' عنصر)';
+              refs.archiveViewMonth.appendChild(opt);
+            }
+          } else {
+            alert('لم توجد بيانات لأرشفتها في هذا الشهر');
+          }
+        }catch(e){alert('خطأ بالأرشفة: ' + e.message)}
+      }}
+      
+      // View archived month details
+      if(refs.viewArchiveDetailBtn){ refs.viewArchiveDetailBtn.onclick = ()=>{
+        const month = refs.archiveViewMonth.value;
+        if(!month){ alert('اختر شهراً'); return }
+        
+        const data = getArchivedExpenses(month);
+        const items = Object.entries(data).map(([id,e])=>({id,...e})).sort((a,b)=>new Date(b.date) - new Date(a.date));
+        const content = refs.archiveViewContent;
+        content.innerHTML = '';
+        
+        if(items.length === 0){
+          content.innerHTML = '<div class="muted">لا توجد عناصر لهذا الشهر</div>';
+        } else {
+          let totalExpense = 0, totalIncome = 0;
+          
+          for(const e of items){
+            const amt = Number(e.amount||0);
+            if(e.type === 'income') totalIncome += amt;
+            else totalExpense += amt;
+            
+            const row = document.createElement('div');
+            row.style.display = 'flex';
+            row.style.justifyContent = 'space-between';
+            row.style.alignItems = 'center';
+            row.style.padding = '10px';
+            row.style.borderBottom = '1px solid #eee';
+            row.style.backgroundColor = e.type === 'income' ? '#f0fdf4' : '#fef2f2';
+            
+            const left = document.createElement('div');
+            left.innerHTML = `
+              <div style="font-weight:600;color:${e.type==='income'?'var(--success)':'var(--danger)'}">${categories[e.categoryId]?.name || e.categoryId || 'بدون فئة'}</div>
+              <div class="muted" style="font-size:12px; word-break: break-word;">${formatDisplayDate(e.date)} ${e.notes ? '• ' + e.notes : ''}</div>
+            `;
+            
+            const right = document.createElement('div');
+            right.style.fontWeight = '700';
+            right.style.fontSize = '15px';
+            right.style.color = e.type === 'income' ? 'var(--success)' : 'var(--danger)';
+            right.textContent = (e.type === 'income' ? '+' : '-') + ' ' + fmt(amt);
+            
+            // إضافة صورة الإيصال إذا كانت موجودة
+            if(e.imageData){
+              try{
+                const thumbDiv = document.createElement('div');
+                thumbDiv.style.marginTop = '8px';
+                const thumb = document.createElement('img');
+                thumb.src = e.imageData;
+                thumb.alt = 'صورة الإيصال';
+                thumb.style.width = '100%';
+                thumb.style.maxWidth = '200px';
+                thumb.style.height = 'auto';
+                thumb.style.borderRadius = '6px';
+                thumb.style.border = '1px solid #ddd';
+                thumb.style.cursor = 'pointer';
+                thumb.className = 'clickable-thumb';
+                thumb.dataset.full = e.imageData;
+                thumb.onclick = (ev)=>{ ev.stopPropagation(); showImage(e.imageData); };
+                thumbDiv.appendChild(thumb);
+                row.appendChild(thumbDiv);
+              }catch(ex){console.warn(ex)}
+            }
+            
+            row.appendChild(left);
+            row.appendChild(right);
+            content.appendChild(row);
+          }
+          
+          const summary = document.createElement('div');
+          summary.style.marginTop = '12px';
+          summary.style.padding = '12px';
+          summary.style.background = '#f0f9ff';
+          summary.style.borderRadius = '8px';
+          summary.style.borderLeft = '4px solid var(--blue)';
+          summary.innerHTML = `
+            <div style="display:flex;justify-content:space-between;margin-bottom:8px;padding-bottom:8px;border-bottom:1px solid rgba(0,0,0,0.1)">
+              <span style="font-weight:600">ملخص الشهر ${month}</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;margin-bottom:5px">
+              <span>الدخل:</span>
+              <span style="color:var(--success);font-weight:700">${fmt(totalIncome)}</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;margin-bottom:5px">
+              <span>المصروف:</span>
+              <span style="color:var(--danger);font-weight:700">${fmt(totalExpense)}</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;padding-top:8px;border-top:1px solid rgba(0,0,0,0.1)">
+              <span style="font-weight:600">الصافي:</span>
+              <span style="font-weight:700;color:${totalIncome - totalExpense >= 0 ? 'var(--success)' : 'var(--danger)'}">${fmt(totalIncome - totalExpense)}</span>
+            </div>
+          `;
+          content.appendChild(summary);
+        }
+        content.style.display = 'block';
+        
+        // Show delete button when viewing archived month
+        if(refs.deleteArchiveMonthBtn && month){
+          refs.deleteArchiveMonthBtn.style.display = 'inline-block';
+          refs.deleteArchiveMonthBtn.dataset.monthToDelete = month;
+        }
+      }}
+      
+      // Delete archived month handler
+      if(refs.deleteArchiveMonthBtn){ refs.deleteArchiveMonthBtn.onclick = ()=>{
+        const month = refs.deleteArchiveMonthBtn.dataset.monthToDelete;
+        if(!month){ alert('اختر شهراً أولاً'); return; }
+        if(!confirm('هل تريد حذف جميع بيانات الشهر المؤرشف ' + month + '؟\nهذه العملية لا يمكن التراجع عنها نهائياً.')) return;
+        
+        try{
+          const success = deleteArchivedMonth(month);
+          if(success){
+            showToast('✅ تم حذف أرشيف ' + month + ' بنجاح!', 4000);
+            
+            // Clear the view
+            refs.archiveViewContent.innerHTML = '';
+            refs.archiveViewContent.style.display = 'none';
+            refs.archiveViewMonth.value = '';
+            refs.deleteArchiveMonthBtn.style.display = 'none';
+            
+            // Refresh the select list
+            refs.archiveViewMonth.innerHTML = '<option value="">اختر شهراً مؤرشفاً...</option>';
+            const archived = getArchivedMonths();
+            for(const m of Object.keys(archived||{}).sort().reverse()){
+              const count = Object.keys(archived[m]||{}).length;
+              const opt = document.createElement('option');
+              opt.value = m;
+              opt.textContent = m + ' (' + count + ' عنصر)';
+              refs.archiveViewMonth.appendChild(opt);
+            }
+            
+            // Refresh statistics if visible
+            try{ if(refs.archiveStatsContent && refs.archiveStatsContent.style.display !== 'none') refs.archiveOverallStats.click(); }catch(e){}
+          } else {
+            alert('فشل الحذف - قد لا يكون الشهر موجوداً');
+          }
+        }catch(e){alert('خطأ بالحذف: ' + e.message)}
+      }}
+      
+      // Overall archive statistics
+      if(refs.archiveOverallStats){ refs.archiveOverallStats.onclick = ()=>{
+        const archived = getArchivedMonths();
+        const months = Object.keys(archived||{}).sort();
+        
+        if(months.length === 0){
+          refs.archiveStatsContent.innerHTML = '<div class="muted">لا توجد أشهر مؤرشفة بعد</div>';
+          refs.archiveStatsContent.style.display = 'block';
+          return;
+        }
+        
+        let totalExpense = 0, totalIncome = 0, totalItems = 0;
+        let monthsData = {};
+        
+        for(const month of months){
+          const items = Object.values(archived[month]||{});
+          const monthExpense = items.filter(e=>e.type!=='income').reduce((s,e)=>s+Number(e.amount||0),0);
+          const monthIncome = items.filter(e=>e.type==='income').reduce((s,e)=>s+Number(e.amount||0),0);
+          
+          totalExpense += monthExpense;
+          totalIncome += monthIncome;
+          totalItems += items.length;
+          monthsData[month] = { count: items.length, expense: monthExpense, income: monthIncome };
+        }
+        
+        let html = `
+          <div style="font-weight:600;margin-bottom:10px;padding-bottom:10px;border-bottom:2px solid var(--blue)">
+            الإحصائيات الشاملة للأرشيف
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:12px">
+            <div style="background:#f0fdf4;padding:10px;border-radius:6px;border-left:3px solid var(--success)">
+              <div class="small muted">الدخل الإجمالي</div>
+              <div style="font-weight:700;font-size:16px;color:var(--success)">${fmt(totalIncome)}</div>
+            </div>
+            <div style="background:#fef2f2;padding:10px;border-radius:6px;border-left:3px solid var(--danger)">
+              <div class="small muted">المصروف الإجمالي</div>
+              <div style="font-weight:700;font-size:16px;color:var(--danger)">${fmt(totalExpense)}</div>
+            </div>
+          </div>
+          <div style="background:#f0f9ff;padding:10px;border-radius:6px;border-left:3px solid var(--blue);margin-bottom:12px">
+            <div class="small muted">الصافي الإجمالي</div>
+            <div style="font-weight:700;font-size:16px;color:${totalIncome-totalExpense>=0?'var(--success)':'var(--danger)'}">${fmt(totalIncome - totalExpense)}</div>
+          </div>
+          <div style="background:#fef3c7;padding:10px;border-radius:6px;border-left:3px solid #f59e0b;margin-bottom:12px">
+            <div class="small muted">عدد الأشهر المؤرشفة</div>
+            <div style="font-weight:700;font-size:16px">${months.length} أشهر</div>
+          </div>
+          <div style="font-weight:600;margin:12px 0 8px 0;padding-bottom:8px;border-bottom:1px solid #ddd">تفصيل الأشهر:</div>
+        `;
+        
+        for(const month of months){
+          const data = monthsData[month];
+          html += `
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:8px;background:#fff9e6;margin-bottom:6px;border-radius:4px">
+              <div>
+                <strong>${month}</strong>
+                <span class="muted small"> (${data.count} عنصر)</span>
+              </div>
+              <div style="text-align:right">
+                <div style="font-size:12px">الدخل: <span style="color:var(--success);font-weight:600">${fmt(data.income)}</span></div>
+                <div style="font-size:12px">المصروف: <span style="color:var(--danger);font-weight:600">${fmt(data.expense)}</span></div>
+              </div>
+            </div>
+          `;
+        }
+        
+        refs.archiveStatsContent.innerHTML = html;
+        refs.archiveStatsContent.style.display = 'block';
+      }}
+      
+      if(refs.closeArchive){ refs.closeArchive.onclick = closeModalAndBackdrop; }
+
+      // New month button handler
+      if(refs.newMonthBtn){ refs.newMonthBtn.onclick = ()=>{
+        if(!confirm('هذا سيؤرشف الشهر الحالي وسيمسح كل المصاريف. هل تريد المتابعة؟')) return;
+        try{
+          const now = new Date();
+          const currentMM = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0');
+          
+          const success = archiveMonthManually(currentMM);
+          if(success){
+            // Clear the "initialization flag" so next month gets initialized
+            const lastMonthInitKey = 'lastMonthInit_' + currentMM;
+            localStorage.removeItem(lastMonthInitKey);
+            
+            // Refresh UI
+            computeAndRender();
+            showToast('✅ تم أرشفة ' + currentMM + ' بنجاح وتنظيف البيانات!', 4000);
+          } else {
+            alert('لم توجد بيانات للأرشفة');
+          }
+        }catch(e){alert('خطأ: '+e.message)}
+      }}
+      
+      // Update current month display
+      function updateCurrentMonthDisplay(){
+        try{
+          const now = new Date();
+          const currentMM = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0');
+          if(refs.currentMonthText) refs.currentMonthText.textContent = currentMM;
+        }catch(e){}
+      }
+      updateCurrentMonthDisplay();
+
       // monthly budget removed — use per-category budgets instead
 
       // export button removed from header; exportExpensesCSV still available for future use
@@ -1420,6 +2041,9 @@
 
       // Try to sync pending local expenses when app loads (if firebase available later attach will call sync too)
       try{ syncPendingExpenses(); }catch(e){}
+      
+      // Initialize new month (archive previous if needed)
+      try{ initializeNewMonth(); }catch(e){ console.warn('new month init error', e); }
 
       // Ensure current and next month placeholders exist (persisted) so user can add for next month
       try{

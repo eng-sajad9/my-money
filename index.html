@@ -2,7 +2,14 @@
 <html lang="ar">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <meta name="theme-color" content="#3b82f6" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="المصاريف" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'><rect fill='%233b82f6' width='180' height='180'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' font-size='100' font-weight='bold' fill='white' font-family='Arial'>💰</text></svg>" />
+  <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'><rect fill='%233b82f6' width='180' height='180' rx='40'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' font-size='90' fill='white' font-family='Arial'>💰</text></svg>" />
+  <link rel="manifest" href="data:application/manifest+json,{%22name%22:%22نظام إدارة المصاريف%22,%22short_name%22:%22المصاريف%22,%22description%22:%22تطبيق بسيط وفعال لإدارة المصاريف الشهرية%22,%22start_url%22:%22/index.html%22,%22scope%22:%22/%22,%22display%22:%22standalone%22,%22background_color%22:%22%23ffffff%22,%22theme_color%22:%22%233b82f6%22,%22orientation%22:%22portrait-primary%22,%22icons%22:[{%22src%22:%22data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect fill='%233b82f6' width='192' height='192'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' font-size='120' fill='white' font-family='Arial'>💰</text></svg>%22,%22sizes%22:%22192x192%22,%22type%22:%22image/svg+xml%22,%22purpose%22:%22any%22},{%22src%22:%22data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect fill='%233b82f6' width='192' height='192' rx='50'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' font-size='120' fill='white' font-family='Arial'>💰</text></svg>%22,%22sizes%22:%22192x192%22,%22type%22:%22image/svg+xml%22,%22purpose%22:%22maskable%22}]}" />
   <title>نظام إدارة المصاريف</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
   <style>
@@ -31,6 +38,42 @@
     header{display:flex;justify-content:space-between;align-items:center}
     h1{font-size:20px;margin:0;font-weight:700}
     .top-actions{display:flex;gap:10px;align-items:center}
+    
+    /* Online/Offline indicator */
+    .connection-indicator {
+      position: fixed;
+      top: 12px;
+      right: 12px;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      z-index: 1000;
+      display: block;
+      transition: all 0.3s;
+      box-shadow: 0 0 8px rgba(0,0,0,0.15);
+    }
+    
+    .connection-indicator.online {
+      background: #22c55e;
+      box-shadow: 0 0 6px rgba(34, 197, 94, 0.4);
+    }
+    
+    .connection-indicator.offline {
+      background: #ef4444;
+      animation: pulse 1.5s infinite;
+      box-shadow: 0 0 8px rgba(239, 68, 68, 0.5);
+    }
+    
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+    
+    .sync-status {
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
 
     /* Primary button (default) - neutral pleasant gradient
        Note: colors are kept as-is (ID selectors below override gradients for semantics).
@@ -124,41 +167,85 @@
       #archiveModal .modal{
         max-width:100%;
         width:100%;
+        min-width: auto;
+        max-height: 85vh;
       }
       
+      #archiveModal .modal .card {
+        padding: 12px;
+        gap: 10px;
+      }
+
+      #archiveModal h3 {
+        font-size: 16px;
+        margin-bottom: 10px;
+      }
+
       #archiveSelectMonth,
       #archiveViewMonth {
-        padding:12px;
-        font-size:16px;
+        width: 100%;
+        padding: 12px;
+        font-size: 16px;
+        box-sizing: border-box;
       }
-      
+
       #executeArchiveBtn,
       #viewArchiveDetailBtn,
+      #deleteArchiveMonthBtn,
       #archiveOverallStats {
-        padding:12px 16px;
-        font-size:16px;
-        min-height:44px;
+        padding: 12px 16px;
+        font-size: 14px;
+        min-height: 44px;
+        flex: 1;
       }
-      
-      #archiveModal h3 {
-        font-size:18px;
+
+      #archiveModal > .modal > .card > div > div {
+        padding: 12px;
+        margin-bottom: 10px;
       }
-      
-      #archiveModal > div > div {
-        padding:12px !important;
-        margin-bottom:10px;
-      }
-      
+
       #archivePreview {
-        font-size:14px;
-        padding:12px !important;
+        font-size: 14px;
+        padding: 12px;
+        min-height: 80px;
       }
-      
+
       #archiveViewContent,
       #archiveStatsContent {
-        font-size:14px;
+        font-size: 14px;
         max-height: 250px !important;
+        padding: 10px;
       }
+
+      /* Button containers in archive modal should flex */
+      #archiveModal > .modal > .card > div > div > div:first-child {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        flex-wrap: wrap;
+      }
+
+      #archiveModal > .modal > .card > div > div:last-child {
+        display: flex;
+        gap: 8px;
+        justify-content: center;
+        padding: 12px;
+        margin-bottom: 0;
+      }
+
+      #archiveModal > .modal > .card > div > div:last-child button {
+        flex: 1;
+        min-height: 44px;
+      }
+    }
+
+    /* Ensure archive modal is responsive and fits narrow screens */
+    .modal#archiveModal{
+      max-width:96vw !important;
+      width:96vw !important;
+      min-width:auto !important;
+      padding:10px !important;
+      box-sizing:border-box !important;
     }
 
     .search{display:flex;gap:8px;align-items:center}
@@ -218,6 +305,24 @@
     #catsModal #catsList > div > div.flex{display:flex;gap:0.6rem;align-items:center}
     #catsModal #catsList > div button.btn.ghost{min-width:6rem}
 
+    /* Month Management Styling */
+    #monthsList { 
+      max-height: 350px; 
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+    #monthsList > div {
+      transition: all 0.2s ease;
+    }
+    #monthsList > div:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(16,24,40,.08);
+    }
+    
+    #monthsStatsBar {
+      font-weight: 600;
+    }
+
     /* Responsive: mobile-first improvements */
     @media (max-width:900px){
       .app{grid-template-columns:1fr; padding-bottom:40px}
@@ -266,6 +371,32 @@
       .modal{width:100%;max-width:40rem}
     }
 
+    /* Extra small phones (< 380px width) */
+    @media (max-width:380px){
+      .btn{padding:0.8rem 0.9rem;font-size:0.95rem;min-height:40px}
+      input,select,textarea{padding:0.8rem;font-size:15px}
+      
+      #archiveSelectMonth, #archiveViewMonth {
+        font-size: 14px !important;
+        padding: 10px !important;
+      }
+
+      #executeArchiveBtn, #viewArchiveDetailBtn, #deleteArchiveMonthBtn {
+        padding: 8px 10px !important;
+        font-size: 13px !important;
+        min-width: 60px !important;
+      }
+
+      #archiveModal .modal {
+        max-height: 80vh !important;
+      }
+
+      #archiveViewContent, #archiveStatsContent {
+        max-height: 200px !important;
+      }
+    }
+
+
     /* progress */
     .progress{height:12px;background:#eef2ff;border-radius:999px;overflow:hidden}
     .progress > i{display:block;height:100%;background:linear-gradient(90deg,var(--accent-start),var(--accent-end));width:0;transition:width .6s ease}
@@ -287,7 +418,7 @@
   #addModal #removeReceiptBtn{padding:0.5rem 0.6rem;margin-left:0.375rem;border-radius:0.65rem;align-self:center}
   #addModal #receiptInput{display:inline-block}
 
-  /* Archive modal content boxes - fixed heights with proper scrolling */
+    /* Archive modal content boxes - fixed heights with proper scrolling */
   #archiveViewContent, #archiveStatsContent {
     max-height: 320px;
     overflow-y: auto;
@@ -297,7 +428,61 @@
     word-break: break-word;
   }
 
-  /* On small screens, stack receipt input, preview and remove button vertically and make button full-width */
+  /* Optimize Archive Modal for all devices */
+  #archiveModal .modal {
+    display: flex;
+    flex-direction: column;
+  }
+
+  #archiveModal .modal .card {
+    display: flex;
+    flex-direction: column;
+    max-height: 90vh;
+    padding: 16px;
+  }
+
+  #archiveModal h3 {
+    margin: 0 0 14px 0;
+    flex-shrink: 0;
+  }
+
+  #archiveModal > .modal > .card > div:first-of-type {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  #archiveModal > .modal > .card > div > div {
+    border: 1px solid #eee;
+    border-radius: 8px;
+    padding: 14px;
+    flex-shrink: 0;
+  }
+
+  #archiveSelectMonth, #archiveViewMonth {
+    width: 100%;
+    padding: 10px 12px;
+    border-radius: 8px;
+    font-size: 15px;
+    border: 1px solid #e9eef6;
+  }
+
+  #executeArchiveBtn, #viewArchiveDetailBtn, #deleteArchiveMonthBtn, #archiveOverallStats {
+    width: auto;
+    min-width: 80px;
+    padding: 10px 14px;
+    font-size: 14px;
+    border-radius: 8px;
+    white-space: nowrap;
+  }
+
+  #archivePreview {
+    width: 100%;
+    box-sizing: border-box;
+    word-break: break-word;
+  }  /* On small screens, stack receipt input, preview and remove button vertically and make button full-width */
   @media (max-width:420px){
     #addModal #receiptInput{display:block !important;width:100% !important;margin-bottom:0.5rem !important}
     #addModal #receiptPreview{display:block !important;width:100% !important;height:auto !important;max-height:6rem!important;margin-bottom:0.5rem !important;object-fit:contain !important}
@@ -341,6 +526,9 @@
   </style>
 </head>
 <body>
+  <!-- Connection status indicator -->
+  <div class="connection-indicator online" id="connectionIndicator"></div>
+
   <div class="app">
     <main class="main">
       <header>
@@ -392,8 +580,31 @@
       </section>
 
       <section class="card">
-        <strong>مقارنة الأشهر (آخر 6 أشهر)</strong>
-        <canvas id="barChart"></canvas>
+        <div style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none" onclick="toggleComparisonSection()">
+          <strong id="comparisonToggleLabel">📊 مقارنة متقدمة</strong>
+          <span id="comparisonToggleIcon" style="font-size:18px;transition:transform 0.3s">▼</span>
+        </div>
+        <div id="comparisonSection" style="display:none;margin-top:12px;padding-top:12px;border-top:1px solid #eee">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">
+            <div>
+              <label style="font-size:13px;color:var(--muted);font-weight:600;display:block;margin-bottom:6px">الشهر الأول</label>
+              <select id="comparisonMonth1" style="width:100%;padding:10px;border-radius:8px;border:1px solid #e9eef6" onchange="updateComparison()"><option value="">اختر شهر</option></select>
+            </div>
+            <div>
+              <label style="font-size:13px;color:var(--muted);font-weight:600;display:block;margin-bottom:6px">الشهر الثاني</label>
+              <select id="comparisonMonth2" style="width:100%;padding:10px;border-radius:8px;border:1px solid #e9eef6" onchange="updateComparison()"><option value="">اختر شهر</option></select>
+            </div>
+          </div>
+          <div style="margin-bottom:12px">
+            <label style="font-size:13px;color:var(--muted);font-weight:600;display:block;margin-bottom:6px">الفئات المتاحة</label>
+            <div id="comparisonCategoriesFilter" style="display:flex;flex-wrap:wrap;gap:6px"></div>
+            <div style="font-size:12px;color:var(--muted);margin-top:6px;font-style:italic">💡 لا تختار أي فئة لمقارنة جميع الفئات</div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
+            <canvas id="comparisonBarChart" height="200"></canvas>
+            <div id="comparisonStats" style="display:flex;flex-direction:column;gap:8px;justify-content:center"></div>
+          </div>
+        </div>
       </section>
 
     </main>
@@ -429,13 +640,40 @@
       </div>
 
       <div style="margin-top:12px;padding-top:12px;border-top:1px solid #eee">
-        <div class="small muted">إدارة الأشهر</div>
-        <div style="margin-top:8px;display:flex;flex-direction:column;gap:8px">
-          <button class="btn ghost" id="newMonthBtn" title="أرشفة الشهر الحالي وبدء شهر جديد" style="background:linear-gradient(90deg,#f59e0b,#d97706);color:#fff;border:0;padding:12px;font-weight:700">🔄 شهر جديد</button>
-          <div id="currentMonthDisplay" class="small muted" style="text-align:center;padding:10px;background:linear-gradient(135deg,#f0f9ff,#f0fdf4);border-radius:8px;border-left:4px solid var(--blue);font-weight:600">
-            📅 الشهر الحالي: <strong id="currentMonthText">--</strong>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+          <div style="font-weight:700;font-size:15px;color:var(--text)">📅 إدارة الأشهر</div>
+          <div id="monthsStatsBar" style="display:flex;gap:8px;font-size:11px">
+            <div style="padding:4px 8px;border-radius:6px;background:#f0f9ff;color:var(--blue);font-weight:600">
+              <span>الإجمالي: </span><span id="quickTotalMonths">0</span>
+            </div>
+            <div style="padding:4px 8px;border-radius:6px;background:#fef3c7;color:#b45309;font-weight:600">
+              <span>مؤرشفة: </span><span id="quickArchivedMonths">0</span>
+            </div>
           </div>
         </div>
+        
+        <!-- Current month highlight -->
+        <div id="currentMonthDisplay" style="padding:12px;border-radius:10px;background:linear-gradient(135deg,#f0f9ff,#e0f2fe);border-left:4px solid var(--blue);margin-bottom:12px;font-weight:600;display:flex;align-items:center;gap:10px">
+          <span style="font-size:18px">📅</span>
+          <div>
+            <div style="font-size:12px;color:var(--muted)">الشهر الحالي</div>
+            <div style="font-size:15px;color:var(--blue)" id="currentMonthText">--</div>
+          </div>
+        </div>
+        
+        <!-- New month action button -->
+        <button class="btn" id="newMonthBtn" title="أرشفة الشهر الحالي وبدء شهر جديد" style="width:100%;background:linear-gradient(90deg,#f59e0b,#d97706);color:#fff;border:0;padding:12px;font-weight:700;margin-bottom:14px;border-radius:10px;font-size:14px">🔄 أرشفة الشهر الحالي وبدء شهر جديد</button>
+        
+        <!-- Months list with inline actions -->
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <div style="font-size:12px;color:var(--muted);font-weight:600;margin-bottom:4px">الأشهر المتاحة</div>
+          <div id="monthsList" style="display:flex;flex-direction:column;gap:8px;max-height:350px;overflow-y:auto;-webkit-overflow-scrolling:touch">
+            <div style="text-align:center;color:var(--muted);padding:30px 20px;font-size:13px">جاري تحميل الأشهر...</div>
+          </div>
+        </div>
+        
+        <!-- Advanced management button -->
+        <button class="btn ghost" id="openMonthMgmtBtn" style="width:100%;margin-top:12px;border:2px solid var(--accent-start);color:var(--accent-start);background:transparent;font-weight:600">🔧 إدارة متقدمة (البحث والترتيب)</button>
       </div>
 
     </aside>
@@ -493,52 +731,98 @@
       </div>
     </div>
 
+    <!-- Month Management Modal -->
+    <div class="modal card" id="monthMgmtModal" style="display:none;max-height:90vh;overflow-y:auto;min-width:auto">
+      <h3 style="margin:0 0 14px 0">📅 إدارة جميع الأشهر</h3>
+      <div style="display:flex;flex-direction:column;gap:12px">
+        
+        <!-- Search and filter -->
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <input id="monthSearchInput" placeholder="ابحث عن شهر..." style="flex:1;min-width:150px;padding:10px;border-radius:8px;border:1px solid #e9eef6;font-size:13px" onkeyup="renderMonthsList()"/>
+          <select id="monthSortBy" style="padding:10px;border-radius:8px;border:1px solid #e9eef6;font-size:13px" onchange="renderMonthsList()">
+            <option value="recent">الأحدث أولاً</option>
+            <option value="oldest">الأقدم أولاً</option>
+            <option value="expense">الإنفاق الأعلى</option>
+            <option value="income">الدخل الأعلى</option>
+          </select>
+        </div>
+
+        <!-- Summary stats -->
+        <div id="monthsSummaryStats" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px">
+          <div style="padding:12px;border-radius:8px;background:linear-gradient(135deg,#f0f9ff,#e0f2fe);border-left:3px solid var(--blue)">
+            <div style="font-size:11px;color:var(--muted)">إجمالي الأشهر</div>
+            <div style="font-weight:700;font-size:16px" id="totalMonthsCount">0</div>
+          </div>
+          <div style="padding:12px;border-radius:8px;background:linear-gradient(135deg,#fef3c7,#fde68a);border-left:3px solid #f59e0b">
+            <div style="font-size:11px;color:var(--muted)">مؤرشفة</div>
+            <div style="font-weight:700;font-size:16px" id="archivedMonthsCount">0</div>
+          </div>
+          <div style="padding:12px;border-radius:8px;background:linear-gradient(135deg,#f0fdf4,#dcfce7);border-left:3px solid var(--success)">
+            <div style="font-size:11px;color:var(--muted)">نشطة</div>
+            <div style="font-weight:700;font-size:16px" id="activeMonthsCount">0</div>
+          </div>
+        </div>
+
+        <!-- Months list with actions -->
+        <div style="border:1px solid #e9eef6;border-radius:8px;padding:12px;max-height:400px;overflow-y:auto">
+          <div id="advancedMonthsList" style="display:flex;flex-direction:column;gap:8px">
+            <div style="text-align:center;color:var(--muted);padding:40px 20px;font-size:13px">جاري تحميل الأشهر...</div>
+          </div>
+        </div>
+
+        <!-- Actions -->
+        <div style="display:flex;gap:8px;justify-content:flex-end;padding-top:12px;border-top:1px solid #eee">
+          <button class="btn ghost" id="closeMgmtModal" style="min-width:100px">إغلاق</button>
+        </div>
+      </div>
+    </div>
+
     <!-- Archive Modal: Advanced month management -->
-    <div class="modal card" id="archiveModal" style="display:none;min-width:600px;max-height:90vh;overflow-y:auto">
-      <h3>📦 إدارة أرشفة الأشهر</h3>
-      <div style="margin-top:10px;display:flex;flex-direction:column;gap:12px">
+    <div class="modal card" id="archiveModal" style="display:none;max-height:90vh;overflow-y:auto;min-width:auto">
+      <h3 style="margin:0 0 14px 0">📦 إدارة أرشفة الأشهر</h3>
+      <div style="display:flex;flex-direction:column;gap:12px;overflow-y:auto">
         
         <!-- Tab 1: Archive Month (Prominent) -->
-        <div style="border:2px solid var(--accent-start);border-radius:8px;padding:14px;background:linear-gradient(135deg,rgba(107,140,255,0.05),rgba(90,208,255,0.05))">
+        <div style="border:2px solid var(--accent-start);border-radius:8px;padding:14px;background:linear-gradient(135deg,rgba(107,140,255,0.05),rgba(90,208,255,0.05));flex-shrink:0">
           <div style="font-weight:700;margin-bottom:10px;color:var(--accent-start)">1️⃣ أرشفة شهر جديد</div>
-          <div style="display:flex;gap:8px;align-items:center;margin-bottom:10px">
-            <select id="archiveSelectMonth" style="flex:1;padding:12px;border-radius:8px">
+          <div style="display:flex;gap:8px;align-items:stretch;margin-bottom:10px;flex-wrap:wrap">
+            <select id="archiveSelectMonth" style="flex:1;min-width:150px;padding:10px;border-radius:8px;border:1px solid #e9eef6">
               <option value="">اختر الشهر المراد أرشفته...</option>
             </select>
-            <button class="btn" id="executeArchiveBtn" style="min-width:110px;background:linear-gradient(90deg,#34d399,#10b981)">أرشفة</button>
+            <button class="btn" id="executeArchiveBtn" style="min-width:100px;background:linear-gradient(90deg,#34d399,#10b981);padding:10px 14px;">أرشفة</button>
           </div>
-          <div id="archivePreview" class="small muted" style="padding:12px;background:#fff;border-radius:6px;border:1px solid #ddd;min-height:60px;line-height:1.6">
+          <div id="archivePreview" class="small muted" style="padding:12px;background:#fff;border-radius:6px;border:1px solid #ddd;min-height:60px;line-height:1.6;word-break:break-word">
             اختر شهراً لرؤية معلومات الأرشفة هنا
           </div>
         </div>
 
         <!-- Tab 2: View Archived Months -->
-        <div style="border:1px solid #eee;border-radius:8px;padding:14px;background:#f9f9f9">
+        <div style="border:1px solid #eee;border-radius:8px;padding:14px;background:#f9f9f9;flex-shrink:0">
           <div style="font-weight:700;margin-bottom:10px">2️⃣ عرض الأشهر المؤرشفة</div>
-          <div style="display:flex;gap:8px;align-items:center;margin-bottom:10px">
-            <select id="archiveViewMonth" style="flex:1;padding:12px;border-radius:8px">
+          <div style="display:flex;gap:8px;align-items:stretch;margin-bottom:10px;flex-wrap:wrap">
+            <select id="archiveViewMonth" style="flex:1;min-width:150px;padding:10px;border-radius:8px;border:1px solid #e9eef6">
               <option value="">اختر شهراً مؤرشفاً...</option>
             </select>
-            <button class="btn ghost" id="viewArchiveDetailBtn" style="min-width:80px;background:linear-gradient(90deg,#3b82f6,#60a5fa);color:#fff;border:0">عرض</button>
-            <button class="btn ghost" id="deleteArchiveMonthBtn" style="min-width:80px;background:linear-gradient(90deg,#ff6b6b,#ff4b4b);color:#fff;border:0;display:none">حذف</button>
+            <button class="btn ghost" id="viewArchiveDetailBtn" style="min-width:80px;background:linear-gradient(90deg,#3b82f6,#60a5fa);color:#fff;border:0;padding:10px 12px;">عرض</button>
+            <button class="btn ghost" id="deleteArchiveMonthBtn" style="min-width:80px;background:linear-gradient(90deg,#ff6b6b,#ff4b4b);color:#fff;border:0;display:none;padding:10px 12px;">حذف</button>
           </div>
-          <div id="archiveViewContent" style="max-height:320px;overflow-y:auto;overflow-x:hidden;border:1px solid #ddd;border-radius:6px;padding:12px;display:none;background:#fff;-webkit-overflow-scrolling:touch">
+          <div id="archiveViewContent" style="max-height:300px;overflow-y:auto;overflow-x:hidden;border:1px solid #ddd;border-radius:6px;padding:12px;display:none;background:#fff;-webkit-overflow-scrolling:touch;word-break:break-word">
             <!-- archived expenses will be rendered here -->
           </div>
         </div>
 
         <!-- Tab 3: Statistics -->
-        <div style="border:1px solid #eee;border-radius:8px;padding:14px;background:#f9f9f9">
+        <div style="border:1px solid #eee;border-radius:8px;padding:14px;background:#f9f9f9;flex-shrink:0">
           <div style="font-weight:700;margin-bottom:10px">3️⃣ إحصائيات الأرشيف</div>
-          <button class="btn ghost" id="archiveOverallStats" style="width:100%;background:linear-gradient(90deg,#8b5cf6,#7c3aed);color:#fff;border:0;padding:12px">عرض الإحصائيات الشاملة</button>
-          <div id="archiveStatsContent" style="margin-top:10px;padding:12px;background:#fff;border-radius:6px;border:1px solid #ddd;display:none;max-height:320px;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch">
+          <button class="btn ghost" id="archiveOverallStats" style="width:100%;background:linear-gradient(90deg,#8b5cf6,#7c3aed);color:#fff;border:0;padding:10px 12px">عرض الإحصائيات الشاملة</button>
+          <div id="archiveStatsContent" style="margin-top:10px;padding:12px;background:#fff;border-radius:6px;border:1px solid #ddd;display:none;max-height:300px;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;word-break:break-word">
             <!-- stats will be displayed here -->
           </div>
         </div>
 
         <!-- Actions -->
-        <div style="display:flex;gap:8px;justify-content:center;margin-top:12px;padding-top:12px;border-top:1px solid #eee">
-          <button class="btn ghost" id="closeArchive" style="flex:1">إغلاق</button>
+        <div style="display:flex;gap:8px;justify-content:center;margin-top:12px;padding-top:12px;border-top:1px solid #eee;flex-shrink:0">
+          <button class="btn ghost" id="closeArchive" style="flex:1;min-width:100px">إغلاق</button>
         </div>
       </div>
     </div>
@@ -663,17 +947,49 @@
       let synced = 0;
       for(const id of keys){
         const p = {...pending[id]};
-        // strip local-only fields
-        // preserve original local-created timestamp if present
-        p.createdAt = pending[id]._createdAt || Date.now();
-        delete p._localId; delete p._createdAt;
+        // Handle different operation types
         try{
-          await db.ref('expenses').push().set(p);
-          removePendingExpense(id);
-          synced++;
+          if(p.isDelete && p.fbKey){
+            // Delete operation
+            await db.ref('expenses/'+p.fbKey).remove();
+            removePendingExpense(id);
+            synced++;
+          } else if(p.isUpdate && p.fbKey){
+            // Update operation
+            const updatePayload = {...p};
+            delete updatePayload.fbKey;
+            delete updatePayload.isUpdate;
+            delete updatePayload._localId;
+            delete updatePayload._createdAt;
+            await db.ref('expenses/'+p.fbKey).update(updatePayload);
+            removePendingExpense(id);
+            synced++;
+          } else if(p.type === 'category'){
+            // Category operation
+            const cat = {...p};
+            delete cat._localId;
+            delete cat._createdAt;
+            delete cat.localKey;
+            delete cat.type;
+            await db.ref('categories').push().set(cat);
+            removePendingExpense(id);
+            synced++;
+          } else {
+            // Regular expense add
+            const expense = {...p};
+            expense.createdAt = pending[id]._createdAt || Date.now();
+            delete expense._localId; delete expense._createdAt;
+            await db.ref('expenses').push().set(expense);
+            removePendingExpense(id);
+            synced++;
+          }
         }catch(e){ console.warn('sync failed for', id, e); }
       }
-      if(synced) showToast('تمت مزامنة ' + synced + ' عنصر(عناصر) إلى Firebase ✅', 3500);
+      if(synced){
+        showToast('✅ تمت مزامنة ' + synced + ' عنصر(عناصر)', 3500);
+        updatePendingCount();
+        computeAndRender();
+      }
       return synced;
     }
 
@@ -863,33 +1179,55 @@
     function addExpense(payload){
       payload.createdAt = Date.now();
       // if Firebase available, write directly
-      if(db){
+      if(db && navigator.onLine){
         const ref = db.ref('expenses').push();
         ref.set(payload).then(()=>{
           const tmsg = `<div style="font-weight:700;color:#fff">${payload.type==='income'?'+':'-'} ${fmt(payload.amount)}</div><div style="font-size:12px;color:rgba(255,255,255,0.95)">${formatDisplayDate(payload.date)}${payload.notes? ' • '+(payload.notes||'') : ''}</div>`;
           showToast(tmsg, 4200);
+          updatePendingCount();
           // try sync any pending too
           try{ syncPendingExpenses(); }catch(e){}
-        }).catch(e=>alert('خطأ الحفظ: '+e.message));
+          computeAndRender();
+        }).catch(e=>{
+          // Failed to save to Firebase, enqueue locally
+          enqueuePendingExpense(payload);
+          showToast('⚠️ محفوظ محليًا - سيتم الرفع لاحقاً', 2000);
+          updatePendingCount();
+          computeAndRender();
+        });
       } else {
         // offline: enqueue locally and show toast
         const localId = enqueuePendingExpense(payload);
-        const tmsg = `<div style="font-weight:700;color:#111">محليًا محفوظ: ${fmt(payload.amount)}</div><div style="font-size:12px;color:#333">${formatDisplayDate(payload.date)}${payload.notes? ' • '+(payload.notes||'') : ''}</div>`;
+        const tmsg = `<div style="font-weight:700;color:#111">💾 محفوظ محليًا</div><div style="font-size:12px;color:#333">${formatDisplayDate(payload.date)}${payload.notes? ' • '+(payload.notes||'') : ''}</div>`;
         showToast(tmsg, 4200);
-        // update UI immediately by adding to local in-memory view
+        updatePendingCount();
+        computeAndRender();
       }
     }
 
     function addCategory(cat){
-      if(db){
+      cat.createdAt = Date.now();
+      if(db && navigator.onLine){
         const ref = db.ref('categories').push();
-        ref.set(cat);
+        ref.set(cat).then(()=>{
+          showToast('✅ تمت إضافة الفئة', 2000);
+          updatePendingCount();
+          try{ syncPendingExpenses(); }catch(e){}
+        }).catch(e=>{
+          // Enqueue for later sync
+          enqueuePendingExpense({type: 'category', ...cat});
+          showToast('⚠️ محفوظة محليًا - سيتم الرفع لاحقاً', 2000);
+          updatePendingCount();
+        });
       } else {
-        // local fallback: create local key and persist to cachedCategories
+        // offline: create local key and persist to cachedCategories
         const key = 'localcat_'+uid();
         categories = categories || {};
         categories[key] = {...cat, id:key};
         try{ localStorage.setItem('cachedCategories', JSON.stringify(categories)); }catch(e){console.warn(e)}
+        enqueuePendingExpense({type: 'category', ...cat, localKey: key});
+        showToast('💾 محفوظة محليًا (فئة)', 2000);
+        updatePendingCount();
         renderCategoriesUI(); populateCategorySelects();
       }
     }
@@ -1024,18 +1362,51 @@
     }
 
     function updateExpense(id, payload){
-      if(!db){alert('ربط Firebase مطلوب.');return}
-      db.ref('expenses/'+id).update({...payload}).then(()=>{
-        showToast('تم التعديل ✅');
-      }).catch(e=>alert('خطأ التعديل: '+e.message));
+      payload.updatedAt = Date.now();
+      if(db && navigator.onLine){
+        db.ref('expenses/'+id).update(payload).then(()=>{
+          showToast('✅ تم التحديث بنجاح', 2000);
+          updatePendingCount();
+          try{ syncPendingExpenses(); }catch(e){}
+          computeAndRender();
+        }).catch(e=>{
+          // Enqueue for later sync
+          enqueuePendingExpense({...payload, fbKey: id, isUpdate: true});
+          showToast('⚠️ محفوظ محليًا - سيتم التحديث لاحقاً', 2000);
+          updatePendingCount();
+          computeAndRender();
+        });
+      } else {
+        // offline: enqueue the update
+        enqueuePendingExpense({...payload, fbKey: id, isUpdate: true});
+        showToast('💾 محفوظ محليًا (تحديث)', 2000);
+        updatePendingCount();
+        computeAndRender();
+      }
     }
 
     function deleteExpense(id){
-      if(!db){alert('ربط Firebase مطلوب.');return}
       if(!confirm('هل تريد حذف هذا المصروف؟')) return;
-      db.ref('expenses/'+id).remove().then(()=>{
-        showToast('حُذف العنصر ✅');
-      }).catch(e=>alert('خطأ الحذف: '+e.message));
+      if(db && navigator.onLine){
+        db.ref('expenses/'+id).remove().then(()=>{
+          showToast('✅ حُذف العنصر بنجاح', 2000);
+          updatePendingCount();
+          try{ syncPendingExpenses(); }catch(e){}
+          computeAndRender();
+        }).catch(e=>{
+          // Enqueue deletion for later sync
+          enqueuePendingExpense({fbKey: id, isDelete: true});
+          showToast('⚠️ سيتم الحذف عند الاتصال', 2000);
+          updatePendingCount();
+          computeAndRender();
+        });
+      } else {
+        // offline: enqueue the deletion
+        enqueuePendingExpense({fbKey: id, isDelete: true});
+        showToast('💾 محفوظ للحذف محليًا', 2000);
+        updatePendingCount();
+        computeAndRender();
+      }
     }
 
     function exportExpensesCSV(filteredList){
@@ -1253,8 +1624,9 @@
   renderBarChart(monthKeys.slice(0,6).reverse(), months);
   renderPieChartForSelectedMonth();
 
-      // budget
+      // budget and month management UI
       updateBudgetUI();
+      updateMonthManagementUI();
     }
 
     function renderMonthChips(monthKeys){
@@ -1454,11 +1826,454 @@
       ctx.fillStyle='#333'; ctx.font='12px Poppins'; let yy=10; entries.forEach(([cid,val],i)=>{ ctx.fillText(`${categories[cid]?.name||cid} (${Math.round(val/total*100)}%)`, 10, yy+=14) });
     }
 
+    /***** Advanced Comparison Functions *****/
+    function toggleComparisonSection(){
+      const section = $('comparisonSection');
+      const icon = $('comparisonToggleIcon');
+      const isHidden = section.style.display === 'none';
+      section.style.display = isHidden ? 'block' : 'none';
+      icon.style.transform = isHidden ? 'rotate(180deg)' : 'rotate(0deg)';
+      if(isHidden) populateComparisonMonths();
+    }
+
+    function populateComparisonMonths(){
+      const allObj = getAllExpensesObject();
+      const monthSet = new Set();
+      const now = new Date();
+      const currentMonth = now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0');
+      
+      for(const [id,e] of Object.entries(allObj)){
+        const d = new Date(e.date);
+        const key = d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');
+        monthSet.add(key);
+      }
+      
+      // Add archived months
+      try{
+        if(db && db.ref){
+          db.ref('settings/archivedMonths').once('value', snap=>{
+            const archived = snap.val() || {};
+            Object.keys(archived).forEach(m=>monthSet.add(m));
+            const monthList = Array.from(monthSet).sort().reverse();
+            renderComparisonMonthSelects(monthList);
+          });
+        }else{
+          renderComparisonMonthSelects(Array.from(monthSet).sort().reverse());
+        }
+      }catch(e){
+        renderComparisonMonthSelects(Array.from(monthSet).sort().reverse());
+      }
+    }
+
+    function renderComparisonMonthSelects(months){
+      const sel1 = $('comparisonMonth1');
+      const sel2 = $('comparisonMonth2');
+      const html = months.map(m=>`<option value="${m}">${m}</option>`).join('');
+      sel1.innerHTML = '<option value="">اختر شهر</option>' + html;
+      sel2.innerHTML = '<option value="">اختر شهر</option>' + html;
+      
+      // Populate categories filter
+      const allCategories = Object.keys(categories).map(id=>({id, name: categories[id].name, color: categories[id].color}));
+      const filterDiv = $('comparisonCategoriesFilter');
+      filterDiv.innerHTML = allCategories.map(cat=>`
+        <label style="display:flex;align-items:center;gap:6px;padding:6px 10px;border-radius:8px;background:#f0f0f0;cursor:pointer;font-size:13px">
+          <input type="checkbox" value="${cat.id}" onchange="updateComparison()" style="cursor:pointer" />
+          <span style="background:${cat.color};width:12px;height:12px;border-radius:50%"></span>
+          ${cat.name}
+        </label>
+      `).join('');
+    }
+
+    function updateComparison(){
+      const month1 = $('comparisonMonth1').value;
+      const month2 = $('comparisonMonth2').value;
+      
+      if(!month1 && !month2){
+        $('comparisonBarChart').style.display = 'none';
+        $('comparisonStats').innerHTML = '<div style="color:var(--muted);text-align:center">اختر شهراً واحداً على الأقل</div>';
+        return;
+      }
+      
+      // Get selected categories
+      const selectedCats = new Set();
+      document.querySelectorAll('#comparisonCategoriesFilter input:checked').forEach(cb=>selectedCats.add(cb.value));
+      
+      // Get data for both months (will handle archived months too)
+      Promise.all([
+        getMonthCategoryDataAsync(month1, selectedCats),
+        getMonthCategoryDataAsync(month2, selectedCats)
+      ]).then(([data1, data2])=>{
+        drawComparisonChart(data1, data2, month1, month2);
+        renderComparisonStats(data1, data2, month1, month2);
+      });
+    }
+
+    async function getMonthCategoryDataAsync(month, selectedCats){
+      const result = {};
+      
+      // First try to get from current expenses
+      const allObj = getAllExpensesObject();
+      
+      for(const [id,e] of Object.entries(allObj)){
+        const d = new Date(e.date);
+        const key = d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');
+        if(key !== month) continue;
+        if(e.type !== 'expense') continue;
+        
+        const catId = e.categoryId || 'uncat';
+        if(selectedCats.size > 0 && !selectedCats.has(catId)) continue;
+        
+        result[catId] = (result[catId]||0) + Number(e.amount||0);
+      }
+      
+      // If month not found in current expenses, try archived data
+      if(Object.keys(result).length === 0){
+        try{
+          if(db && db.ref){
+            // Get archived months list first
+            const monthsSnap = await db.ref('settings/archivedMonths').once('value');
+            const archivedMonths = monthsSnap.val() || {};
+            
+            // Check if this month is in archived data
+            if(archivedMonths[month]){
+              const monthData = archivedMonths[month];
+              
+              // monthData is an object with {expenseId: expenseObject}
+              for(const [id, e] of Object.entries(monthData)){
+                if(e.type !== 'expense') continue;
+                
+                const catId = e.categoryId || 'uncat';
+                if(selectedCats.size > 0 && !selectedCats.has(catId)) continue;
+                
+                result[catId] = (result[catId]||0) + Number(e.amount||0);
+              }
+            }
+          }
+        }catch(e){
+          console.warn('Error loading archived month data:', e);
+        }
+      }
+      
+      return result;
+    }
+
+    function getMonthCategoryData(month, selectedCats){
+      const result = {};
+      const allObj = getAllExpensesObject();
+      
+      for(const [id,e] of Object.entries(allObj)){
+        const d = new Date(e.date);
+        const key = d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');
+        if(key !== month) continue;
+        if(e.type !== 'expense') continue;
+        
+        const catId = e.categoryId || 'uncat';
+        if(selectedCats.size > 0 && !selectedCats.has(catId)) continue;
+        
+        result[catId] = (result[catId]||0) + Number(e.amount||0);
+      }
+      
+      return result;
+    }
+
+    function drawComparisonChart(data1, data2, month1, month2){
+      const c = $('comparisonBarChart');
+      const ctx = c.getContext('2d');
+      c.width = c.clientWidth * devicePixelRatio;
+      c.height = 200 * devicePixelRatio;
+      ctx.scale(devicePixelRatio, devicePixelRatio);
+      ctx.clearRect(0, 0, c.clientWidth, 200);
+      
+      // Get all categories
+      const allCats = new Set([...Object.keys(data1), ...Object.keys(data2)]);
+      const catArray = Array.from(allCats).sort();
+      
+      const w = c.clientWidth;
+      const h = 180;
+      const padding = 20;
+      const barWidth = Math.max(8, (w - padding*2) / Math.max(1, catArray.length*2) - 4);
+      const maxVal = Math.max(...catArray.map(c=>Math.max(data1[c]||0, data2[c]||0)), 1);
+      
+      // Draw bars
+      catArray.forEach((cat, i)=>{
+        const val1 = data1[cat]||0;
+        const val2 = data2[cat]||0;
+        
+        const baseX = padding + i * (barWidth*2 + 8);
+        const barH1 = val1/maxVal * (h-40);
+        const barH2 = val2/maxVal * (h-40);
+        
+        ctx.fillStyle = 'rgba(107,140,255,0.8)';
+        ctx.fillRect(baseX, h - barH1, barWidth, barH1);
+        
+        ctx.fillStyle = 'rgba(90,208,255,0.8)';
+        ctx.fillRect(baseX + barWidth + 2, h - barH2, barWidth, barH2);
+        
+        ctx.fillStyle = '#333';
+        ctx.font = '11px Poppins';
+        ctx.textAlign = 'center';
+        ctx.fillText((categories[cat]?.name||cat).substring(0,3), baseX + barWidth/2, h+12);
+      });
+      
+      // Legend
+      ctx.fillStyle = '#333';
+      ctx.font = '12px Poppins';
+      ctx.textAlign = 'left';
+      ctx.fillStyle = 'rgba(107,140,255,0.8)';
+      ctx.fillRect(padding, h+20, 10, 10);
+      ctx.fillStyle = '#333';
+      ctx.fillText(month1||'الشهر 1', padding+15, h+28);
+      
+      ctx.fillStyle = 'rgba(90,208,255,0.8)';
+      ctx.fillRect(padding+100, h+20, 10, 10);
+      ctx.fillStyle = '#333';
+      ctx.fillText(month2||'الشهر 2', padding+115, h+28);
+    }
+
+    function renderComparisonStats(data1, data2, month1, month2){
+      const total1 = Object.values(data1).reduce((s,v)=>s+v, 0);
+      const total2 = Object.values(data2).reduce((s,v)=>s+v, 0);
+      const diff = total1 - total2;
+      const diffPercent = total1 ? ((diff/total1)*100).toFixed(1) : 0;
+      
+      const statsHtml = `
+        <div style="padding:8px;border-radius:8px;background:#f0f9ff;border-left:3px solid var(--blue)">
+          <div style="font-size:12px;color:var(--muted)">إجمالي ${month1||'الشهر 1'}</div>
+          <div style="font-weight:700;font-size:16px;color:var(--blue)">${fmt(total1)}</div>
+        </div>
+        <div style="padding:8px;border-radius:8px;background:#f0fdf4;border-left:3px solid var(--success)">
+          <div style="font-size:12px;color:var(--muted)">إجمالي ${month2||'الشهر 2'}</div>
+          <div style="font-weight:700;font-size:16px;color:var(--success)">${fmt(total2)}</div>
+        </div>
+        <div style="padding:8px;border-radius:8px;background:${diff>0?'#fef3c7':'#dcfce7'};border-left:3px solid ${diff>0?'var(--danger)':'var(--success)'}">
+          <div style="font-size:12px;color:var(--muted)">الفرق</div>
+          <div style="font-weight:700;font-size:16px;color:${diff>0?'var(--danger)':'var(--success)'}">${diff>0?'+':'-'} ${fmt(Math.abs(diff))} (${diffPercent}%)</div>
+        </div>
+      `;
+      $('comparisonStats').innerHTML = statsHtml;
+    }
+
     /***** Budget UI *****/
     function updateBudgetUI(){
       // Update per-category budgets list for the selected month
       const month = $('filterMonth').value || (new Date()).getFullYear()+'-'+String(new Date().getMonth()+1).padStart(2,'0');
       try{ renderCategoryBudgetsList(month); }catch(e){}
+    }
+
+    /***** Month Management Functions *****/
+    function updateMonthManagementUI(){
+      renderQuickMonthsList();
+      updateMonthStats();
+    }
+
+    function updateMonthStats(){
+      const allObj = getAllExpensesObject();
+      const monthSet = new Set();
+      
+      for(const [id,e] of Object.entries(allObj)){
+        const d = new Date(e.date);
+        const key = d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');
+        monthSet.add(key);
+      }
+      
+      // Count archived from localStorage
+      try{
+        const archived = getArchivedMonths();
+        const archivedCount = Object.keys(archived).length;
+        $('quickArchivedMonths').textContent = archivedCount;
+        $('quickTotalMonths').textContent = monthSet.size + archivedCount;
+      }catch(e){
+        $('quickArchivedMonths').textContent = '0';
+        $('quickTotalMonths').textContent = monthSet.size;
+      }
+    }
+
+    function renderQuickMonthsList(){
+      const allObj = getAllExpensesObject();
+      const monthSet = new Set();
+      
+      for(const [id,e] of Object.entries(allObj)){
+        const d = new Date(e.date);
+        const key = d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');
+        monthSet.add(key);
+      }
+      
+      // Add archived months
+      try{
+        if(db && db.ref){
+          db.ref('settings/archivedMonths').once('value', snap=>{
+            const archived = snap.val() || {};
+            Object.keys(archived).forEach(m=>monthSet.add(m));
+            displayQuickMonthsList(Array.from(monthSet).sort().reverse());
+          });
+          return;
+        }
+      }catch(e){}
+      
+      displayQuickMonthsList(Array.from(monthSet).sort().reverse());
+    }
+
+    function displayQuickMonthsList(months){
+      const html = months.map(m=>{
+        const allObj = getAllExpensesObject();
+        let exp = 0, inc = 0;
+        
+        // Check in current expenses
+        for(const [id,e] of Object.entries(allObj)){
+          const d = new Date(e.date);
+          const key = d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');
+          if(key !== m) continue;
+          const amt = Number(e.amount||0);
+          if(e.type === 'income') inc += amt;
+          else exp += amt;
+        }
+        
+        // Also check in archived data (from localStorage)
+        try{
+          const archived = getArchivedMonths();
+          if(archived[m]){
+            const monthData = archived[m];
+            for(const [id, e] of Object.entries(monthData)){
+              const amt = Number(e.amount||0);
+              if(e.type === 'income') inc += amt;
+              else exp += amt;
+            }
+          }
+        }catch(e){}
+        
+        const now = new Date();
+        const currentMonth = now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0');
+        const isCurrent = m === currentMonth;
+        
+        return `
+          <div style="padding:12px;border-radius:10px;background:${isCurrent?'linear-gradient(135deg,#f0f9ff,#e0f2fe)':'#f9fafb'};border:${isCurrent?'2px solid var(--blue)':'1px solid #e5e7eb'};display:flex;justify-content:space-between;align-items:center;gap:10px;transition:all 0.2s">
+            <div style="flex:1;min-width:0">
+              <div style="font-weight:600;font-size:14px;color:${isCurrent?'var(--blue)':'var(--text)'}">${m} ${isCurrent?'<span style="background:var(--blue);color:white;padding:2px 6px;border-radius:4px;font-size:10px;margin-right:6px">حالي</span>':''}</div>
+              <div style="font-size:12px;color:var(--muted);margin-top:4px;display:flex;gap:12px">
+                <span style="color:var(--success)">📈 ${fmt(inc)}</span>
+                <span style="color:var(--danger)">📉 ${fmt(exp)}</span>
+                <span style="color:var(--accent-start);font-weight:600">💰 ${fmt(inc-exp)}</span>
+              </div>
+            </div>
+            <button class="btn ghost" onclick="deleteMonth('${m}')" style="padding:8px 12px;font-size:12px;background:#ffe0e0;color:#ff6b6b;border:none;border-radius:8px;transition:all 0.2s" onmouseover="this.style.background='#ffc0c0'" onmouseout="this.style.background='#ffe0e0'">🗑️ حذف</button>
+          </div>
+        `;
+      }).join('');
+      
+      $('monthsList').innerHTML = html || '<div style="text-align:center;color:var(--muted);padding:30px 20px;font-size:13px">لا توجد أشهر بعد</div>';
+    }
+
+    function toggleMonthManagement(){
+      // This function is no longer needed
+    }
+
+    function openAdvancedMonthMgmt(){
+      openModal('monthMgmtModal');
+      renderMonthsList();
+    }
+
+    function renderMonthsList(){
+      const allObj = getAllExpensesObject();
+      const monthMap = new Map();
+      
+      for(const [id,e] of Object.entries(allObj)){
+        const d = new Date(e.date);
+        const key = d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');
+        if(!monthMap.has(key)) monthMap.set(key, {exp:0, inc:0});
+        const m = monthMap.get(key);
+        const amt = Number(e.amount||0);
+        if(e.type === 'income') m.inc += amt;
+        else m.exp += amt;
+      }
+      
+      // Add archived months
+      let archived = [];
+      try{
+        // Get from localStorage first (always available)
+        const localArchived = getArchivedMonths();
+        Object.keys(localArchived).forEach(monthKey=>{
+          archived.push(monthKey);
+          if(!monthMap.has(monthKey)) monthMap.set(monthKey, {exp:0, inc:0});
+          const m = monthMap.get(monthKey);
+          const monthData = localArchived[monthKey];
+          for(const [id, e] of Object.entries(monthData)){
+            const amt = Number(e.amount||0);
+            if(e.type === 'income') m.inc += amt;
+            else m.exp += amt;
+          }
+        });
+      }catch(e){}
+      
+      displayAdvancedMonthsList(monthMap, archived);
+    }
+
+    function displayAdvancedMonthsList(monthMap, archived){
+      const search = $('monthSearchInput').value.toLowerCase();
+      const sort = $('monthSortBy').value;
+      
+      let months = Array.from(monthMap.entries()).map(([m, {exp, inc}])=>({m, exp, inc, isArchived: archived.includes(m)}));
+      
+      // Filter by search
+      if(search){
+        months = months.filter(x=>x.m.includes(search));
+      }
+      
+      // Sort
+      if(sort === 'recent') months.sort((a,b)=>b.m.localeCompare(a.m));
+      else if(sort === 'oldest') months.sort((a,b)=>a.m.localeCompare(b.m));
+      else if(sort === 'expense') months.sort((a,b)=>b.exp-a.exp);
+      else if(sort === 'income') months.sort((a,b)=>b.inc-a.inc);
+      
+      // Update stats
+      $('totalMonthsCount').textContent = months.length;
+      $('archivedMonthsCount').textContent = months.filter(x=>x.isArchived).length;
+      $('activeMonthsCount').textContent = months.filter(x=>!x.isArchived).length;
+      
+      // Render
+      const html = months.map(({m, exp, inc, isArchived})=>`
+        <div style="padding:12px;border-radius:8px;background:#f9f9f9;border:1px solid #e9eef6;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap">
+          <div style="flex:1;min-width:120px">
+            <div style="font-weight:600;font-size:14px">${m} ${isArchived?'<span style="background:#fef3c7;color:#b45309;padding:2px 6px;border-radius:4px;font-size:11px">مؤرشفة</span>':''}</div>
+            <div style="font-size:12px;color:var(--muted);margin-top:4px">
+              <span style="color:var(--success)">📈 ${fmt(inc)}</span> | 
+              <span style="color:var(--danger)">📉 ${fmt(exp)}</span> | 
+              <span style="color:var(--accent-start)">💰 ${fmt(inc-exp)}</span>
+            </div>
+          </div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap">
+            <button class="btn ghost" onclick="showMonthDetails('${m}')" style="padding:6px 10px;font-size:12px;background:linear-gradient(90deg,#3b82f6,#60a5fa);color:#fff;border:none;border-radius:6px">📊 تفاصيل</button>
+            <button class="btn ghost" onclick="deleteMonth('${m}')" style="padding:6px 10px;font-size:12px;background:#ffe0e0;color:#ff6b6b;border:none;border-radius:6px">🗑️ حذف</button>
+          </div>
+        </div>
+      `).join('');
+      
+      $('advancedMonthsList').innerHTML = html || '<div style="text-align:center;color:var(--muted);padding:40px 20px">لا توجد أشهر مطابقة</div>';
+    }
+
+    function deleteMonth(monthKey){
+      if(!confirm(`هل تريد حذف جميع المصاريف للشهر ${monthKey}؟\nهذه العملية لا يمكن التراجع عنها`)) return;
+      
+      const allObj = getAllExpensesObject();
+      for(const [id,e] of Object.entries(allObj)){
+        const d = new Date(e.date);
+        const key = d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');
+        if(key === monthKey){
+          try{
+            if(db && db.ref) db.ref('expenses/'+id).remove();
+          }catch(e){}
+          delete expenses[id];
+        }
+      }
+      
+      localStorage.setItem('expenses', JSON.stringify(expenses));
+      showToast(`تم حذف شهر ${monthKey} ✅`);
+      renderMonthsList();
+      renderQuickMonthsList();
+      computeAndRender();
+    }
+
+    function showMonthDetails(monthKey){
+      alert(`تفاصيل الشهر ${monthKey}:\n\nقريباً سيتم عرض المزيد من التفاصيل هنا`);
     }
 
     /***** Modal helpers *****/
@@ -1477,8 +2292,8 @@
       // refs
   ['searchInput','filterCategory','filterMonth','openAddBtn','addSalaryBtn','clearMonthBtn','openCatsBtn','addCatBtn','saveAdd','cancelAdd','addModal','catsModal','salaryModal','configModal','modalBackdrop','initFirebaseBtn','firebaseConfigInput','closeConfig','closeCats','newCatName','newCatColor','newCatIcon','catsList','amountInput','typeInput','categoryInput','dateInput','notesInput','salaryAmount','salaryDate','salaryAddNow','salarySave','salaryDelete','salaryCancel','archiveBtn','archiveModal','archiveSelectMonth','executeArchiveBtn','archivePreview','archiveViewMonth','viewArchiveDetailBtn','archiveViewContent','archiveOverallStats','archiveStatsContent','closeArchive','deleteArchiveMonthBtn'].forEach(id=>refs[id]=$(id));
 
-  // extra refs added: per-category budget and receipt photo
-  ['budgetCatSelect','budgetCatInput','saveBudgetCatBtn','catBudgetsList','receiptInput','receiptPreview','removeReceiptBtn','newMonthBtn','currentMonthText'].forEach(id=>{ try{ refs[id] = $(id); }catch(e){} });
+  // extra refs added: per-category budget, receipt photo, and month management
+  ['budgetCatSelect','budgetCatInput','saveBudgetCatBtn','catBudgetsList','receiptInput','receiptPreview','removeReceiptBtn','newMonthBtn','currentMonthText','openMonthMgmtBtn','closeMgmtModal','monthMgmtModal','monthSearchInput','monthSortBy'].forEach(id=>{ try{ refs[id] = $(id); }catch(e){} });
 
   // buttons
   refs.openAddBtn.onclick = ()=>{ editingExpenseId = null; refs.saveAdd.textContent = 'أضف'; openModal('addModal'); refs.dateInput.value = new Date().toISOString().slice(0,10); try{ if(refs.receiptPreview) refs.receiptPreview.src=''; refs._receiptData = null; if(refs.receiptInput) refs.receiptInput.value=''; if(refs.removeReceiptBtn) refs.removeReceiptBtn.style.display='none'; refs._removeReceipt = false;}catch(e){} };
@@ -1983,6 +2798,10 @@
       
       if(refs.closeArchive){ refs.closeArchive.onclick = closeModalAndBackdrop; }
 
+      // Month management modal
+      if(refs.openMonthMgmtBtn){ refs.openMonthMgmtBtn.onclick = openAdvancedMonthMgmt; }
+      if(refs.closeMgmtModal){ refs.closeMgmtModal.onclick = closeModalAndBackdrop; }
+
       // New month button handler
       if(refs.newMonthBtn){ refs.newMonthBtn.onclick = ()=>{
         if(!confirm('هذا سيؤرشف الشهر الحالي وسيمسح كل المصاريف. هل تريد المتابعة؟')) return;
@@ -2057,7 +2876,8 @@
 
       // Online/offline events: attempt auto-init and sync when connection returns
       window.addEventListener('online', ()=>{
-        showToast('تم الاتصال بالإنترنت — حاولت المزامنة',2000);
+        updateConnectionStatus();
+        showToast('✅ تم الاتصال بالإنترنت - جاري المزامنة',2000);
         const cached = localStorage.getItem('firebaseConfig');
         // If the page opened offline the Firebase SDKs may not be loaded. Load them dynamically
         // then initialize and sync pending expenses.
@@ -2070,10 +2890,51 @@
               try{ initFirebaseFromConfigString(cached); }catch(e){ console.warn('init on online failed', e); }
             }
           }catch(e){ console.warn('online init error', e); }
-          try{ await syncPendingExpenses(); }catch(e){console.warn(e)}
+          try{ 
+            const synced = await syncPendingExpenses();
+            if(synced > 0) showToast(`✅ تمت مزامنة ${synced} عملية`, 2000);
+          }catch(e){console.warn(e)}
         })();
       });
-      window.addEventListener('offline', ()=>{ showToast('أنت غير متصل. سيتم الحفظ محليًا'); });
+      
+      window.addEventListener('offline', ()=>{ 
+        updateConnectionStatus();
+        showToast('⚠️ أنت غير متصل - سيتم الحفظ محليًا', 2000);
+      });
+      
+      // Update connection status indicator
+      function updateConnectionStatus(){
+        const ind = $('connectionIndicator');
+        if(navigator.onLine){
+          ind.classList.remove('offline');
+          ind.classList.add('online');
+        } else {
+          ind.classList.remove('online');
+          ind.classList.add('offline');
+        }
+      }
+      
+      // Check pending count
+      function updatePendingCount(){
+        try{
+          const pending = getPendingExpenses();
+          const count = Object.keys(pending).length;
+          const statusEl = $('connectionIndicator');
+          // Just update class based on connection + pending state
+          if(!navigator.onLine){
+            statusEl.classList.add('offline');
+            statusEl.classList.remove('online');
+          } else if(count > 0){
+            // Has pending but online - show amber/warning state
+            statusEl.classList.add('offline'); // reuse offline style temporarily for pending
+            statusEl.classList.remove('online');
+          } else {
+            statusEl.classList.add('online');
+            statusEl.classList.remove('offline');
+          }
+        }catch(e){}
+      }
+      
       // also ensure month placeholders when we go online (persist next month in DB if possible)
       window.addEventListener('online', ()=>{
         try{
@@ -2192,6 +3053,24 @@
 
       // also close when tapping outside the image
       if(lb){ lb.addEventListener('click', function(ev){ if(ev.target === lb) hideImage(); }); }
+
+      // Register Service Worker for PWA
+      if('serviceWorker' in navigator){
+        navigator.serviceWorker.register('data:application/javascript;charset=utf-8,' + encodeURIComponent(`
+          self.addEventListener('install', e => {
+            e.waitUntil(caches.open('v1').then(c => c.addAll(['/'])));
+            self.skipWaiting();
+          });
+          self.addEventListener('activate', e => {
+            e.waitUntil(clients.claim());
+          });
+          self.addEventListener('fetch', e => {
+            e.respondWith(
+              caches.match(e.request).then(r => r || fetch(e.request))
+            );
+          });
+        `)).catch(e => console.log('SW registration failed:', e));
+      }
     })();
   </script>
 

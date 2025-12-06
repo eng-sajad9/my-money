@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <title>نظام إدارة المصاريف</title>
+  <icon rel="icon" href="http://pngegg.com/ar/png-pxffu" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <style>
@@ -742,6 +743,135 @@
       gap: 4px;
       margin-top: 3px;
       flex-wrap: wrap;
+    }
+
+    /* معاينة الصور في Modal المصروف */
+    .image-preview-container {
+      margin-top: 8px;
+      padding: 8px;
+      background: var(--muted-bg);
+      border-radius: 12px;
+      border: 1px solid var(--border-color);
+      display: none;
+      flex-direction: row;
+      align-items: flex-start;
+      gap: 8px;
+      transition: all 0.3s ease;
+    }
+
+    .image-preview-container.active {
+      display: flex;
+      border-color: var(--accent);
+      background: rgba(37, 99, 235, 0.05);
+    }
+
+    .image-preview-container[data-theme="dark"] {
+      background: var(--muted-bg-2);
+    }
+
+    .image-preview-container.active[data-theme="dark"] {
+      background: rgba(96, 165, 250, 0.08);
+      border-color: var(--accent-strong);
+    }
+
+    .image-preview-box {
+      position: relative;
+      width: 100px;
+      height: 100px;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      flex-shrink: 0;
+    }
+
+    .image-preview-box img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .image-preview-info {
+      text-align: right;
+      font-size: 11px;
+      color: var(--subtext-color);
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      flex: 1;
+    }
+
+    .image-preview-filename {
+      font-size: 12px;
+      color: var(--text-color);
+      font-weight: 500;
+      word-break: break-all;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      line-clamp: 2;
+      -webkit-box-orient: vertical;
+    }
+
+    .image-preview-size {
+      font-size: 10px;
+      color: var(--subtext-color);
+    }
+
+    .image-preview-remove {
+      background: rgba(185, 28, 28, 0.1);
+      color: #b91c1c;
+      border: 1px solid rgba(185, 28, 28, 0.25);
+      padding: 4px 8px;
+      border-radius: 6px;
+      font-size: 10px;
+      cursor: pointer;
+      transition: all 0.2s;
+      width: auto;
+      min-height: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .image-preview-remove:hover {
+      background: rgba(185, 28, 28, 0.2);
+      border-color: rgba(185, 28, 28, 0.4);
+    }
+
+    .image-preview-remove:active {
+      transform: scale(0.98);
+    }
+
+    /* تحسينات للهواتف الذكية */
+    @media (max-width: 480px) {
+      .image-preview-container {
+        padding: 6px;
+      }
+
+      .image-preview-box {
+        width: 70px;
+        height: 70px;
+      }
+
+      .image-preview-info {
+        font-size: 10px;
+      }
+
+      .image-preview-filename {
+        font-size: 11px;
+      }
+
+      .image-preview-remove {
+        padding: 3px 6px;
+        font-size: 9px;
+        min-height: 26px;
+      }
     }
 
     /* زر عام */
@@ -1695,6 +1825,19 @@
       <div class="form-group">
         <label class="form-label">صورة (اختياري)</label>
         <input id="expenseImageInput" type="file" accept="image/*" class="form-input" />
+        <!-- معاينة الصورة -->
+        <div id="imagePreviewContainer" class="image-preview-container">
+          <div class="image-preview-box">
+            <img id="imagePreviewImg" src="" alt="معاينة الصورة" />
+          </div>
+          <div class="image-preview-info">
+            <span class="image-preview-filename" id="imagePreviewFilename"></span>
+            <span class="image-preview-size" id="imagePreviewSize"></span>
+          </div>
+          <button type="button" id="imagePreviewRemove" class="image-preview-remove">
+            ✕ إزالة الصورة
+          </button>
+        </div>
       </div>
       <div class="modal-footer" style="justify-content: space-between;">
         <button id="deleteExpenseBtn" class="btn btn-outline btn-sm" style="display:none;">
@@ -1814,7 +1957,41 @@
     const STORAGE_KEY_PREFIX = "expense_manager_";
     const THEME_KEY = "expense_manager_theme";
     const LAST_UID_KEY = STORAGE_KEY_PREFIX + "last_uid";
+    const SYNC_QUEUE_KEY = STORAGE_KEY_PREFIX + "sync_queue";
+    const LAST_SYNC_KEY = STORAGE_KEY_PREFIX + "last_sync";
     const defaultCategories = ["أكل", "مواصلات", "تسوق", "فواتير", "ترفيه", "أخرى"];
+
+    // متغيرات لمراقبة حالة الاتصال والمزامنة
+    let isOnline = navigator.onLine;
+    let isSyncing = false;
+    let syncQueue = [];
+
+    // مراقبة حالة الاتصال بالانترنت
+    window.addEventListener("online", () => {
+      isOnline = true;
+      updateConnectionUI();
+      // محاولة مزامنة البيانات المعلقة عند العودة للاتصال
+      syncPendingChanges();
+    });
+
+    window.addEventListener("offline", () => {
+      isOnline = false;
+      updateConnectionUI();
+    });
+
+    // تحديث الواجهة لإظهار حالة الاتصال
+    function updateConnectionUI() {
+      const indicator = document.querySelector(".connection-indicator");
+      if (!indicator) return;
+      
+      if (isOnline) {
+        indicator.classList.remove("offline");
+        indicator.classList.add("online");
+      } else {
+        indicator.classList.remove("online");
+        indicator.classList.add("offline");
+      }
+    }
 
     let state = {
       months: [],
@@ -1915,14 +2092,71 @@
       if (!firebaseEnabled || !currentUser || !userRef) return;
       try {
         await set(userRef, state);
+        // تسجيل وقت آخر مزامنة ناجحة
+        localStorage.setItem(LAST_SYNC_KEY, Date.now().toString());
+        return true;
       } catch (e) {
         console.warn("Failed to sync with Firebase:", e);
+        return false;
+      }
+    }
+
+    // إضافة البيانات إلى قائمة الانتظار للمزامنة
+    function queueForSync(action, data) {
+      try {
+        const queue = JSON.parse(localStorage.getItem(SYNC_QUEUE_KEY) || "[]");
+        queue.push({
+          action,
+          data,
+          timestamp: Date.now(),
+          id: Math.random().toString(36).substr(2, 9)
+        });
+        localStorage.setItem(SYNC_QUEUE_KEY, JSON.stringify(queue));
+      } catch (e) {
+        console.warn("Failed to queue sync:", e);
+      }
+    }
+
+    // معالجة قائمة الانتظار عند العودة للاتصال
+    async function syncPendingChanges() {
+      if (isSyncing || !isOnline || !firebaseEnabled || !currentUser) return;
+      
+      isSyncing = true;
+      try {
+        const queue = JSON.parse(localStorage.getItem(SYNC_QUEUE_KEY) || "[]");
+        if (queue.length === 0) {
+          isSyncing = false;
+          return;
+        }
+
+        // محاولة المزامنة
+        const success = await saveStateRemote();
+        if (success) {
+          // حذف قائمة الانتظار بعد المزامنة الناجحة
+          localStorage.removeItem(SYNC_QUEUE_KEY);
+        }
+      } catch (e) {
+        console.warn("Sync failed:", e);
+      } finally {
+        isSyncing = false;
       }
     }
 
     async function saveState() {
       saveStateLocal();
-      await saveStateRemote();
+      
+      if (!isOnline) {
+        // إذا كنا دون اتصال، أضف للقائمة
+        queueForSync("save", state);
+        return;
+      }
+      
+      // إذا كان هناك اتصال، حاول المزامنة مباشرة
+      const success = await saveStateRemote();
+      if (!success) {
+        // إذا فشلت المزامنة، أضف للقائمة
+        queueForSync("save", state);
+      }
     }
 
     function loadStateLocal() {
@@ -2067,6 +2301,7 @@ const modalPasswordMessage = document.getElementById("modalPasswordMessage");
 
     let editingMonthId = null;
     let editingExpenseId = null;
+    let isSavingExpense = false; // علم للتحكم بعملية الحفظ ومنع التكرار
 
     /* ======= تسجيل الدخول (نماذج منفصلة) ======= */
 
@@ -3042,6 +3277,7 @@ async function loadAllUsersForAdmin() {
     /* ======= Expense Modal ======= */
 
     function openExpenseModal(expenseId = null) {
+      isSavingExpense = false; // إعادة تعيين العلم عند فتح الـ Modal
       const month = getSelectedMonth();
       if (!month) {
         alert("من فضلك أضف شهرًا أولاً.");
@@ -3058,6 +3294,16 @@ async function loadAllUsersForAdmin() {
         expenseDateInput.value = exp.date || "";
         expenseNoteInput.value = exp.note || "";
         expenseImageInput.value = "";
+        // عرض معاينة الصورة القديمة إن وجدت
+        if (exp.imageDataUrl) {
+          imagePreviewImg.src = exp.imageDataUrl;
+          imagePreviewFilename.textContent = "صورة موجودة";
+          imagePreviewSize.textContent = "";
+          imagePreviewContainer.classList.add("active");
+        } else {
+          imagePreviewContainer.classList.remove("active");
+          imagePreviewImg.src = "";
+        }
         deleteExpenseBtn.style.display = "inline-flex";
       } else {
         editingExpenseId = null;
@@ -3068,6 +3314,8 @@ async function loadAllUsersForAdmin() {
         expenseDateInput.valueAsDate = new Date();
         expenseNoteInput.value = "";
         expenseImageInput.value = "";
+        imagePreviewContainer.classList.remove("active");
+        imagePreviewImg.src = "";
         deleteExpenseBtn.style.display = "none";
       }
       modalExpense.style.display = "flex";
@@ -3075,6 +3323,9 @@ async function loadAllUsersForAdmin() {
 
     function closeExpenseModal() {
       modalExpense.style.display = "none";
+      // إزالة معاينة الصورة عند الإغلاق
+      imagePreviewContainer.classList.remove("active");
+      imagePreviewImg.src = "";
     }
 
     btnAddExpense.addEventListener("click", () => openExpenseModal(null));
@@ -3089,6 +3340,75 @@ async function loadAllUsersForAdmin() {
       const digits = expenseAmountInput.value.replace(/\D/g, "");
       expenseAmountInput.value = formatNumber(digits);
       expenseAmountInput.selectionEnd = expenseAmountInput.value.length;
+    });
+
+    // معالجة معاينة الصور
+    const imagePreviewContainer = document.getElementById("imagePreviewContainer");
+    const imagePreviewImg = document.getElementById("imagePreviewImg");
+    const imagePreviewFilename = document.getElementById("imagePreviewFilename");
+    const imagePreviewSize = document.getElementById("imagePreviewSize");
+    const imagePreviewRemove = document.getElementById("imagePreviewRemove");
+
+    function formatFileSize(bytes) {
+      if (bytes === 0) return "0 Bytes";
+      const k = 1024;
+      const sizes = ["Bytes", "KB", "MB"];
+      const i = Math.floor(Math.log(bytes) / Math.log(k));
+      return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + " " + sizes[i];
+    }
+
+    // دالة ضغط الصور لتقليل حجم البيانات المنقولة
+    function compressImage(dataUrl, maxWidth = 800, maxHeight = 800, quality = 0.7) {
+      return new Promise((resolve) => {
+        const img = new Image();
+        img.src = dataUrl;
+        img.onload = function () {
+          const canvas = document.createElement("canvas");
+          let width = img.width;
+          let height = img.height;
+
+          // حساب الأبعاد الجديدة مع الحفاظ على النسبة
+          if (width > maxWidth || height > maxHeight) {
+            const ratio = Math.min(maxWidth / width, maxHeight / height);
+            width *= ratio;
+            height *= ratio;
+          }
+
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext("2d");
+          ctx.drawImage(img, 0, 0, width, height);
+          resolve(canvas.toDataURL("image/jpeg", quality));
+        };
+        img.onerror = () => resolve(dataUrl); // إرجاع الأصل في حالة الخطأ
+      });
+    }
+
+    expenseImageInput.addEventListener("change", (e) => {
+      const file = e.target.files[0];
+      if (file && file.type.startsWith("image/")) {
+        const reader = new FileReader();
+        reader.onload = function (event) {
+          imagePreviewImg.src = event.target.result;
+          imagePreviewFilename.textContent = file.name;
+          imagePreviewSize.textContent = formatFileSize(file.size);
+          imagePreviewContainer.classList.add("active");
+        };
+        reader.readAsDataURL(file);
+      } else if (file) {
+        alert("من فضلك اختر ملف صورة صحيح");
+        expenseImageInput.value = "";
+        imagePreviewContainer.classList.remove("active");
+      }
+    });
+
+    imagePreviewRemove.addEventListener("click", (e) => {
+      e.preventDefault();
+      expenseImageInput.value = "";
+      imagePreviewContainer.classList.remove("active");
+      imagePreviewImg.src = "";
+      imagePreviewFilename.textContent = "";
+      imagePreviewSize.textContent = "";
     });
 
     async function deleteExpense(expenseId) {
@@ -3109,11 +3429,16 @@ async function loadAllUsersForAdmin() {
     });
 
     saveExpenseBtn.addEventListener("click", () => {
+      // منع النقر المتكرر
+      if (isSavingExpense) return;
+      isSavingExpense = true;
+
       const month = getSelectedMonth();
       const categoryError = document.getElementById("categoryError");
 
       if (!month) {
         alert("من فضلك أضف شهرًا أولاً.");
+        isSavingExpense = false;
         return;
       }
       if (!Array.isArray(month.expenses)) month.expenses = [];
@@ -3126,6 +3451,7 @@ async function loadAllUsersForAdmin() {
 
       if (!amount || amount <= 0) {
         alert("من فضلك أدخل مبلغًا صحيحًا.");
+        isSavingExpense = false;
         return;
       }
 
@@ -3133,6 +3459,7 @@ async function loadAllUsersForAdmin() {
         categoryError.style.display = "block";
         expenseCategoryInput.focus();
         expenseCategoryInput.style.borderColor = "var(--danger)";
+        isSavingExpense = false;
         return;
       } else {
         categoryError.style.display = "none";
@@ -3141,10 +3468,19 @@ async function loadAllUsersForAdmin() {
 
       const file = expenseImageInput.files[0];
 
+      // إغلاق الـ Modal فوراً لتجنب النقر المتكرر
+      closeExpenseModal();
+
       if (file) {
         const reader = new FileReader();
         reader.onload = async function (e) {
-          const imageDataUrl = e.target.result;
+          let imageDataUrl = e.target.result;
+          
+          // ضغط الصورة إذا كانت كبيرة الحجم
+          if (file.size > 500000) { // أكبر من 500KB
+            imageDataUrl = await compressImage(imageDataUrl, 800, 800, 0.7);
+          }
+          
           await saveExpenseObject(month, {
             id: editingExpenseId,
             title,
@@ -3154,7 +3490,7 @@ async function loadAllUsersForAdmin() {
             note,
             imageDataUrl,
           });
-          closeExpenseModal();
+          isSavingExpense = false;
         };
         reader.readAsDataURL(file);
       } else {
@@ -3171,9 +3507,8 @@ async function loadAllUsersForAdmin() {
           date,
           note,
           imageDataUrl,
-        }).then(() => {
-          closeExpenseModal();
         });
+        isSavingExpense = false;
       }
     });
 
@@ -3929,3 +4264,4 @@ async function loadAllUsersForAdmin() {
     </script>
 </body>
 </html>
+

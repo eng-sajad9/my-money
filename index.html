@@ -1469,11 +1469,794 @@
 
     @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 
-    @media (max-width: 360px) {
-      header h2 { font-size: 18px; }
-      .summary-grid { grid-template-columns: repeat(2, 1fr); }
-      .stats-grid { grid-template-columns: 1fr; }
-      .admin-user-stats { grid-template-columns: 1fr; }
+    /* قسم الملاحظات والحسابات المحمي */
+    .private-section-locked {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 300px;
+      background: linear-gradient(135deg, rgba(37,99,235,0.08), rgba(79,70,229,0.05));
+      border: 2px dashed var(--border-color);
+      border-radius: 14px;
+      padding: 20px;
+      transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .private-lock-container {
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      animation: fadeInUp 0.5s ease-out;
+    }
+
+    .private-lock-icon {
+      font-size: 48px;
+      animation: bounce 2s infinite;
+      transition: all 0.3s ease;
+    }
+
+    .private-lock-text {
+      font-size: 14px;
+      color: var(--subtext-color);
+      font-weight: 600;
+      transition: all 0.3s ease;
+    }
+
+    .private-pin-input-group {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+      transition: all 0.3s ease;
+    }
+
+    .private-pin-input {
+      width: 120px;
+      padding: 10px;
+      border: 2px solid var(--border-color);
+      border-radius: 10px;
+      font-size: 16px;
+      text-align: center;
+      letter-spacing: 4px;
+      font-weight: bold;
+      background: var(--muted-bg);
+      transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+      will-change: transform, border-color;
+      -webkit-text-security: disc; /* إخفاء الأرقام كنقاط */
+    }
+
+    .private-pin-input:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
+      transform: scale(1.05);
+    }
+
+    .btn-open-private {
+      padding: 8px 14px;
+      border-radius: 8px;
+      border: none;
+      background: var(--accent);
+      color: white;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 13px;
+      transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+      will-change: transform, background;
+    }
+
+    .btn-open-private:hover {
+      background: var(--accent-strong);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+    }
+
+    .btn-open-private:active {
+      transform: translateY(0);
+    }
+
+    .btn-open-private:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .private-error-msg {
+      color: var(--danger);
+      font-size: 12px;
+      min-height: 18px;
+      animation: shake 0.5s ease-in-out;
+      transition: all 0.3s ease;
+    }
+
+    /* المحتوى المحمي */
+    .private-content {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      animation: fadeInUp 0.4s ease-out;
+      transition: all 0.4s ease;
+      will-change: opacity, transform;
+    }
+
+    .private-card {
+      background: linear-gradient(135deg, rgba(37,99,235,0.05), rgba(79,70,229,0.03));
+      border: 1px solid rgba(37, 99, 235, 0.2);
+      border-radius: 12px;
+      padding: 14px;
+      transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+      animation: slideUp 0.5s ease-out backwards;
+      will-change: transform, border-color, box-shadow;
+    }
+
+    .private-card:nth-child(1) { animation-delay: 0.05s; }
+    .private-card:nth-child(2) { animation-delay: 0.1s; }
+    .private-card:nth-child(3) { animation-delay: 0.15s; }
+    .private-card:nth-child(4) { animation-delay: 0.2s; }
+    .private-card:nth-child(5) { animation-delay: 0.25s; }
+
+    .private-card:hover {
+      border-color: rgba(37, 99, 235, 0.4);
+      box-shadow: 0 6px 16px rgba(37, 99, 235, 0.1);
+      transform: translateY(-2px);
+    }
+
+    .private-card-title {
+      font-weight: 700;
+      font-size: 13px;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--text-color);
+      transition: all 0.3s ease;
+    }
+
+    .private-total-balance {
+      font-size: 14px;
+      font-weight: 600;
+      color: #10b981;
+    }
+
+    /* قسم الرصيد والموازنة */
+    .budget-summary-card {
+      background: linear-gradient(135deg, rgba(16,185,129,0.08), rgba(34,197,94,0.05));
+      border-color: rgba(16,185,129,0.3);
+      transition: all 0.3s ease;
+    }
+
+    .budget-input-group {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      transition: all 0.3s ease;
+    }
+
+    .budget-range-group {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      transition: all 0.3s ease;
+    }
+
+    .budget-summary {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      background: var(--muted-bg);
+      padding: 10px;
+      border-radius: 8px;
+      transition: all 0.3s ease;
+    }
+
+    .budget-stat {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      text-align: center;
+      transition: all 0.3s ease;
+    }
+
+    .budget-stat-label {
+      font-size: 10px;
+      color: var(--subtext-color);
+      font-weight: 600;
+      text-transform: uppercase;
+      transition: color 0.3s ease;
+    }
+
+    .budget-stat-value {
+      font-size: 13px;
+      font-weight: 700;
+      transition: all 0.3s ease;
+    }
+
+    .budget-stat-value.success {
+      color: #10b981;
+    }
+
+    .budget-stat-value.danger {
+      color: #ef4444;
+    }
+
+    /* قسم توزيع الرصيد */
+    .budget-allocation-card {
+      background: linear-gradient(135deg, rgba(59,130,246,0.08), rgba(79,70,229,0.05));
+      border-color: rgba(59,130,246,0.3);
+      transition: all 0.3s ease;
+    }
+
+    .budget-allocations-container {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      transition: all 0.3s ease;
+    }
+
+    .allocation-item {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 8px;
+      align-items: end;
+      padding: 10px;
+      background: var(--muted-bg);
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+      transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+      animation: slideInRight 0.3s ease-out backwards;
+      will-change: transform, border-color;
+    }
+
+    .allocation-item:hover {
+      border-color: var(--accent);
+      box-shadow: 0 2px 8px rgba(37, 99, 235, 0.1);
+      transform: translateX(2px);
+    }
+
+    .allocation-inputs {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 6px;
+      transition: all 0.3s ease;
+    }
+
+    .allocation-result {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+      padding: 8px;
+      background: var(--card-bg);
+      border-radius: 6px;
+      border: 1px solid var(--border-color);
+      min-width: 90px;
+      transition: all 0.3s ease;
+    }
+
+    .allocation-result-label {
+      font-size: 9px;
+      color: var(--subtext-color);
+      font-weight: 600;
+      transition: color 0.3s ease;
+    }
+
+    .allocation-result-value {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--accent);
+      transition: all 0.3s ease;
+    }
+
+    .allocation-remove-btn {
+      padding: 4px 8px;
+      border: none;
+      background: rgba(239, 68, 68, 0.1);
+      color: #ef4444;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 12px;
+      transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+      will-change: transform, background;
+    }
+
+    .allocation-remove-btn:hover {
+      background: rgba(239, 68, 68, 0.2);
+      transform: scale(1.1);
+    }
+
+    .allocation-remove-btn:active {
+      transform: scale(0.95);
+    }
+
+    /* الحاسبة والملاحظات */
+    .private-calculator {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      transition: all 0.3s ease;
+    }
+
+    .calc-input {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      font-size: 13px;
+      background: var(--muted-bg);
+      font-family: monospace;
+      transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+      will-change: border-color, background, box-shadow;
+    }
+
+    .calc-input:focus {
+      outline: none;
+      border-color: var(--accent);
+      background: var(--card-bg);
+      box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1);
+    }
+
+    .calc-result {
+      background: var(--muted-bg);
+      padding: 12px;
+      border-radius: 8px;
+      font-size: 13px;
+      color: var(--subtext-color);
+      min-height: 35px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      color: #2563eb;
+      border: 1px solid rgba(37, 99, 235, 0.2);
+      animation: pulse 0.3s ease-in-out;
+      transition: all 0.3s ease;
+      will-change: transform, color;
+    }
+
+    .private-notes-textarea {
+      width: 100%;
+      min-height: 100px;
+      padding: 10px;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      font-size: 13px;
+      background: var(--muted-bg);
+      resize: vertical;
+      font-family: inherit;
+      transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+      will-change: border-color, background, box-shadow;
+    }
+
+    .private-notes-textarea:focus {
+      outline: none;
+      border-color: var(--accent);
+      background: var(--card-bg);
+      box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1);
+    }
+
+    .private-notes-meta {
+      font-size: 11px;
+      color: var(--subtext-color);
+      text-align: right;
+      transition: color 0.3s ease;
+    }
+
+    .btn-private-logout {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      background: transparent;
+      color: var(--danger);
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 600;
+      transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+      animation: slideUp 0.5s ease-out backwards;
+      animation-delay: 0.3s;
+      will-change: transform, background;
+    }
+
+    .btn-private-logout:hover {
+      background: rgba(239, 68, 68, 0.08);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
+    }
+
+    .btn-private-logout:active {
+      transform: translateY(0);
+    }
+
+    /* الأنميشنات المتقدمة */
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes slideInRight {
+      from {
+        opacity: 0;
+        transform: translateX(-10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-5px); }
+      75% { transform: translateX(5px); }
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(0.95); }
+      50% { transform: scale(1.02); }
+      100% { transform: scale(1); }
+    }
+
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+
+    /* ===== تحسينات الأجهزة الصغيرة جداً (< 360px) ===== */
+    @media (max-width: 359px) {
+      .private-section-locked {
+        min-height: 240px;
+        padding: 12px;
+      }
+
+      .private-lock-icon {
+        font-size: 32px;
+      }
+
+      .private-pin-input {
+        font-size: 14px;
+        padding: 8px;
+      }
+
+      .btn-open-private {
+        font-size: 12px;
+        padding: 10px;
+      }
+    }
+
+    /* ===== تحسينات الهواتف الصغيرة (360px - 480px) ===== */
+    @media (max-width: 480px) {
+      /* الجزء المحمي - شاشة PIN */
+      .private-section-locked {
+        min-height: 250px;
+        padding: 16px;
+        border-radius: 12px;
+        animation: slideUp 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+      }
+
+      .private-lock-icon {
+        font-size: 40px;
+        animation: bounce 1.5s ease-in-out infinite;
+      }
+
+      .private-lock-text {
+        font-size: 13px;
+        line-height: 1.5;
+      }
+
+      .private-pin-input-group {
+        flex-direction: column;
+        gap: 8px;
+        width: 100%;
+      }
+
+      .private-pin-input {
+        width: 100%;
+        font-size: 16px; /* منع zoom على الهاتف */
+        padding: 12px;
+        touch-action: manipulation;
+        border-radius: 8px;
+      }
+
+      .private-pin-input:focus {
+        transform: scale(1.02);
+        transition: transform 0.2s ease-out;
+      }
+
+      .btn-open-private {
+        width: 100%;
+        padding: 12px;
+        font-size: 14px;
+        min-height: 44px; /* حد أدنى لسهولة الضغط على الهاتف */
+        border-radius: 8px;
+        touch-action: manipulation;
+      }
+
+      .btn-open-private:active {
+        transform: scale(0.98);
+      }
+
+      /* الكارتات */
+      .private-card {
+        padding: 12px;
+        border-radius: 10px;
+        margin-bottom: 8px;
+        animation: fadeInUp 0.3s ease-out;
+      }
+
+      .private-card-title {
+        font-size: 12px;
+        margin-bottom: 10px;
+        font-weight: 600;
+      }
+
+      /* ملخص الميزانية */
+      .budget-summary-card {
+        border-radius: 10px;
+        overflow: hidden;
+      }
+
+      .budget-summary {
+        grid-template-columns: 1fr 1fr 1fr;
+        padding: 8px;
+        gap: 6px;
+      }
+
+      .budget-stat-item {
+        padding: 6px;
+        border-radius: 6px;
+      }
+
+      .budget-stat-label {
+        font-size: 9px;
+        line-height: 1.2;
+      }
+
+      .budget-stat-value {
+        font-size: 12px;
+        margin-top: 2px;
+      }
+
+      /* توزيع الميزانية */
+      .budget-allocations-container {
+        gap: 8px;
+      }
+
+      .allocation-item {
+        grid-template-columns: 1fr;
+        gap: 6px;
+        padding: 8px;
+        border-radius: 8px;
+        animation: slideInRight 0.3s ease-out;
+      }
+
+      .allocation-item:hover {
+        transform: translateX(-2px);
+      }
+
+      .allocation-label {
+        font-size: 12px;
+      }
+
+      .allocation-inputs {
+        grid-template-columns: 1fr;
+        gap: 4px;
+      }
+
+      .allocation-input {
+        width: 100%;
+        font-size: 14px;
+        padding: 8px;
+        border-radius: 6px;
+      }
+
+      .allocation-result {
+        min-width: 100%;
+        padding: 6px 8px;
+        border-radius: 6px;
+        font-size: 12px;
+      }
+
+      .allocation-remove-btn {
+        width: 100%;
+        padding: 8px;
+        font-size: 12px;
+        min-height: 40px;
+        border-radius: 6px;
+      }
+
+      /* الحاسبة والملاحظات */
+      .calc-input,
+      .private-notes-textarea {
+        font-size: 16px; /* منع zoom على الهاتف */
+        width: 100%;
+        padding: 10px;
+        border-radius: 6px;
+        touch-action: manipulation;
+      }
+
+      .calc-input::placeholder,
+      .private-notes-textarea::placeholder {
+        font-size: 14px;
+      }
+
+      .btn-private-logout {
+        padding: 10px;
+        font-size: 13px;
+        min-height: 44px;
+        width: 100%;
+        border-radius: 8px;
+      }
+
+      .private-calculator {
+        gap: 6px;
+        flex-direction: column;
+      }
+
+      .calc-result {
+        padding: 10px;
+        min-height: 36px;
+        font-size: 12px;
+        border-radius: 6px;
+        text-align: center;
+        animation: pulse 0.5s ease-out;
+      }
+
+      /* مختار الشهور */
+      .month-selectors {
+        gap: 6px;
+      }
+
+      .month-selector {
+        flex: 1;
+        font-size: 12px;
+      }
+
+      .month-label {
+        font-size: 11px;
+      }
+    }
+
+    /* ===== تحسينات الأجهزة المتوسطة (481px - 768px) ===== */
+    @media (min-width: 481px) and (max-width: 768px) {
+      .private-card {
+        padding: 13px;
+        border-radius: 10px;
+      }
+
+      .budget-summary {
+        grid-template-columns: repeat(3, 1fr);
+        padding: 10px;
+        gap: 8px;
+      }
+
+      .budget-stat-value {
+        font-size: 13px;
+      }
+
+      .allocation-item {
+        padding: 10px;
+        grid-template-columns: 1fr;
+        gap: 8px;
+      }
+
+      .allocation-inputs {
+        grid-template-columns: 1fr;
+        gap: 6px;
+      }
+
+      .budget-allocations-container {
+        gap: 8px;
+      }
+
+      .calc-input {
+        font-size: 15px;
+      }
+
+      .private-notes-textarea {
+        font-size: 14px;
+        min-height: 120px;
+      }
+
+      .btn-open-private,
+      .btn-private-logout,
+      .allocation-remove-btn {
+        min-height: 42px;
+      }
+    }
+
+    /* ===== تحسينات الأجهزة الكبيرة (769px+) ===== */
+    @media (min-width: 769px) {
+      .private-section-locked {
+        min-height: 300px;
+        padding: 20px;
+        border-radius: 14px;
+      }
+
+      .private-lock-icon {
+        font-size: 60px;
+      }
+
+      .private-card {
+        padding: 16px;
+        border-radius: 12px;
+      }
+
+      .budget-summary {
+        grid-template-columns: repeat(3, 1fr);
+        padding: 12px;
+        gap: 12px;
+      }
+
+      .budget-stat-label {
+        font-size: 11px;
+      }
+
+      .budget-stat-value {
+        font-size: 16px;
+      }
+
+      .allocation-item {
+        grid-template-columns: 2fr 1fr auto;
+        gap: 12px;
+        padding: 12px;
+        border-radius: 10px;
+      }
+
+      .allocation-label {
+        font-size: 13px;
+      }
+
+      .allocation-inputs {
+        grid-template-columns: 2fr 1fr;
+        gap: 8px;
+      }
+
+      .allocation-input {
+        font-size: 14px;
+        padding: 10px;
+      }
+
+      .allocation-result {
+        padding: 10px 12px;
+        font-size: 13px;
+        min-width: 120px;
+        text-align: center;
+      }
+
+      .allocation-remove-btn {
+        width: 100px;
+        min-height: 40px;
+        padding: 8px;
+      }
+
+      .calc-input {
+        font-size: 16px;
+        padding: 12px;
+      }
+
+      .calc-result {
+        font-size: 14px;
+        padding: 12px;
+        min-height: 40px;
+      }
+
+      .private-notes-textarea {
+        font-size: 15px;
+        padding: 12px;
+        min-height: 150px;
+      }
+
+      .btn-private-logout {
+        padding: 14px 20px;
+        font-size: 14px;
+      }
     }
   </style>
 </head>
@@ -1567,6 +2350,7 @@
     <div class="tabs">
       <button class="tab-btn active" data-tab="month">الشهر الحالي</button>
       <button class="tab-btn" data-tab="compare">مقارنة الأشهر</button>
+      <button class="tab-btn" data-tab="private">🔒 ملاحظاتي</button>
       <button id="adminTabBtn" class="tab-btn" data-tab="admin" style="display:none;">لوحة التحكم</button>
     </div>
 
@@ -1683,6 +2467,114 @@
           <h3>مقارنة مصاريف الأشهر</h3>
         </div>
         <div id="compareContainer" class="compare-row"></div>
+      </div>
+    </div>
+
+    <!-- تبويب ملاحظاتي والحسابات (محمي برقم PIN) -->
+    <div id="tab-private" style="display:none;">
+      <div id="privateSection" class="private-section-locked">
+        <div class="private-lock-container">
+          <div class="private-lock-icon">🔐</div>
+          <div class="private-lock-text">بيانات حساسة محمية برقم PIN</div>
+          <div class="private-pin-input-group">
+            <input id="privatePinInput" type="text" inputmode="numeric" pattern="[0-9]*" class="private-pin-input" placeholder="0000" maxlength="6" />
+            <button id="btnOpenPrivate" class="btn-open-private">فتح</button>
+          </div>
+          <div id="privateErrorMsg" class="private-error-msg"></div>
+        </div>
+      </div>
+
+      <div id="privateContent" class="private-content" style="display:none;">
+        <!-- قسم رصيدي الكامل -->
+        <div class="private-card budget-summary-card">
+          <div class="private-card-title">💰 رصيدي الكامل</div>
+          <div style="display: flex; flex-direction: column; gap: 12px;">
+            <!-- حقل الرصيد الكلي -->
+            <div class="budget-input-group">
+              <label style="font-size: 11px; color: var(--subtext-color); font-weight: 600; margin-bottom: 4px; display: block;">إجمالي أموالي</label>
+              <input id="totalBalanceInput" type="text" inputmode="numeric" class="form-input form-input-sm" placeholder="0" />
+            </div>
+
+            <!-- اختيار نطاق الأشهر -->
+            <div class="budget-range-group">
+              <label style="font-size: 11px; color: var(--subtext-color); font-weight: 600; margin-bottom: 6px; display: block;">📅 احسب من:</label>
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">
+                <div>
+                  <label style="font-size: 10px; color: var(--subtext-color); display: block; margin-bottom: 3px;">من</label>
+                  <select id="budgetFromMonth" class="form-select form-select-sm"></select>
+                </div>
+                <div>
+                  <label style="font-size: 10px; color: var(--subtext-color); display: block; margin-bottom: 3px;">إلى</label>
+                  <select id="budgetToMonth" class="form-select form-select-sm"></select>
+                </div>
+              </div>
+            </div>
+
+            <!-- ملخص الحسابات -->
+            <div class="budget-summary">
+              <div class="budget-stat">
+                <span class="budget-stat-label">المصروف</span>
+                <span id="privateTotalExpenses" class="budget-stat-value danger">0</span>
+              </div>
+              <div class="budget-stat">
+                <span class="budget-stat-label">الأشهر</span>
+                <span id="privateAllMonthsCount" class="budget-stat-value">0</span>
+              </div>
+              <div class="budget-stat">
+                <span class="budget-stat-label">المتبقي</span>
+                <span id="privateActualRemaining" class="budget-stat-value success">0</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- قسم تقسيم الرصيد حسب الفئات -->
+        <div class="private-card budget-allocation-card">
+          <div class="private-card-title">📊 توزيع رصيدي</div>
+          <div style="display: flex; flex-direction: column; gap: 10px;">
+            <div id="budgetAllocations" class="budget-allocations-container"></div>
+            <button id="btnAddAllocation" class="btn btn-outline btn-sm" style="width: 100%; margin-top: 4px;">+ إضافة فئة جديدة</button>
+          </div>
+        </div>
+
+        <!-- قسم الحاسبة الذكية -->
+        <div class="private-card">
+          <div class="private-card-title">🧮 حاسبتي الذكية</div>
+          <div class="private-calculator">
+            <input id="calcInput" type="text" class="calc-input" placeholder="مثال: 100 + 50 * 2 - 20" />
+            <div class="calc-result" id="calcResult">انتظر الحساب...</div>
+            <div style="font-size: 11px; color: var(--subtext-color); text-align: center;">
+              تدعم: + (جمع) | - (طرح) | * (ضرب) | / (قسمة)
+            </div>
+          </div>
+        </div>
+
+
+
+        <!-- قسم الملاحظات العامة -->
+        <div class="private-card">
+          <div class="private-card-title">📝 ملاحظاتي العامة</div>
+          <textarea id="privateNotes" class="private-notes-textarea" placeholder="اكتب ملاحظاتك هنا... (آخر تحديث يتم حفظها تلقائياً)"></textarea>
+          <div class="private-notes-meta" id="privateNotesLastUpdate"></div>
+        </div>
+
+        <!-- زر تعطيل PIN -->
+        <div class="private-card" style="background: linear-gradient(135deg, rgba(239,68,68,0.05), rgba(239,68,68,0.03));">
+          <div class="private-card-title" style="color: #b91c1c;">⚙️ إعدادات الأمان</div>
+          <div style="display: flex; flex-direction: column; gap: 8px; font-size: 12px;">
+            <label style="display: flex; align-items: center; gap: 6px; cursor: pointer;">
+              <input type="checkbox" id="pinEnabledToggle" checked />
+              <span>تفعيل قفل PIN</span>
+            </label>
+            <div style="font-size: 11px; color: var(--subtext-color);">
+              عطّل هذا الخيار إذا كنت تريد الوصول المباشر بدون كلمة سر.
+            </div>
+            <button id="btnChangePinCode" class="btn btn-outline btn-sm">🔄 تغيير رقم PIN</button>
+          </div>
+        </div>
+
+        <!-- زر تسجيل الخروج من القسم -->
+        <button id="btnPrivateLogout" class="btn-private-logout">🔒 قفل هذا القسم</button>
       </div>
     </div>
 
@@ -2005,6 +2897,24 @@
       hasImageOnly: false,
     };
 
+    // حالة القسم المحمي
+    let privateState = {
+      pinCode: "1234", // الرقم الافتراضي
+      pinEnabled: true,
+      isUnlocked: false,
+      totalBalance: 0,
+      budgetFromMonth: null,
+      budgetToMonth: null,
+      allocations: [
+        { id: 1, name: "جامعة", amount: 0 },
+        { id: 2, name: "مواصلات", amount: 0 },
+        { id: 3, name: "أكل", amount: 0 }
+      ],
+      notes: "",
+      lastNotesUpdate: null,
+      nextAllocationId: 4
+    };
+
     let currentUser = null;
     let userRef = null;
 
@@ -2223,7 +3133,30 @@
     const tabButtons = document.querySelectorAll(".tab-btn");
 const tabMonth = document.getElementById("tab-month");
 const tabCompare = document.getElementById("tab-compare");
+const tabPrivate = document.getElementById("tab-private");
 const tabAdminBtn = document.getElementById("tabAdminBtn");
+
+    // عناصر القسم المحمي
+    const privateSection = document.getElementById("privateSection");
+    const privateContent = document.getElementById("privateContent");
+    const privatePinInput = document.getElementById("privatePinInput");
+    const btnOpenPrivate = document.getElementById("btnOpenPrivate");
+    const privateErrorMsg = document.getElementById("privateErrorMsg");
+    const btnPrivateLogout = document.getElementById("btnPrivateLogout");
+    const totalBalanceInput = document.getElementById("totalBalanceInput");
+    const privateTotalExpenses = document.getElementById("privateTotalExpenses");
+    const privateAllMonthsCount = document.getElementById("privateAllMonthsCount");
+    const privateActualRemaining = document.getElementById("privateActualRemaining");
+    const budgetFromMonth = document.getElementById("budgetFromMonth");
+    const budgetToMonth = document.getElementById("budgetToMonth");
+    const budgetAllocationsContainer = document.getElementById("budgetAllocations");
+    const btnAddAllocation = document.getElementById("btnAddAllocation");
+    const calcInput = document.getElementById("calcInput");
+    const calcResult = document.getElementById("calcResult");
+    const privateNotes = document.getElementById("privateNotes");
+    const privateNotesLastUpdate = document.getElementById("privateNotesLastUpdate");
+    const pinEnabledToggle = document.getElementById("pinEnabledToggle");
+    const btnChangePinCode = document.getElementById("btnChangePinCode");
 
 const adminUsersContainer = document.getElementById("adminUsersContainer");
 const adminNoteEl = document.getElementById("adminNote");
@@ -2481,7 +3414,395 @@ const modalPasswordMessage = document.getElementById("modalPasswordMessage");
 
     /* ======= تبويبات ======= */
 
-   /* ======= تبويبات ======= */
+    /* ======= القسم المحمي (ملاحظاتي والحسابات) ======= */
+
+    function loadPrivateState() {
+      const key = getStorageKey();
+      const savedPrivate = localStorage.getItem(key + "_private");
+      if (savedPrivate) {
+        try {
+          const loaded = JSON.parse(savedPrivate);
+          privateState = {
+            ...privateState,
+            ...loaded
+          };
+        } catch (e) {
+          console.warn("Failed to load private state:", e);
+        }
+      }
+      privateState.isUnlocked = false;
+      resetPrivateUI();
+      populateBudgetMonthSelects();
+      updatePrivateSummary();
+      
+      // استعادة البيانات في الحقول
+      totalBalanceInput.value = formatNumber(privateState.totalBalance || 0);
+      if (privateState.budgetFromMonth && budgetFromMonth) {
+        budgetFromMonth.value = privateState.budgetFromMonth;
+      }
+      if (privateState.budgetToMonth && budgetToMonth) {
+        budgetToMonth.value = privateState.budgetToMonth;
+      }
+      if (privateNotes) {
+        privateNotes.value = privateState.notes || "";
+        if (privateState.lastNotesUpdate && privateNotesLastUpdate) {
+          privateNotesLastUpdate.textContent = `آخر حفظ: ${privateState.lastNotesUpdate}`;
+        }
+      }
+      if (pinEnabledToggle) {
+        pinEnabledToggle.checked = privateState.pinEnabled !== false;
+      }
+    }
+
+    function savePrivateState() {
+      const key = getStorageKey();
+      localStorage.setItem(key + "_private", JSON.stringify(privateState));
+    }
+
+    function resetPrivateUI() {
+      privatePinInput.value = "";
+      privateErrorMsg.textContent = "";
+      calcResult.textContent = "انتظر الحساب...";
+      
+      // إذا كان PIN معطّل، فتح مباشرة
+      if (!privateState.pinEnabled) {
+        privateSection.style.display = "none";
+        privateContent.style.display = "flex";
+        privateState.isUnlocked = true;
+      } else {
+        // إذا كان PIN مفعّل، أظهر شاشة القفل
+        privateSection.style.display = "flex";
+        privateContent.style.display = "none";
+        privateState.isUnlocked = false;
+      }
+    }
+
+    function populateBudgetMonthSelects() {
+      budgetFromMonth.innerHTML = "";
+      budgetToMonth.innerHTML = "";
+
+      state.months.forEach((m) => {
+        const optFrom = document.createElement("option");
+        optFrom.value = m.id;
+        optFrom.textContent = `${m.name} ${m.year}`;
+        budgetFromMonth.appendChild(optFrom);
+
+        const optTo = document.createElement("option");
+        optTo.value = m.id;
+        optTo.textContent = `${m.name} ${m.year}`;
+        budgetToMonth.appendChild(optTo);
+      });
+
+      if (state.months.length > 0) {
+        budgetFromMonth.value = state.months[0].id;
+        budgetToMonth.value = state.months[state.months.length - 1].id;
+      }
+    }
+
+    function unlockPrivateSection() {
+      // إذا كان القفل معطّل، فتح مباشرة
+      if (!privateState.pinEnabled) {
+        privateState.isUnlocked = true;
+        privateSection.style.display = "none";
+        privateContent.style.display = "flex";
+        updatePrivateSummary();
+        renderAllocations();
+        // إخفاء الكيبورد بإزالة التركيز مؤقتاً
+        document.activeElement.blur();
+        setTimeout(() => {
+          calcInput.focus();
+        }, 300);
+        return;
+      }
+
+      const pin = privatePinInput.value.trim();
+      privateErrorMsg.textContent = "";
+
+      if (!pin) {
+        privateErrorMsg.textContent = "أدخل رقم PIN";
+        return;
+      }
+
+      if (pin !== privateState.pinCode) {
+        privateErrorMsg.textContent = "❌ رقم PIN غير صحيح";
+        privatePinInput.value = "";
+        privatePinInput.focus();
+        return;
+      }
+
+      privateState.isUnlocked = true;
+      privateSection.style.display = "none";
+      privateContent.style.display = "flex";
+      updatePrivateSummary();
+      renderAllocations();
+      // إخفاء الكيبورد بإزالة التركيز مؤقتاً
+      document.activeElement.blur();
+      setTimeout(() => {
+        calcInput.focus();
+      }, 300);
+    }
+
+    function lockPrivateSection() {
+      privateState.isUnlocked = false;
+      resetPrivateUI();
+    }
+
+    function updatePrivateSummary() {
+      const fromMonthId = budgetFromMonth?.value || null;
+      const toMonthId = budgetToMonth?.value || null;
+
+      let totalExp = 0;
+      let countedMonths = 0;
+
+      if (fromMonthId && toMonthId) {
+        const months = state.months.map(m => m.id);
+        const fromIdx = months.indexOf(fromMonthId);
+        const toIdx = months.indexOf(toMonthId);
+
+        if (fromIdx !== -1 && toIdx !== -1) {
+          const start = Math.min(fromIdx, toIdx);
+          const end = Math.max(fromIdx, toIdx);
+
+          for (let i = start; i <= end; i++) {
+            const m = state.months[i];
+            if (Array.isArray(m.expenses)) {
+              m.expenses.forEach((e) => {
+                totalExp += (e.amount || 0);
+              });
+            }
+            countedMonths++;
+          }
+        }
+      }
+
+      privateTotalExpenses.textContent = formatNumber(totalExp);
+      privateAllMonthsCount.textContent = countedMonths;
+
+      const totalBal = parseFormattedNumber(totalBalanceInput.value || "0");
+      const remaining = totalBal - totalExp;
+      privateActualRemaining.textContent = formatNumber(remaining);
+      privateActualRemaining.parentElement.className = "budget-stat-value " + (remaining >= 0 ? "success" : "danger");
+    }
+
+    function renderAllocations() {
+      budgetAllocationsContainer.innerHTML = "";
+      
+      privateState.allocations.forEach((alloc, idx) => {
+        const item = document.createElement("div");
+        item.className = "allocation-item";
+        item.style.animationDelay = (idx * 0.05) + "s";
+
+        const inputs = document.createElement("div");
+        inputs.className = "allocation-inputs";
+
+        const nameInput = document.createElement("input");
+        nameInput.type = "text";
+        nameInput.className = "form-input form-input-sm";
+        nameInput.value = alloc.name;
+        nameInput.placeholder = "اسم الفئة";
+        nameInput.addEventListener("change", () => {
+          privateState.allocations[idx].name = nameInput.value;
+          savePrivateState();
+        });
+
+        const amountInput = document.createElement("input");
+        amountInput.type = "text";
+        amountInput.inputMode = "numeric";
+        amountInput.className = "form-input form-input-sm";
+        amountInput.value = formatNumber(alloc.amount);
+        amountInput.placeholder = "0";
+        amountInput.addEventListener("input", () => {
+          const digits = amountInput.value.replace(/\D/g, "");
+          amountInput.value = formatNumber(digits);
+          amountInput.selectionEnd = amountInput.value.length;
+          privateState.allocations[idx].amount = parseFormattedNumber(amountInput.value);
+          savePrivateState();
+          updateAllocationResult(idx);
+        });
+
+        inputs.appendChild(nameInput);
+        inputs.appendChild(amountInput);
+
+        const resultDiv = document.createElement("div");
+        resultDiv.className = "allocation-result";
+        const resultLabel = document.createElement("div");
+        resultLabel.className = "allocation-result-label";
+        resultLabel.textContent = "متبقي";
+        const resultValue = document.createElement("div");
+        resultValue.className = "allocation-result-value";
+        resultValue.id = "alloc-result-" + alloc.id;
+        resultValue.textContent = "0";
+        resultDiv.appendChild(resultLabel);
+        resultDiv.appendChild(resultValue);
+
+        const removeBtn = document.createElement("button");
+        removeBtn.className = "allocation-remove-btn";
+        removeBtn.textContent = "حذف";
+        removeBtn.addEventListener("click", () => {
+          privateState.allocations.splice(idx, 1);
+          savePrivateState();
+          renderAllocations();
+        });
+
+        item.appendChild(inputs);
+        item.appendChild(resultDiv);
+        item.appendChild(removeBtn);
+
+        budgetAllocationsContainer.appendChild(item);
+      });
+
+      // تحديث النتائج
+      privateState.allocations.forEach((_, idx) => updateAllocationResult(idx));
+    }
+
+    function updateAllocationResult(idx) {
+      const totalBal = parseFormattedNumber(totalBalanceInput.value || "0");
+      const totalUsed = privateState.allocations.reduce((sum, a) => sum + (a.amount || 0), 0);
+      const remaining = totalBal - totalUsed;
+
+      const resultEl = document.getElementById("alloc-result-" + privateState.allocations[idx].id);
+      if (resultEl) {
+        resultEl.textContent = formatNumber(remaining);
+        resultEl.parentElement.style.color = remaining >= 0 ? "#10b981" : "#ef4444";
+      }
+    }
+
+    function evaluateExpression(expr) {
+      try {
+        const sanitized = expr.trim()
+          .replace(/[^\d+\-*/.()]/g, "")
+          .replace(/\d+/g, (match) => match)
+          .trim();
+
+        if (!sanitized) return "أدخل معادلة";
+
+        if (!/^[\d+\-*/.()]+$/.test(sanitized)) {
+          return "معادلة غير صحيحة";
+        }
+
+        const result = new Function(`"use strict"; return (${sanitized})`)();
+        
+        if (typeof result !== "number" || !isFinite(result)) {
+          return "خطأ في الحساب";
+        }
+
+        return formatNumber(Math.round(result * 100) / 100);
+      } catch (e) {
+        return "خطأ: " + (e.message || "معادلة غير صحيحة");
+      }
+    }
+
+    function updateCalculator() {
+      const expr = calcInput.value;
+      if (!expr) {
+        calcResult.textContent = "انتظر الحساب...";
+        return;
+      }
+      const result = evaluateExpression(expr);
+      calcResult.textContent = result;
+    }
+
+    function openChangePinDialog() {
+      const newPin = prompt("أدخل رقم PIN جديد (4-6 أرقام):");
+      if (!newPin) return;
+
+      if (!/^\d{4,6}$/.test(newPin)) {
+        alert("رقم PIN يجب أن يكون 4-6 أرقام فقط");
+        return;
+      }
+
+      privateState.pinCode = newPin;
+      savePrivateState();
+      alert("✓ تم تحديث رقم PIN بنجاح");
+    }
+
+    // مستمعي أحداث القسم المحمي
+    if (btnOpenPrivate) {
+      btnOpenPrivate.addEventListener("click", unlockPrivateSection);
+    }
+
+    if (privatePinInput) {
+      // تصفية الأرقام فقط من PIN input
+      privatePinInput.addEventListener("input", (e) => {
+        e.target.value = e.target.value.replace(/[^0-9]/g, "");
+      });
+
+      privatePinInput.addEventListener("keypress", (e) => {
+        if (e.key === "Enter") unlockPrivateSection();
+      });
+    }
+
+    if (btnPrivateLogout) {
+      btnPrivateLogout.addEventListener("click", lockPrivateSection);
+    }
+
+    if (totalBalanceInput) {
+      totalBalanceInput.addEventListener("input", () => {
+        const digits = totalBalanceInput.value.replace(/\D/g, "");
+        totalBalanceInput.value = formatNumber(digits);
+        totalBalanceInput.selectionEnd = totalBalanceInput.value.length;
+        updatePrivateSummary();
+        privateState.totalBalance = parseFormattedNumber(totalBalanceInput.value);
+        savePrivateState();
+        renderAllocations();
+      });
+    }
+
+    if (budgetFromMonth) {
+      budgetFromMonth.addEventListener("change", () => {
+        privateState.budgetFromMonth = budgetFromMonth.value;
+        savePrivateState();
+        updatePrivateSummary();
+      });
+    }
+
+    if (budgetToMonth) {
+      budgetToMonth.addEventListener("change", () => {
+        privateState.budgetToMonth = budgetToMonth.value;
+        savePrivateState();
+        updatePrivateSummary();
+      });
+    }
+
+    if (btnAddAllocation) {
+      btnAddAllocation.addEventListener("click", () => {
+        privateState.allocations.push({
+          id: privateState.nextAllocationId++,
+          name: "فئة جديدة",
+          amount: 0
+        });
+        savePrivateState();
+        renderAllocations();
+      });
+    }
+
+    if (calcInput) {
+      calcInput.addEventListener("input", updateCalculator);
+    }
+
+    if (privateNotes) {
+      privateNotes.addEventListener("input", () => {
+        privateState.notes = privateNotes.value;
+        privateState.lastNotesUpdate = new Date().toLocaleString("ar-EG");
+        savePrivateState();
+        if (privateNotesLastUpdate) {
+          privateNotesLastUpdate.textContent = `آخر حفظ: ${privateState.lastNotesUpdate}`;
+        }
+      });
+    }
+
+    if (pinEnabledToggle) {
+      pinEnabledToggle.addEventListener("change", () => {
+        privateState.pinEnabled = pinEnabledToggle.checked;
+        savePrivateState();
+      });
+    }
+
+    if (btnChangePinCode) {
+      btnChangePinCode.addEventListener("click", openChangePinDialog);
+    }
+
+    /* ======= تبويبات ======= */
 
 tabButtons.forEach((btn) => {
   btn.addEventListener("click", async () => {
@@ -2492,16 +3813,26 @@ tabButtons.forEach((btn) => {
     if (tab === "month") {
       tabMonth.style.display = "block";
       tabCompare.style.display = "none";
+      if (tabPrivate) tabPrivate.style.display = "none";
       if (tabAdmin) tabAdmin.style.display = "none";
       if (monthRow) monthRow.style.display = "flex";
     } else if (tab === "compare") {
       tabMonth.style.display = "none";
       tabCompare.style.display = "block";
+      if (tabPrivate) tabPrivate.style.display = "none";
       if (tabAdmin) tabAdmin.style.display = "none";
       if (monthRow) monthRow.style.display = "none";
+    } else if (tab === "private") {
+      tabMonth.style.display = "none";
+      tabCompare.style.display = "none";
+      if (tabPrivate) tabPrivate.style.display = "block";
+      if (tabAdmin) tabAdmin.style.display = "none";
+      if (monthRow) monthRow.style.display = "none";
+      loadPrivateState();
     } else if (tab === "admin") {
       tabMonth.style.display = "none";
       tabCompare.style.display = "none";
+      if (tabPrivate) tabPrivate.style.display = "none";
       if (tabAdmin) tabAdmin.style.display = "block";
       if (monthRow) monthRow.style.display = "none";
 
@@ -4215,6 +5546,9 @@ async function loadAllUsersForAdmin() {
 
   await loadStateRemoteIfExists();
   state = normalizeState(state);
+
+  /* تحميل القسم المحمي */
+  loadPrivateState();
 
   /* 🔄 عرض واجهة التطبيق */
   if (appLoader) appLoader.style.display = "none";

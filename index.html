@@ -6,14 +6,117 @@
   <icon rel="icon" href="http://pngegg.com/ar/png-pxffu" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <link rel="stylesheet" href="style.css">
+ <style>
+  .connection-toast {
+    position: fixed;
+    top: 16px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 8px 16px;
+    background: rgba(0,0,0,0.7);
+    color: #fff;
+    border-radius: 4px;
+    display: none;
+    z-index: 10000;
+    transition: opacity 0.3s;
+  }
+  .connection-toast.show { display: block; opacity: 1; }
+  .connection-toast.hide { opacity: 0; }
+  /* network status indicator */
+  .network-status {
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    margin: 0 8px;
+    vertical-align: middle;
+    background: #2ecc71; /* online default */
+    position: relative;
+    transition: background 0.3s ease;
+    box-shadow: 0 0 8px rgba(46, 204, 113, 0.5);
+  }
+  .network-status.online {
+    background: #2ecc71;
+    animation: pulse-glow 2s ease-in-out infinite;
+    box-shadow: 0 0 8px rgba(46, 204, 113, 0.6);
+  }
+  .network-status.offline {
+    background: #2ecc71;
+    animation: pulse-glow 2s ease-in-out infinite;
+    box-shadow: 0 0 8px rgba(46, 204, 113, 0.5);
+  }
+  .network-status.syncing {
+    background: #3498db;
+    animation: sync-pulse 1s cubic-bezier(0.68, 0, 0.265, 1) infinite;
+    box-shadow: 0 0 8px rgba(52, 152, 219, 0.6);
+  }
+  .network-status.syncing:after {
+    content: '';
+    position: absolute;
+    top: -3px;
+    left: -3px;
+    width: calc(100% + 6px);
+    height: calc(100% + 6px);
+    border: 2px solid #3498db;
+    border-top-color: rgba(52, 152, 219, 0.3);
+    border-right-color: rgba(52, 152, 219, 0.3);
+    border-radius: 50%;
+    animation: spin-sync 0.7s linear infinite;
+  }
+  @keyframes pulse-glow {
+    0%, 100% { box-shadow: 0 0 8px rgba(46, 204, 113, 0.4), inset 0 0 4px rgba(46, 204, 113, 0.3); }
+    50% { box-shadow: 0 0 16px rgba(46, 204, 113, 0.8), inset 0 0 4px rgba(46, 204, 113, 0.5); }
+  }
+  @keyframes pulse-glow-red {
+    0%, 100% { box-shadow: 0 0 8px rgba(232, 76, 60, 0.4), inset 0 0 4px rgba(232, 76, 60, 0.3); }
+    50% { box-shadow: 0 0 16px rgba(232, 76, 60, 0.8), inset 0 0 4px rgba(232, 76, 60, 0.5); }
+  }
+  @keyframes pulse-glow-blue {
+    0%, 100% { box-shadow: 0 0 12px rgba(52, 152, 219, 0.5); }
+    50% { box-shadow: 0 0 20px rgba(52, 152, 219, 0.9); }
+  }
+  @keyframes sync-glow {
+    0%, 100% { box-shadow: 0 0 8px rgba(52, 152, 219, 0.4), inset 0 0 4px rgba(52, 152, 219, 0.2); }
+    50% { box-shadow: 0 0 16px rgba(52, 152, 219, 0.8), inset 0 0 4px rgba(52, 152, 219, 0.4); }
+  }
+  @keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+  @keyframes spin-sync {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+  @keyframes sync-pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.2); }
+  }
+ </style>
  
 </head>
 <body>
+  <div id="connectionToast" class="connection-toast"></div>
+  <!-- Alert Modal Card -->
+  <div id="alertModal" class="alert-modal-overlay" style="display:none;">
+    <div class="alert-card">
+      <div class="alert-card-header">
+        <div id="alertIcon" class="alert-card-icon">⚠️</div>
+        <div>
+          <h3 id="alertTitle" class="alert-card-title">تنبيه</h3>
+          <div id="alertMessage" class="alert-card-message"></div>
+        </div>
+      </div>
+      <div class="alert-card-footer">
+        <button id="alertBtnCancel" class="btn btn-alert-cancel" style="display:none;">إلغاء</button>
+        <button id="alertBtnConfirm" class="btn btn-alert-confirm">حسناً</button>
+      </div>
+    </div>
+  </div>
   <!-- لودر تحميل (يظهر أثناء التحقق من حالة الدخول) -->
-  <div id="appLoader" class="app-loader">🔄 جاري التحقق من حالة الدخول...</div>
+  <div id="appLoader" class="app-loader" style="display:none">🔄 جاري التحقق من حالة الدخول...</div>
 
   <!-- شاشة تسجيل الدخول -->
-  <div id="loginView" class="login-container" style="display:none;">
+  <div id="loginView" class="login-container">
     <div class="login-header">
       <div class="login-icon">💸</div>
       <div class="login-title">
@@ -21,6 +124,49 @@
         <span>سجّل الدخول للوصول إلى مصاريفك من أي جهاز.</span>
       </div>
     </div>
+        <script>
+          // Service Worker registration and background-sync helpers
+          async function registerServiceWorkerAndSync() {
+            if (!('serviceWorker' in navigator)) return;
+            try {
+              const reg = await navigator.serviceWorker.register('/sw.js');
+              console.log('ServiceWorker registered', reg);
+
+              navigator.serviceWorker.addEventListener('message', (e) => {
+                if (!e.data) return;
+                if (e.data.type === 'sync-now') {
+                  try { if (typeof syncPendingChanges === 'function') syncPendingChanges(); } catch (err) { console.warn(err); }
+                }
+              });
+
+              // helper to request a background sync (best-effort)
+              async function ensureBackgroundSyncRegistered() {
+                if (!('sync' in reg)) return;
+                try {
+                  await reg.sync.register('sync-expenses');
+                  console.log('Background sync registered');
+                } catch (err) {
+                  console.warn('Background sync registration failed', err);
+                }
+              }
+
+              // try to register periodically if the browser supports it
+              setInterval(() => {
+                ensureBackgroundSyncRegistered();
+              }, 30000);
+
+              // also try once on load
+              ensureBackgroundSyncRegistered();
+            } catch (e) {
+              console.warn('SW register failed', e);
+            }
+          }
+
+          // start registration when page loads
+          window.addEventListener('load', () => {
+            registerServiceWorkerAndSync();
+          });
+        </script>
     <div class="login-body">
       <div class="login-tabs">
         <button id="tabLogin" class="login-tab-btn active">تسجيل دخول</button>
@@ -43,9 +189,7 @@
         <div id="authError" class="login-error"></div>
         <div class="login-footer">
           <button id="btnLogin" class="btn btn-primary">تسجيل الدخول</button>
-          <div class="login-small-note">
-            يعمل بدون إنترنت، ويقوم بالمزامنة مع السحابة عند توفر النت.
-          </div>
+          
         </div>
         <div id="loginProcessingBar" class="login-processing-bar" role="status" aria-live="polite">
           <div class="processing-spinner" aria-hidden="true"></div>
@@ -88,17 +232,20 @@
       </div>
       <div class="header-actions">
         <span id="userEmailLabel" class="user-label"></span>
+        <!-- حالة الشبكة والمزامنة -->
+        <div id="networkStatus" class="network-status offline" title="حالة الاتصال"></div>
         <button id="btnChangePasswordQuick" class="btn btn-outline btn-sm">🔐 تغيير كلمة السر</button>
         <button id="btnToggleTheme" class="btn btn-outline btn-sm">🌙 الوضع الداكن</button>
         <button id="btnLogout" class="btn btn-outline btn-sm">🚪 تسجيل خروج</button>
       </div>
     </header>
 
-    <!-- تبويبات -->
+    <!-- تبويبات (مع أزرار سريعة إضافية) -->
     <div class="tabs">
       <button class="tab-btn active" data-tab="month">الشهر الحالي</button>
       <button class="tab-btn" data-tab="compare">مقارنة الأشهر</button>
-      <button class="tab-btn" data-tab="private">🔒 ملاحظاتي</button>
+      <button class="tab-btn" data-tab="planning"> التخطيط والأهداف</button>
+      <button class="tab-btn" data-tab="private"> ملاحظاتي</button>
       <button id="adminTabBtn" class="tab-btn" data-tab="admin" style="display:none;">لوحة التحكم</button>
     </div>
 
@@ -140,7 +287,7 @@
             <span id="advancedStatsIcon" class="collapse-icon">▼</span>
           </div>
         </div>
-        <div id="advancedStatsBody" class="collapse-body">
+        <div id="advancedStatsBody" class="collapse-body"> 
           <div class="stats-grid">
             <div class="stats-item">
               <div class="stats-item-title">متوسط الصرف اليومي</div>
@@ -167,7 +314,7 @@
       <div class="card">
         <div class="card-header">
           <h3>المصاريف</h3>
-          <button id="btnAddExpense" class="btn btn-primary btn-sm">+ مصروف</button>
+          <button id="btnAddExpense" class="btn btn-success btn-sm">+ مصروف</button>
         </div>
         <div class="filter-row">
           <input
@@ -218,6 +365,40 @@
       </div>
     </div>
 
+    <!-- تبويب التخطيط والأهداف وتقسيم الراتب -->
+    <div id="tab-planning" style="display:none;">
+      <div id="goalsBucketsCard" class="card">
+        <div class="card-header" style="display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:12px;">
+          <h3>الأهداف وتقسيم الراتب</h3>
+          <div style="display:flex; gap:6px; align-items:center; flex-wrap:wrap;">
+            <button id="btnAddGoal" class="btn btn-primary btn-sm">+ هدف</button>
+            <button id="btnAddBucket" class="btn btn-primary btn-sm">+ حافظة</button>
+          </div>
+        </div>
+        
+        <!-- Goals Section -->
+        <div style="margin-bottom: 24px;">
+          <h4 style="font-size: 16px; font-weight: 600; margin-bottom: 12px; color: var(--text-color);">🎯 الأهداف</h4>
+          <div id="goalsContainer" class="goals-container">
+            <div class="empty-state" id="goalsEmpty">لا توجد أهداف حتى الآن.</div>
+          </div>
+        </div>
+        
+        <!-- Buckets Section -->
+        <div style="border-top: 1px solid var(--border-color); padding-top: 20px;">
+          <h4 style="font-size: 16px; font-weight: 600; margin-bottom: 12px; color: var(--text-color);">💼 تقسيم الراتب</h4>
+          <div id="bucketsContainer" class="buckets-container">
+            <div class="empty-state" id="bucketsEmpty">لا توجد حافظات حتى الآن.</div>
+          </div>
+          <div class="card-footer" style="display:flex; gap:8px; align-items:center; margin-top: 16px;">
+            <div style="flex:1"><strong>المجموع المخصص:</strong> <span id="bucketsTotalPercent">0</span></div>
+            <button id="btnPreviewSplit" class="btn btn-outline btn-sm">معاينة</button>
+            <button id="btnApplySplit" class="btn btn-primary btn-sm">تطبيق</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- تبويب ملاحظاتي والحسابات (محمي برقم PIN) -->
     <div id="tab-private" style="display:none;">
       <div id="privateSection" class="private-section-locked">
@@ -235,7 +416,7 @@
       <div id="privateContent" class="private-content" style="display:none;">
         <!-- قسم رصيدي الكامل -->
         <div class="private-card budget-summary-card">
-          <div class="private-card-title">💰 رصيدي الكامل</div>
+          <div class="private-card-title">💰 الراتب الكامل</div>
           <div style="display: flex; flex-direction: column; gap: 12px;">
             <!-- حقل الرصيد الكلي -->
             <div class="budget-input-group">
@@ -362,7 +543,18 @@
     </div>
   </div>
 
-  <div id="adminUsersContainer" class="admin-users-container"></div>
+  <!-- قسم إدارة المستخدمين -->
+  <div class="card">
+    <div class="card-header">
+      <h3>👥 المستخدمون</h3>
+    </div>
+    <!-- أدوات بحث وإحصائيات -->
+    <div id="adminControls" class="admin-controls">
+      <!-- <input id="adminSearch" type="text" class="form-input admin-search" placeholder="🔍 ابحث بالبريد أو UID" /> -->
+      <div id="adminStats" class="admin-stats"></div>
+    </div>
+    <div id="adminUsersContainer" class="admin-users-container"></div>
+  </div>
 
   <div class="admin-note">
     ⚠️ يمكنك حذف بيانات المستخدمين أو تعطيلهم، لكن لا يمكن حذف حسابهم من Firebase Auth.
@@ -404,7 +596,7 @@
           type="text"
           inputmode="numeric"
           class="form-input"
-          placeholder="مثال: 1.000.000"
+          placeholder="مثال: 5,000"
         />
       </div>
       <div class="modal-footer" style="justify-content: space-between;">
@@ -414,6 +606,121 @@
         <div style="display:flex; gap:6px;">
           <button class="btn btn-outline" id="btnCancelMonth">إلغاء</button>
           <button id="saveMonthBtn" class="btn btn-primary">حفظ</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- مودال الهدف -->
+  <div id="modalGoal" class="modal-backdrop" style="display:none;">
+    <div class="modal" style="max-width:480px;">
+      <div class="modal-header">
+        <h3 id="modalGoalTitle">إضافة/تحرير هدف</h3>
+        <button id="btnCloseGoal" class="btn btn-outline btn-sm">✕</button>
+      </div>
+      <div class="form-group">
+        <label class="form-label">اسم الهدف</label>
+        <input id="goalTitleInput" type="text" class="form-input" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">المبلغ المستهدف</label>
+        <input id="goalTargetInput" type="text" class="form-input" inputmode="numeric" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">المبلغ الحالي (اختياري)</label>
+        <input id="goalCurrentInput" type="text" class="form-input" inputmode="numeric" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">تاريخ الإنتهاء (اختياري)</label>
+        <input id="goalDueDate" type="date" class="form-input" />
+      </div>
+      <div class="modal-footer">
+        <button id="btnDeleteGoal" class="btn btn-outline btn-sm" style="display:none;">🗑️ حذف</button>
+        <div style="display:flex; gap:6px;">
+          <button id="btnCancelGoal" class="btn btn-outline">إلغاء</button>
+          <button id="btnSaveGoal" class="btn btn-primary">حفظ الهدف</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- مودال إعداد حد الفئة -->
+  <div id="modalCategoryLimit" class="modal-backdrop" style="display:none;">
+    <div class="modal" style="max-width:420px;">
+      <div class="modal-header">
+        <h3 id="modalCategoryLimitTitle">إعداد حد الفئة</h3>
+        <button id="btnCloseCategoryLimit" class="btn btn-outline btn-sm">✕</button>
+      </div>
+      <div class="form-group">
+        <label class="form-label">الفئة</label>
+        <div id="categoryLimitName" class="form-input" style="background:#f7f7f7; padding:8px;"></div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">حد الإنفاق الشهري</label>
+        <input id="categoryLimitAmount" type="text" class="form-input" inputmode="numeric" placeholder="مثال: 5,000" />
+      </div>
+      <div class="form-group">
+        <label class="form-label"><input id="categoryLimitHard" type="checkbox" /> حظر الإضافة عند التجاوز (Hard limit)</label>
+      </div>
+      <div class="modal-footer">
+        <button id="btnDeleteCategoryLimit" class="btn btn-outline btn-sm" style="display:none;">🗑️ حذف الحد</button>
+        <div style="display:flex; gap:6px;">
+          <button id="btnCancelCategoryLimit" class="btn btn-outline">إلغاء</button>
+          <button id="btnSaveCategoryLimit" class="btn btn-primary">حفظ</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- مودال حافظة الادخار -->
+  <div id="modalBucket" class="modal-backdrop" style="display:none;">
+    <div class="modal" style="max-width:440px;">
+      <div class="modal-header">
+        <h3 id="modalBucketTitle">إضافة/تعديل الحافظة</h3>
+        <button id="btnCloseBucket" class="btn btn-outline btn-sm">✕</button>
+      </div>
+      <div class="form-group">
+        <label class="form-label">اسم الحافظة</label>
+        <input id="bucketNameInput" type="text" class="form-input" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">المبلغ</label>
+        <input id="bucketAmountInput" type="text" inputmode="numeric" class="form-input" placeholder="مثال: 5,000" />
+        <div id="bucketAmountNote" class="form-note" style="font-size:12px;color:var(--subtext-color);margin-top:6px;">المجموع: 0</div>
+      </div>
+      <div class="modal-footer">
+        <button id="btnDeleteBucket" class="btn btn-outline btn-sm" style="display:none;">🗑️ حذف</button>
+        <div style="display:flex; gap:6px;">
+          <button id="btnCancelBucket" class="btn btn-outline">إلغاء</button>
+          <button id="btnSaveBucket" class="btn btn-primary">حفظ</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- مودال معاينة التوزيع (تبويبي) -->
+  <div id="modalSplitPreview" class="modal-backdrop" style="display:none;">
+    <div class="modal" style="max-width:720px;">
+      <div class="modal-header">
+        <h3 id="modalSplitPreviewTitle">معاينة التوزيع</h3>
+        <button id="btnCloseSplitPreview" class="btn btn-outline btn-sm">✕</button>
+      </div>
+
+      <div class="split-preview-tabs" role="tablist">
+        <button class="split-tab-btn active" data-tab="details">تفاصيل</button>
+        <button class="split-tab-btn" data-tab="summary">الملخص</button>
+      </div>
+
+      <div class="split-tab-body">
+        <div class="split-tab-panel" id="splitDetailsPanel"></div>
+        <div class="split-tab-panel" id="splitSummaryPanel" style="display:none;"></div>
+      </div>
+
+      <div class="modal-footer">
+        <div style="flex:1"></div>
+        <div style="display:flex; gap:6px;">
+          <button id="btnApplySplitFromPreview" class="btn btn-primary">تطبيق التوزيع</button>
+          <button id="btnCloseSplitPreview2" class="btn btn-outline">إغلاق</button>
         </div>
       </div>
     </div>
@@ -442,7 +749,7 @@
           type="text"
           inputmode="numeric"
           class="form-input"
-          placeholder="مثال: 25.000"
+          placeholder="مثال: 25,000"
         />
       </div>
       <div class="form-group">
@@ -554,6 +861,7 @@
   set,
   get,
   remove,
+  onValue,
 } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-database.js";
      
     import {
@@ -612,24 +920,148 @@
       updateConnectionUI();
       // محاولة مزامنة البيانات المعلقة عند العودة للاتصال
       syncPendingChanges();
+      // بعد العودة للاتصال، علّم أن التحميل التالي ليس بسبب إعادة تحميل من دون اتصال
+      sessionStorage.removeItem('wasOffline');
     });
 
     window.addEventListener("offline", () => {
       isOnline = false;
       updateConnectionUI();
+      // حفظ علامة حتى نعالج إعادة تحميل الصفحة لاحقاً
+      try { sessionStorage.setItem('wasOffline', '1'); } catch (e) {}
+    });
+
+    // Global error handlers to surface runtime issues (diagnostic overlay)
+    function showDiagnostic(msg) {
+      console.error('Diagnostic:', msg);
+      try {
+        const overlay = document.getElementById('diagnosticOverlay');
+        if (overlay) {
+          overlay.textContent = 'خطأ في التطبيق: ' + String(msg);
+          overlay.style.display = 'flex';
+        } else if (appLoader) {
+          appLoader.textContent = 'خطأ في التطبيق: ' + String(msg);
+          appLoader.style.display = 'flex';
+        } else {
+          alert('خطأ في التطبيق: ' + String(msg));
+        }
+      } catch (e) {
+        /* ignore */
+      }
+    }
+
+    window.addEventListener('error', (e) => {
+      showDiagnostic(e.message || (e.error && e.error.message) || String(e));
+    });
+
+    window.addEventListener('unhandledrejection', (e) => {
+      showDiagnostic((e && e.reason && e.reason.message) ? e.reason.message : String(e.reason || e));
     });
 
     // تحديث الواجهة لإظهار حالة الاتصال
+    function showToast(msg, type = 'default', duration = 3000) {
+      const toast = document.getElementById('connectionToast');
+      if (!toast) return;
+      toast.textContent = msg;
+      toast.style.background = type === 'error' ? '#e74c3c' : type === 'success' ? '#2ecc71' : 'rgba(0,0,0,0.7)';
+      toast.classList.add('show');
+      clearTimeout(toast._timeout);
+      toast._timeout = setTimeout(() => {
+        toast.classList.remove('show');
+      }, duration);
+    }
+
+    // Professional alert modal
+    function showAlertModal(message, title = 'تنبيه', icon = '⚠️') {
+      return new Promise((resolve) => {
+        const modal = document.getElementById('alertModal');
+        const titleEl = document.getElementById('alertTitle');
+        const msgEl = document.getElementById('alertMessage');
+        const iconEl = document.getElementById('alertIcon');
+        const confirmBtn = document.getElementById('alertBtnConfirm');
+        const cancelBtn = document.getElementById('alertBtnCancel');
+
+        titleEl.textContent = title;
+        msgEl.textContent = message;
+        iconEl.textContent = icon;
+        cancelBtn.style.display = 'none';
+        confirmBtn.textContent = 'حسناً';
+
+        const handleConfirm = () => {
+          modal.style.display = 'none';
+          confirmBtn.removeEventListener('click', handleConfirm);
+          resolve(true);
+        };
+
+        confirmBtn.addEventListener('click', handleConfirm);
+        modal.addEventListener('click', (e) => {
+          if (e.target === modal) handleConfirm();
+        });
+        modal.style.display = 'flex';
+      });
+    }
+
+    // Professional confirm modal
+    function showConfirmModal(message, title = 'تأكيد', icon = '❓') {
+      return new Promise((resolve) => {
+        const modal = document.getElementById('alertModal');
+        const titleEl = document.getElementById('alertTitle');
+        const msgEl = document.getElementById('alertMessage');
+        const iconEl = document.getElementById('alertIcon');
+        const confirmBtn = document.getElementById('alertBtnConfirm');
+        const cancelBtn = document.getElementById('alertBtnCancel');
+
+        titleEl.textContent = title;
+        msgEl.textContent = message;
+        iconEl.textContent = icon;
+        cancelBtn.style.display = 'block';
+        confirmBtn.textContent = 'نعم، متابعة';
+        cancelBtn.textContent = 'إلغاء';
+
+        const handleConfirm = () => {
+          cleanup();
+          modal.style.display = 'none';
+          resolve(true);
+        };
+
+        const handleCancel = () => {
+          cleanup();
+          modal.style.display = 'none';
+          resolve(false);
+        };
+
+        const cleanup = () => {
+          confirmBtn.removeEventListener('click', handleConfirm);
+          cancelBtn.removeEventListener('click', handleCancel);
+        };
+
+        confirmBtn.addEventListener('click', handleConfirm);
+        cancelBtn.addEventListener('click', handleCancel);
+        modal.addEventListener('click', (e) => {
+          if (e.target === modal) handleCancel();
+        });
+        modal.style.display = 'flex';
+      });
+    }
+
     function updateConnectionUI() {
-      const indicator = document.querySelector(".connection-indicator");
-      if (!indicator) return;
-      
-      if (isOnline) {
-        indicator.classList.remove("offline");
-        indicator.classList.add("online");
-      } else {
-        indicator.classList.remove("online");
-        indicator.classList.add("offline");
+      // network status indicator (new) or legacy class
+      const indicator = document.getElementById("networkStatus") || document.querySelector(".connection-indicator");
+      if (indicator) {
+        if (isOnline) {
+          indicator.classList.remove("offline");
+          indicator.classList.add("online");
+        } else {
+          indicator.classList.remove("online");
+          indicator.classList.add("offline");
+        }
+        indicator.classList.remove("syncing");
+        // fallback: force color in case class didn't apply
+        indicator.style.backgroundColor = isOnline ? '#2ecc71' : '#e74c3c';
+      }
+      // Only show toast for actual disconnections, not on every state change
+      if (!isOnline) {
+        showToast(' انت الان بدون اتصال', 'error');
       }
     }
 
@@ -637,6 +1069,13 @@
       months: [],
       selectedMonthId: null,
       categories: [...defaultCategories],
+      // New features
+      goals: [], // { id, title, target, current, dueDate }
+      categoryLimits: {}, // { [categoryName]: { limit: number, hard: boolean } }
+      savingsBuckets: [], // { id, name, amount }
+      recurring: [],
+      challenges: [],
+      badges: [],
     };
 
     let filterState = {
@@ -665,6 +1104,9 @@
 
     let currentUser = null;
     let userRef = null;
+    let userInitiatedLogout = false; // flag to avoid clearing state on transient auth-null events
+    let authInitialized = false; // tracks whether onAuthStateChanged has run once
+
 
     function getStorageKey() {
       // Prefer the currently signed-in user's UID. If none, try the last saved UID
@@ -693,13 +1135,61 @@
         typeof value === "number"
           ? value
           : parseInt(String(value).replace(/\D/g, "")) || 0;
-      return number.toLocaleString("en-US");
+      return formatNumberWithCommas(number);
     }
 
     function parseFormattedNumber(str) {
       if (!str) return 0;
       const digits = str.replace(/\D/g, "");
       return parseInt(digits || "0", 10);
+    }
+
+    // remove bulky image data from state to shrink size
+    function stripImagesFromState() {
+      if (!state || !Array.isArray(state.months)) return;
+      state.months.forEach((m) => {
+        if (Array.isArray(m.expenses)) {
+          m.expenses.forEach((e) => {
+            if (e && e.imageDataUrl) {
+              delete e.imageDataUrl;
+            }
+          });
+        }
+      });
+    }
+
+    // Format number with commas as thousand separators (e.g., "1,234,567")
+    function formatNumberWithCommas(value) {
+      const s = String(value || "").replace(/\D/g, "");
+      if (!s) return ""; // return empty for input formatting so field can be cleared
+      return s.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    }
+
+    // Attach live formatting to inputs that have inputmode="numeric"
+    function attachNumericInputFormatting() {
+      try {
+        document.querySelectorAll('input.form-input[inputmode="numeric"]').forEach((inp) => {
+          if (inp._formatAttached) return;
+          inp._formatAttached = true;
+          inp.addEventListener('input', () => {
+            const start = inp.selectionStart || inp.value.length;
+            const before = inp.value.slice(0, start);
+            const raw = (inp.value || '').replace(/\D/g, '');
+            const digitsBefore = (before.match(/\d/g) || []).length;
+            const formatted = formatNumberWithCommas(raw);
+            inp.value = formatted;
+            // map digitsBefore to new caret position
+            let pos = 0, digits = 0;
+            while (pos < formatted.length && digits < digitsBefore) {
+              if (/\d/.test(formatted[pos])) digits++;
+              pos++;
+            }
+            inp.selectionStart = inp.selectionEnd = pos;
+          });
+        });
+      } catch (e) {
+        console.warn('attachNumericInputFormatting failed', e);
+      }
     }
 
     function generateMonthId(year, month) {
@@ -712,6 +1202,13 @@
       if (!Array.isArray(s.categories)) s.categories = [...defaultCategories];
       if (s.categories.length === 0) s.categories = [...defaultCategories];
       if (typeof s.selectedMonthId !== "string") s.selectedMonthId = null;
+      // new feature defaults
+      if (!Array.isArray(s.goals)) s.goals = [];
+      if (typeof s.categoryLimits !== 'object' || s.categoryLimits === null) s.categoryLimits = {};
+      if (!Array.isArray(s.savingsBuckets)) s.savingsBuckets = [];
+      if (!Array.isArray(s.recurring)) s.recurring = [];
+      if (!Array.isArray(s.challenges)) s.challenges = [];
+      if (!Array.isArray(s.badges)) s.badges = [];  
 
       s.months.forEach((m) => {
         if (!Array.isArray(m.expenses)) m.expenses = [];
@@ -751,7 +1248,25 @@
 
     function saveStateLocal() {
       const key = getStorageKey();
-      localStorage.setItem(key, JSON.stringify(state));
+      try {
+        localStorage.setItem(key, JSON.stringify(state));
+      } catch (err) {
+        // quota exceeded or other storage error
+        console.warn('localStorage save failed', err);
+        if (err && err.name === 'QuotaExceededError') {
+          // try to free up space by removing expensive fields (images)
+          stripImagesFromState();
+          try {
+            localStorage.setItem(key, JSON.stringify(state));
+            console.warn('Saved state after stripping images');
+            alert('تمت إزالة الصور الكبيرة من البيانات لتفادي امتلاء التخزين المحلي. يمكنك إعادة رفع الصور إذا احتجت.');
+            return;
+          } catch (e2) {
+            console.error('Still failed to save state after cleaning', e2);
+          }
+        }
+        alert('تعذر حفظ البيانات محلياً: امتلأ التخزين. حاول حذف بعض المصاريف أو الصور الكبيرة.');
+      }
     }
 
     async function saveStateRemote() {
@@ -759,12 +1274,46 @@
       try {
         await set(userRef, state);
         // تسجيل وقت آخر مزامنة ناجحة
-        localStorage.setItem(LAST_SYNC_KEY, Date.now().toString());
+        try { localStorage.setItem(LAST_SYNC_KEY, Date.now().toString()); } catch (e) { /* ignore */ }
         return true;
       } catch (e) {
         console.warn("Failed to sync with Firebase:", e);
+        if (e && e.name === 'QuotaExceededError') {
+          stripImagesFromState();
+          try {
+            await set(userRef, state);
+            return true;
+          } catch (e2) {
+            console.error('Still failed remote after stripping images', e2);
+          }
+        }
         return false;
       }
+    }
+
+    // real-time listener so that updates made on another device
+    // are pulled in immediately (fixes issue with laptop not showing
+    // changes made on phone).
+    let remoteListenerUnsubscribe = null;
+
+    function startRemoteListener() {
+      if (!firebaseEnabled || !userRef) return;
+      // detach any previous listener
+      if (remoteListenerUnsubscribe) {
+        remoteListenerUnsubscribe();
+      }
+      remoteListenerUnsubscribe = onValue(userRef, (snap) => {
+        if (!snap.exists()) return;
+        const remoteData = normalizeState(snap.val());
+        const remoteJson = JSON.stringify(remoteData);
+        const localJson = JSON.stringify(state);
+        if (remoteJson !== localJson) {
+          state = remoteData;
+          saveStateLocal();
+          refreshUI();
+          console.log("✅ تم تحديث الحالة من جهاز آخر");
+        }
+      });
     }
 
     // إضافة البيانات إلى قائمة الانتظار للمزامنة
@@ -788,23 +1337,44 @@
       if (isSyncing || !isOnline || !firebaseEnabled || !currentUser) return;
       
       isSyncing = true;
+      const netEl = document.getElementById('networkStatus');
+      if (netEl) {
+        netEl.classList.add('syncing');
+      }
       try {
         const queue = JSON.parse(localStorage.getItem(SYNC_QUEUE_KEY) || "[]");
         if (queue.length === 0) {
           isSyncing = false;
+          if (netEl) {
+            netEl.classList.remove('syncing');
+            if (isOnline) netEl.classList.add('online');
+          }
           return;
         }
 
         // محاولة المزامنة
+        showToast('⟳ جارِ مزامنة البيانات...', 'default', 1500);
         const success = await saveStateRemote();
         if (success) {
           // حذف قائمة الانتظار بعد المزامنة الناجحة
           localStorage.removeItem(SYNC_QUEUE_KEY);
+          showToast('✓ بيانات محدثة', 'success', 2000);
+        } else {
+          // remote save failed but no exception thrown
+          showToast('⚠️ فشل المزامنة', 'error');
         }
       } catch (e) {
         console.warn("Sync failed:", e);
+        showToast('⚠️ فشل المزامنة', 'error');
       } finally {
         isSyncing = false;
+        if (netEl) {
+          netEl.classList.remove('syncing');
+          if (isOnline) {
+            netEl.classList.add('online');
+            netEl.style.backgroundColor = '#2ecc71';
+          }
+        }
       }
     }
 
@@ -864,6 +1434,8 @@
             try { localStorage.setItem(LAST_SYNC_KEY, Date.now().toString()); } catch (e) {}
             // keep in-memory state in sync with local
             state = normalizeState(normalized);
+            // notify user that local data was pushed (e.g. after reload)
+            showToast('تم مزامنة البيانات المحلية', 'success');
           } catch (e) {
             console.warn("Failed to parse local state while syncing to Firebase:", e);
           }
@@ -918,6 +1490,7 @@
     const tabButtons = document.querySelectorAll(".tab-btn");
 const tabMonth = document.getElementById("tab-month");
 const tabCompare = document.getElementById("tab-compare");
+const tabPlanning = document.getElementById("tab-planning");
 const tabPrivate = document.getElementById("tab-private");
 const tabAdminBtn = document.getElementById("tabAdminBtn");
 
@@ -949,6 +1522,11 @@ const btnAdminRefresh = document.getElementById("btnAdminRefresh");
 const btnToggleRegistration = document.getElementById("btnToggleRegistration");
 const registrationStatusEl = document.getElementById("registrationStatus");
 const btnChangePasswordQuick = document.getElementById("btnChangePasswordQuick");
+
+const adminSearchInput = document.getElementById("adminSearch");
+const adminStatsEl = document.getElementById("adminStats");
+let adminUsersCache = null;
+
 const modalPassword = document.getElementById("modalPassword");
 const btnClosePassword = document.getElementById("btnClosePassword");
 const btnModalChangePassword = document.getElementById("btnModalChangePassword");
@@ -997,6 +1575,24 @@ const modalPasswordMessage = document.getElementById("modalPasswordMessage");
     const saveMonthBtn = document.getElementById("saveMonthBtn");
     const btnCancelMonth = document.getElementById("btnCancelMonth");
     const btnCloseMonth = document.getElementById("btnCloseMonth");
+
+    // Goals & buckets UI elements
+    const btnAddGoal = document.getElementById("btnAddGoal");
+    const btnAddBucket = document.getElementById("btnAddBucket");
+    const showGoalsTab = document.getElementById('showGoalsTab');
+    const showBucketsTab = document.getElementById('showBucketsTab');
+    const goalsContainer = document.getElementById("goalsContainer");
+    const bucketsContainer = document.getElementById("bucketsContainer");
+    const modalGoal = document.getElementById("modalGoal");
+    const modalGoalTitle = document.getElementById("modalGoalTitle");
+    const goalTitleInput = document.getElementById("goalTitleInput");
+    const goalTargetInput = document.getElementById("goalTargetInput");
+    const goalCurrentInput = document.getElementById("goalCurrentInput");
+    const goalDueDate = document.getElementById("goalDueDate");
+    const btnSaveGoal = document.getElementById("btnSaveGoal");
+    const btnCancelGoal = document.getElementById("btnCancelGoal");
+    const btnCloseGoal = document.getElementById("btnCloseGoal");
+    const btnDeleteGoal = document.getElementById("btnDeleteGoal");
 
     const modalExpense = document.getElementById("modalExpense");
     const expenseModalTitle = document.getElementById("expenseModalTitle");
@@ -1067,6 +1663,14 @@ const modalPasswordMessage = document.getElementById("modalPasswordMessage");
         const isPassword = registerPasswordInput.type === "password";
         registerPasswordInput.type = isPassword ? "text" : "password";
         btnTogglePwReg.textContent = isPassword ? "🙈" : "👁️";
+      });
+    }
+
+    // live search for admin users
+    if (adminSearchInput) {
+      adminSearchInput.addEventListener('input', () => {
+        // re-render using cache or reload if empty
+        loadAdminUsers();
       });
     }
 
@@ -1174,6 +1778,7 @@ const modalPasswordMessage = document.getElementById("modalPasswordMessage");
     });
 
     btnLogout.addEventListener("click", async () => {
+      userInitiatedLogout = true;
       try {
         state = {
           months: [],
@@ -1397,9 +2002,19 @@ const modalPasswordMessage = document.getElementById("modalPasswordMessage");
         amountInput.value = formatNumber(alloc.amount);
         amountInput.placeholder = "0";
         amountInput.addEventListener("input", () => {
-          const digits = amountInput.value.replace(/\D/g, "");
-          amountInput.value = formatNumber(digits);
-          amountInput.selectionEnd = amountInput.value.length;
+          const start = amountInput.selectionStart || amountInput.value.length;
+          const before = amountInput.value.slice(0, start);
+          const raw = (amountInput.value || '').replace(/\D/g, '');
+          const digitsBefore = (before.match(/\d/g) || []).length;
+          const formatted = formatNumberWithCommas(raw);
+          amountInput.value = formatted;
+          // map digitsBefore to new caret position
+          let pos = 0, digits = 0;
+          while (pos < formatted.length && digits < digitsBefore) {
+            if (/\d/.test(formatted[pos])) digits++;
+            pos++;
+          }
+          amountInput.selectionStart = amountInput.selectionEnd = pos;
           privateState.allocations[idx].amount = parseFormattedNumber(amountInput.value);
           savePrivateState();
           updateAllocationResult(idx);
@@ -1523,9 +2138,18 @@ const modalPasswordMessage = document.getElementById("modalPasswordMessage");
 
     if (totalBalanceInput) {
       totalBalanceInput.addEventListener("input", () => {
-        const digits = totalBalanceInput.value.replace(/\D/g, "");
-        totalBalanceInput.value = formatNumber(digits);
-        totalBalanceInput.selectionEnd = totalBalanceInput.value.length;
+        const start = totalBalanceInput.selectionStart || totalBalanceInput.value.length;
+        const before = totalBalanceInput.value.slice(0, start);
+        const raw = (totalBalanceInput.value || '').replace(/\D/g, '');
+        const digitsBefore = (before.match(/\d/g) || []).length;
+        const formatted = formatNumberWithCommas(raw);
+        totalBalanceInput.value = formatted;
+        let pos = 0, digits = 0;
+        while (pos < formatted.length && digits < digitsBefore) {
+          if (/\d/.test(formatted[pos])) digits++;
+          pos++;
+        }
+        totalBalanceInput.selectionStart = totalBalanceInput.selectionEnd = pos;
         updatePrivateSummary();
         privateState.totalBalance = parseFormattedNumber(totalBalanceInput.value);
         savePrivateState();
@@ -1598,18 +2222,28 @@ tabButtons.forEach((btn) => {
     if (tab === "month") {
       tabMonth.style.display = "block";
       tabCompare.style.display = "none";
+      if (tabPlanning) tabPlanning.style.display = "none";
       if (tabPrivate) tabPrivate.style.display = "none";
       if (tabAdmin) tabAdmin.style.display = "none";
       if (monthRow) monthRow.style.display = "flex";
     } else if (tab === "compare") {
       tabMonth.style.display = "none";
       tabCompare.style.display = "block";
+      if (tabPlanning) tabPlanning.style.display = "none";
+      if (tabPrivate) tabPrivate.style.display = "none";
+      if (tabAdmin) tabAdmin.style.display = "none";
+      if (monthRow) monthRow.style.display = "none";
+    } else if (tab === "planning") {
+      tabMonth.style.display = "none";
+      tabCompare.style.display = "none";
+      if (tabPlanning) tabPlanning.style.display = "block";
       if (tabPrivate) tabPrivate.style.display = "none";
       if (tabAdmin) tabAdmin.style.display = "none";
       if (monthRow) monthRow.style.display = "none";
     } else if (tab === "private") {
       tabMonth.style.display = "none";
       tabCompare.style.display = "none";
+      if (tabPlanning) tabPlanning.style.display = "none";
       if (tabPrivate) tabPrivate.style.display = "block";
       if (tabAdmin) tabAdmin.style.display = "none";
       if (monthRow) monthRow.style.display = "none";
@@ -1617,6 +2251,7 @@ tabButtons.forEach((btn) => {
     } else if (tab === "admin") {
       tabMonth.style.display = "none";
       tabCompare.style.display = "none";
+      if (tabPlanning) tabPlanning.style.display = "none";
       if (tabPrivate) tabPrivate.style.display = "none";
       if (tabAdmin) tabAdmin.style.display = "block";
       if (monthRow) monthRow.style.display = "none";
@@ -1640,6 +2275,25 @@ tabButtons.forEach((btn) => {
         advancedStatsIcon.classList.add("open");
       }
     });
+
+    // اختيار الشهر الحالي تلقائياً عند الفتح أو التحديث
+    function selectCurrentMonth() {
+      const now = new Date();
+      const currentMonth = now.getMonth() + 1; // 1-12
+      const currentYear = now.getFullYear();
+      
+      // البحث عن الشهر الحالي في قائمة الأشهر
+      const currentMonthData = state.months.find(m => m.month === currentMonth && m.year === currentYear);
+      
+      if (currentMonthData) {
+        state.selectedMonthId = currentMonthData.id;
+      } else {
+        // إذا لم يكن الشهر الحالي موجوداً، اختر آخر شهر
+        if (state.months.length > 0) {
+          state.selectedMonthId = state.months[state.months.length - 1].id;
+        }
+      }
+    }
 
     function refreshMonthSelect() {
       monthSelect.innerHTML = "";
@@ -2171,6 +2825,16 @@ async function loadAllUsersForAdmin() {
         name.style.flex = "1";
         chip.appendChild(name);
 
+        // show limit badge if exists
+        const limitObj = (state.categoryLimits && state.categoryLimits[cat]) || null;
+        if (limitObj && limitObj.limit) {
+          const badge = document.createElement('span');
+          badge.className = 'category-limit-badge';
+          badge.textContent = `${formatNumber(limitObj.limit)}` + (limitObj.hard ? ' ⚠️' : '');
+          badge.title = limitObj.hard ? 'حظر مفعل عند التجاوز' : 'تنبيه عند الاقتراب من الحد';
+          chip.appendChild(badge);
+        }
+
         const controls = document.createElement("div");
         controls.className = "category-chip-controls";
 
@@ -2214,6 +2878,16 @@ async function loadAllUsersForAdmin() {
           });
           controls.appendChild(delBtn);
         }
+
+        // settings button for category limits
+        const settingsBtn = document.createElement('button');
+        settingsBtn.textContent = '⚙️';
+        settingsBtn.title = 'إعدادات الفئة';
+        settingsBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          openCategoryLimitModal(cat);
+        });
+        controls.appendChild(settingsBtn);
 
         chip.appendChild(controls);
 
@@ -2271,6 +2945,7 @@ async function loadAllUsersForAdmin() {
 
     /* ======= Month Modal ======= */
 
+    let monthModalEscHandler = null;
     function openMonthModal(edit = false) {
       const now = new Date();
       const currentMonth = getSelectedMonth();
@@ -2290,10 +2965,17 @@ async function loadAllUsersForAdmin() {
         deleteMonthBtn.style.display = "none";
       }
       modalMonth.style.display = "flex";
+      setTimeout(() => {
+        attachNumericInputFormatting();
+        try { salaryInput && salaryInput.focus(); } catch (e) {}
+        monthModalEscHandler = (e) => { if (e.key === 'Escape') closeMonthModal(); };
+        document.addEventListener('keydown', monthModalEscHandler);
+      }, 0);
     }
 
     function closeMonthModal() {
       modalMonth.style.display = "none";
+      if (monthModalEscHandler) { document.removeEventListener('keydown', monthModalEscHandler); monthModalEscHandler = null; }
     }
 
     btnAddMonth.addEventListener("click", () => openMonthModal(false));
@@ -2303,9 +2985,18 @@ async function loadAllUsersForAdmin() {
     });
 
     salaryInput.addEventListener("input", () => {
-      const digits = salaryInput.value.replace(/\D/g, "");
-      salaryInput.value = formatNumber(digits);
-      salaryInput.selectionEnd = salaryInput.value.length;
+      const start = salaryInput.selectionStart || salaryInput.value.length;
+      const before = salaryInput.value.slice(0, start);
+      const raw = (salaryInput.value || '').replace(/\D/g, '');
+      const digitsBefore = (before.match(/\d/g) || []).length;
+      const formatted = formatNumberWithCommas(raw);
+      salaryInput.value = formatted;
+      let pos = 0, digits = 0;
+      while (pos < formatted.length && digits < digitsBefore) {
+        if (/\d/.test(formatted[pos])) digits++;
+        pos++;
+      }
+      salaryInput.selectionStart = salaryInput.selectionEnd = pos;
     });
 
     btnCancelMonth.addEventListener("click", closeMonthModal);
@@ -2452,11 +3143,7 @@ async function loadAllUsersForAdmin() {
       if (e.target === modalExpense) closeExpenseModal();
     });
 
-    expenseAmountInput.addEventListener("input", () => {
-      const digits = expenseAmountInput.value.replace(/\D/g, "");
-      expenseAmountInput.value = formatNumber(digits);
-      expenseAmountInput.selectionEnd = expenseAmountInput.value.length;
-    });
+
 
     // معالجة معاينة الصور
     const imagePreviewContainer = document.getElementById("imagePreviewContainer");
@@ -2544,7 +3231,7 @@ async function loadAllUsersForAdmin() {
       closeExpenseModal();
     });
 
-    saveExpenseBtn.addEventListener("click", () => {
+    saveExpenseBtn.addEventListener("click", async () => {
       // منع النقر المتكرر
       if (isSavingExpense) return;
       isSavingExpense = true;
@@ -2553,7 +3240,7 @@ async function loadAllUsersForAdmin() {
       const categoryError = document.getElementById("categoryError");
 
       if (!month) {
-        alert("من فضلك أضف شهرًا أولاً.");
+        await showAlertModal("من فضلك أضف شهرًا أولاً.", "تنبيه", "ℹ️");
         isSavingExpense = false;
         return;
       }
@@ -2566,7 +3253,7 @@ async function loadAllUsersForAdmin() {
       const note = expenseNoteInput.value.trim();
 
       if (!amount || amount <= 0) {
-        alert("من فضلك أدخل مبلغًا صحيحًا.");
+        await showAlertModal("من فضلك أدخل مبلغًا صحيحًا.", "خطأ في المبلغ", "❌");
         isSavingExpense = false;
         return;
       }
@@ -2582,6 +3269,39 @@ async function loadAllUsersForAdmin() {
         expenseCategoryInput.style.borderColor = "";
       }
 
+      // Check category limit before proceeding
+      const limitCheck = checkCategoryLimit(category, amount);
+      if (!limitCheck.allowed) {
+        await showAlertModal(
+          limitCheck.message || 'هذا المصروف يتجاوز حد الفئة وسيتم منعه.',
+          '⚠️ تحذير',
+          '⛔'
+        );
+        isSavingExpense = false;
+        return;
+      }
+      if (limitCheck.message && !limitCheck.allowed) {
+        await showAlertModal(
+          limitCheck.message,
+          '⚠️ تحذير',
+          '⛔'
+        );
+        isSavingExpense = false;
+        return;
+      }
+      if (limitCheck.message && limitCheck.allowed) {
+        const confirmed = await showConfirmModal(
+          limitCheck.message,
+          '⚠️ تنبيه الفئة',
+          '⚠️'
+        );
+        if (!confirmed) {
+          isSavingExpense = false;
+          return;
+        }
+      }
+
+      // Proceed with expense save
       const file = expenseImageInput.files[0];
 
       // إغلاق الـ Modal فوراً لتجنب النقر المتكرر
@@ -2615,7 +3335,7 @@ async function loadAllUsersForAdmin() {
           const existing = month.expenses.find((exp) => exp.id === editingExpenseId);
           imageDataUrl = existing ? existing.imageDataUrl || null : null;
         }
-        saveExpenseObject(month, {
+        await saveExpenseObject(month, {
           id: editingExpenseId,
           title,
           amount,
@@ -2656,6 +3376,546 @@ async function loadAllUsersForAdmin() {
       editingExpenseId = null;
       await refreshUI();
     }
+
+    // ====== Goals feature ======
+    let editingGoalId = null;
+
+    function renderGoals() {
+      if (!goalsContainer) return;
+      goalsContainer.innerHTML = "";
+      const goals = Array.isArray(state.goals) ? state.goals : [];
+      if (goals.length === 0) {
+        const empty = document.createElement('div');
+        empty.className = 'empty-state';
+        empty.textContent = 'لا توجد أهداف حتى الآن.';
+        goalsContainer.appendChild(empty);
+        return;
+      }
+
+      goals.forEach((g) => {
+        const item = document.createElement('div');
+        item.className = 'goal-item';
+
+        const left = document.createElement('div');
+        left.className = 'goal-left';
+        const title = document.createElement('div');
+        title.className = 'goal-title';
+        title.textContent = g.title || 'هدف';
+        left.appendChild(title);
+
+        const meta = document.createElement('div');
+        meta.className = 'goal-meta';
+        const progress = Math.min(100, Math.round(((g.current||0) / (g.target||1)) * 100));
+        meta.innerHTML = `<div class="goal-amounts">${formatNumber(g.current||0)} / ${formatNumber(g.target||0)}</div>` + (g.dueDate ? `<div class="goal-duedate">${g.dueDate}</div>` : '');
+        left.appendChild(meta);
+
+        const progWrap = document.createElement('div');
+        progWrap.className = 'goal-progress-wrap';
+        const prog = document.createElement('div');
+        prog.className = 'goal-progress';
+        prog.style.width = progress + '%';
+        progWrap.appendChild(prog);
+        left.appendChild(progWrap);
+
+        item.appendChild(left);
+
+        const actions = document.createElement('div');
+        actions.className = 'goal-actions';
+        const btnView = document.createElement('button');
+        btnView.className = 'btn btn-outline btn-sm';
+        btnView.textContent = 'تفاصيل';
+        btnView.addEventListener('click', () => openGoalModal(g.id));
+        actions.appendChild(btnView);
+
+        const btnAdd = document.createElement('button');
+        btnAdd.className = 'btn btn-primary btn-sm';
+        btnAdd.textContent = '+ أضف مبلغ';
+        btnAdd.addEventListener('click', () => {
+          const val = prompt('أدخل مبلغ الإضافة إلى الهدف:');
+          if (!val) return;
+          const num = parseFormattedNumber(val);
+          if (!num) { alert('أدخل مبلغًا صحيحًا'); return; }
+          g.current = (g.current || 0) + num;
+          saveState();
+          renderGoals();
+        });
+        actions.appendChild(btnAdd);
+
+        item.appendChild(actions);
+        goalsContainer.appendChild(item);
+      });
+    }
+
+    let goalModalEscHandler = null;
+    function openGoalModal(goalId = null) {
+      editingGoalId = goalId;
+      modalGoal.style.display = 'flex';
+      if (goalId) {
+        modalGoalTitle.textContent = 'تعديل الهدف';
+        btnDeleteGoal.style.display = 'inline-flex';
+        const g = state.goals.find(x => x.id === goalId);
+        if (g) {
+          goalTitleInput.value = g.title || '';
+          goalTargetInput.value = formatNumber(g.target || 0);
+          goalCurrentInput.value = formatNumber(g.current || 0);
+          goalDueDate.value = g.dueDate || '';
+        }
+      } else {
+        modalGoalTitle.textContent = 'إضافة هدف جديد';
+        btnDeleteGoal.style.display = 'none';
+        goalTitleInput.value = '';
+        goalTargetInput.value = '';
+        goalCurrentInput.value = '';
+        goalDueDate.value = '';
+      }
+      // ensure numeric inputs in modals get formatting attached and focus first field
+      setTimeout(() => {
+        attachNumericInputFormatting();
+        try { goalTitleInput && goalTitleInput.focus(); } catch (e) {}
+        goalModalEscHandler = (e) => { if (e.key === 'Escape') closeGoalModal(); };
+        document.addEventListener('keydown', goalModalEscHandler);
+      }, 0);
+    }
+
+    function closeGoalModal() {
+      editingGoalId = null;
+      modalGoal.style.display = 'none';
+      if (goalModalEscHandler) { document.removeEventListener('keydown', goalModalEscHandler); goalModalEscHandler = null; }
+    }
+
+    async function saveGoal() {
+      const title = (goalTitleInput.value || '').trim() || 'هدف';
+      const target = parseFormattedNumber(goalTargetInput.value || '0');
+      const current = parseFormattedNumber(goalCurrentInput.value || '0');
+      const due = goalDueDate.value || null;
+      if (!target || target <= 0) { alert('أدخل مبلغًا مستهدفًا صحيحًا'); return; }
+      if (!Array.isArray(state.goals)) state.goals = [];
+      if (editingGoalId) {
+        const g = state.goals.find(x => x.id === editingGoalId);
+        if (g) {
+          g.title = title; g.target = target; g.current = current; g.dueDate = due;
+        }
+      } else {
+        state.goals.push({ id: Date.now().toString(), title, target, current, dueDate: due });
+      }
+      saveState();
+      closeGoalModal();
+      renderGoals();
+    }
+
+    function deleteGoal() {
+      if (!editingGoalId) return;
+      if (!confirm('هل تريد حذف هذا الهدف؟')) return;
+      const idx = state.goals.findIndex(x => x.id === editingGoalId);
+      if (idx !== -1) state.goals.splice(idx, 1);
+      saveState();
+      closeGoalModal();
+      renderGoals();
+    }
+
+    // Category limits check - with overflow tracking
+    function checkCategoryLimit(cat, additionalAmount) {
+      if (!state.categoryLimits) return { allowed: true };
+      const obj = state.categoryLimits[cat];
+      if (!obj || !obj.limit) return { allowed: true };
+      const month = getSelectedMonth();
+      const total = (month.expenses || []).reduce((s, e) => s + ((e.category === cat) ? (e.amount || 0) : 0), 0);
+      const would = total + (additionalAmount || 0);
+      
+      // Check if we've already exceeded once in this month
+      const hasOverflowed = obj.hasExceeded === true;
+      console.log(`[DEBUG] Checking limit for ${cat}: would=${would}, limit=${obj.limit}, hasOverflowed=${hasOverflowed}`);
+      
+      // Allow equal to limit (not just less than)
+      if (would <= obj.limit) {
+        // Still within limit
+        if (would >= Math.round(obj.limit * 0.8)) {
+          return { allowed: true, message: `⚠️ اقتربت من حد الفئة "${cat}" (${formatNumber(would)} / ${formatNumber(obj.limit)})` };
+        }
+        return { allowed: true };
+      }
+      
+      // Over limit: allow only once if not hard limit
+      if (would > obj.limit) {
+        if (hasOverflowed) {
+          // Already exceeded once, block further additions
+          const msg = `❌ لا يمكن إضافة مصاريف إضافية. تجاوزت حد الفئة "${cat}" (${formatNumber(obj.limit)}) بالفعل.`;
+          return { allowed: false, message: msg };
+        }
+        
+        if (obj.hard) {
+          // Hard limit, no overflow allowed
+          const msg = `⛔ سيتم تجاوز حد الفئة "${cat}" (${formatNumber(obj.limit)}) — بعد الإضافة: ${formatNumber(would)}. هذا الحد لا يمكن تجاوزه.`;
+          return { allowed: false, message: msg };
+        }
+        
+        // Soft limit, allow one overflow
+        const msg = `⚠️ سيتم تجاوز حد الفئة "${cat}" (${formatNumber(obj.limit)}) — بعد الإضافة: ${formatNumber(would)}.\n\nهذا التجاوز مسموح لمرة واحدة فقط.`;
+        return { allowed: true, message: msg, markOverflow: true };
+      }
+      
+      return { allowed: true };
+    }
+
+    // wire modal buttons
+    if (btnAddGoal) btnAddGoal.addEventListener('click', () => openGoalModal(null));
+    if (btnCancelGoal) btnCancelGoal.addEventListener('click', closeGoalModal);
+    if (btnCloseGoal) btnCloseGoal.addEventListener('click', closeGoalModal);
+    if (btnSaveGoal) btnSaveGoal.addEventListener('click', saveGoal);
+    if (btnDeleteGoal) btnDeleteGoal.addEventListener('click', deleteGoal);
+
+    // toggle between goals and buckets - DISABLED: both shown together now
+    // if (showGoalsTab) {
+    //   showGoalsTab.addEventListener('click', () => {
+    //     showGoalsTab.classList.add('active');
+    //     showBucketsTab && showBucketsTab.classList.remove('active');
+    //     document.getElementById('goalsTab').style.display = 'block';
+    //     document.getElementById('bucketsTab').style.display = 'none';
+    //     if (btnAddGoal) btnAddGoal.style.display = '';
+    //     if (btnAddBucket) btnAddBucket.style.display = 'none';
+    //   });
+    // }
+    // if (showBucketsTab) {
+    //   showBucketsTab.addEventListener('click', () => {
+    //     showBucketsTab.classList.add('active');
+    //     showGoalsTab && showGoalsTab.classList.remove('active');
+    //     document.getElementById('goalsTab').style.display = 'none';
+    //     document.getElementById('bucketsTab').style.display = 'block';
+    //     if (btnAddGoal) btnAddGoal.style.display = 'none';
+    //     if (btnAddBucket) btnAddBucket.style.display = '';
+    //   });
+    // }
+
+    // Category Limit modal wiring & helpers
+    const modalCategoryLimit = document.getElementById('modalCategoryLimit');
+    const categoryLimitName = document.getElementById('categoryLimitName');
+    const categoryLimitAmount = document.getElementById('categoryLimitAmount');
+    const categoryLimitHard = document.getElementById('categoryLimitHard');
+    const btnSaveCategoryLimit = document.getElementById('btnSaveCategoryLimit');
+    const btnCancelCategoryLimit = document.getElementById('btnCancelCategoryLimit');
+    const btnDeleteCategoryLimit = document.getElementById('btnDeleteCategoryLimit');
+    let editingCategoryForLimit = null;
+    let categoryLimitEscHandler = null;
+
+    function openCategoryLimitModal(cat) {
+      editingCategoryForLimit = cat;
+      if (!modalCategoryLimit) return;
+      modalCategoryLimit.style.display = 'flex';
+      categoryLimitName.textContent = cat;
+      const cur = state.categoryLimits && state.categoryLimits[cat] ? state.categoryLimits[cat] : null;
+      categoryLimitAmount.value = cur && cur.limit ? formatNumber(cur.limit) : '';
+      categoryLimitHard.checked = cur && !!cur.hard;
+      if (btnDeleteCategoryLimit) btnDeleteCategoryLimit.style.display = cur && cur.limit ? 'inline-flex' : 'none';
+      // attach formatting and focus
+      setTimeout(() => {
+        attachNumericInputFormatting();
+        const el = categoryLimitAmount;
+        if (el) { el.focus(); el.selectionEnd = el.value.length; }
+        categoryLimitEscHandler = (e) => { if (e.key === 'Escape') closeCategoryLimitModal(); };
+        document.addEventListener('keydown', categoryLimitEscHandler);
+      }, 0);
+    }
+
+    function closeCategoryLimitModal() {
+      if (!modalCategoryLimit) return;
+      modalCategoryLimit.style.display = 'none';
+      editingCategoryForLimit = null;
+      if (categoryLimitEscHandler) { document.removeEventListener('keydown', categoryLimitEscHandler); categoryLimitEscHandler = null; }
+    }
+
+    function saveCategoryLimit() {
+      if (!editingCategoryForLimit) return closeCategoryLimitModal();
+      const val = (categoryLimitAmount.value || '').trim();
+      if (!val) {
+        if (state.categoryLimits) delete state.categoryLimits[editingCategoryForLimit];
+        saveState(); refreshUI(); closeCategoryLimitModal();
+        return;
+      }
+      const num = parseFormattedNumber(categoryLimitAmount.value);
+      if (!num) { alert('أدخل مبلغًا صحيحًا.'); return; }
+      state.categoryLimits = state.categoryLimits || {};
+      state.categoryLimits[editingCategoryForLimit] = { limit: num, hard: !!categoryLimitHard.checked };
+      saveState(); refreshUI(); closeCategoryLimitModal();
+    }
+
+    function deleteCategoryLimit() {
+      if (!editingCategoryForLimit) return;
+      if (!confirm('هل تريد حذف حد الفئة؟')) return;
+      if (state.categoryLimits) delete state.categoryLimits[editingCategoryForLimit];
+      saveState(); refreshUI(); closeCategoryLimitModal();
+    }
+
+    if (btnSaveCategoryLimit) btnSaveCategoryLimit.addEventListener('click', saveCategoryLimit);
+    if (btnCancelCategoryLimit) btnCancelCategoryLimit.addEventListener('click', closeCategoryLimitModal);
+    if (btnCloseCategoryLimit) btnCloseCategoryLimit.addEventListener('click', closeCategoryLimitModal);
+    if (btnDeleteCategoryLimit) btnDeleteCategoryLimit.addEventListener('click', deleteCategoryLimit);
+
+    if (modalCategoryLimit) modalCategoryLimit.addEventListener('click', (e) => { if (e.target === modalCategoryLimit) closeCategoryLimitModal(); });
+
+    /* ======= Savings Buckets (Paycheck Split) ======= */
+    // element references already obtained earlier near top, skip redeclaration
+    const bucketsTotalPercent = document.getElementById('bucketsTotalPercent');
+    const btnPreviewSplit = document.getElementById('btnPreviewSplit');
+    const btnApplySplit = document.getElementById('btnApplySplit');
+
+    // modal elements
+    const modalBucket = document.getElementById('modalBucket');
+    const bucketNameInput = document.getElementById('bucketNameInput');
+    const bucketAmountInput = document.getElementById('bucketAmountInput');
+    const btnSaveBucket = document.getElementById('btnSaveBucket');
+    const btnCancelBucket = document.getElementById('btnCancelBucket');
+    const btnCloseBucket = document.getElementById('btnCloseBucket');
+    const btnDeleteBucket = document.getElementById('btnDeleteBucket');
+
+    let editingBucketId = null;
+    let bucketModalEscHandler = null;
+
+    function renderSavingsBuckets() {
+      if (!bucketsContainer) return;
+      bucketsContainer.innerHTML = '';
+      const buckets = Array.isArray(state.savingsBuckets) ? state.savingsBuckets : [];
+      if (buckets.length === 0) {
+        const empty = document.createElement('div');
+        empty.className = 'empty-state';
+        empty.textContent = 'لا توجد حافظات حتى الآن.';
+        bucketsContainer.appendChild(empty);
+        bucketsTotalPercent.textContent = '0';
+        return;
+      }
+
+      const month = getSelectedMonth();
+      const salary = (month && month.salary) ? month.salary : 0;
+      let totalAlloc = 0;
+
+      buckets.forEach((b) => {
+        const item = document.createElement('div');
+        item.className = 'bucket-item';
+
+        const left = document.createElement('div');
+        left.className = 'bucket-left';
+        const name = document.createElement('div');
+        name.className = 'bucket-name';
+        name.textContent = b.name || 'حافظة';
+        left.appendChild(name);
+
+        const meta = document.createElement('div');
+        meta.className = 'bucket-meta';
+        const amt = b.amount || 0;
+        totalAlloc += amt;
+        const percent = salary ? Math.round((amt / salary) * 100) : 0;
+        meta.innerHTML = `<div class="bucket-percent">${percent}%</div><div class="bucket-amount">${formatNumber(amt)}</div>`;
+        left.appendChild(meta);
+        item.appendChild(left);
+
+        const controls = document.createElement('div');
+        controls.className = 'bucket-controls';
+        const editBtn = document.createElement('button');
+        editBtn.className = 'btn btn-outline btn-sm';
+        editBtn.textContent = '✎';
+        editBtn.title = 'تعديل الحافظة';
+        editBtn.addEventListener('click', (e) => { e.stopPropagation(); openBucketModal(b.id); });
+        controls.appendChild(editBtn);
+
+        const delBtn = document.createElement('button');
+        delBtn.className = 'btn btn-outline btn-sm';
+        delBtn.textContent = '🗑️';
+        delBtn.title = 'حذف الحافظة';
+        delBtn.addEventListener('click', (e) => { e.stopPropagation(); if (!confirm('هل تريد حذف هذه الحافظة؟')) return; const idx = state.savingsBuckets.findIndex(x => x.id === b.id); if (idx !== -1) state.savingsBuckets.splice(idx, 1); saveState(); refreshUI(); });
+        controls.appendChild(delBtn);
+
+        item.appendChild(controls);
+        bucketsContainer.appendChild(item);
+      });
+
+      const percentOfSalary = salary ? Math.round((totalAlloc / salary) * 100) : 0;
+      bucketsTotalPercent.textContent = `${formatNumber(totalAlloc)} — ${percentOfSalary}%`;
+      if (salary && totalAlloc > salary) bucketsTotalPercent.style.color = 'var(--danger)'; else bucketsTotalPercent.style.color = '';
+    }
+
+    function openBucketModal(bucketId = null) {
+      editingBucketId = bucketId;
+      if (!modalBucket) return;
+      modalBucket.style.display = 'flex';
+      if (bucketId) {
+        const b = state.savingsBuckets.find(x => x.id === bucketId);
+        if (b) {
+          bucketNameInput.value = b.name || '';
+          bucketAmountInput.value = formatNumber(b.amount || 0);
+          btnDeleteBucket.style.display = 'inline-flex';
+        }
+      } else {
+        bucketNameInput.value = '';
+        bucketAmountInput.value = '';
+        btnDeleteBucket.style.display = 'none';
+      }
+      setTimeout(() => { attachNumericInputFormatting(); try { bucketNameInput && bucketNameInput.focus(); } catch (e) {} bucketModalEscHandler = (e) => { if (e.key === 'Escape') closeBucketModal(); }; document.addEventListener('keydown', bucketModalEscHandler);
+        // live note update
+        try {
+          const noteEl = document.getElementById('bucketAmountNote');
+          const updateBucketNote = () => {
+            const month = getSelectedMonth();
+            const salary = month ? (month.salary || 0) : 0;
+            const existingTotal = (state.savingsBuckets || []).reduce((s, b) => s + (b.id === editingBucketId ? 0 : (b.amount || 0)), 0);
+            const curVal = parseFormattedNumber(bucketAmountInput.value || '0') || 0;
+            const newTotal = existingTotal + curVal;
+            const pct = salary ? Math.round((newTotal / salary) * 100) : 0;
+            if (noteEl) {
+              noteEl.textContent = `إجمالي بعد الإضافة: ${formatNumber(newTotal)} من ${formatNumber(salary)} (${pct}%)`;
+              if (salary && newTotal > salary) noteEl.style.color = 'var(--danger)'; else noteEl.style.color = 'var(--subtext-color)';
+            }
+          };
+          updateBucketNote();
+          bucketAmountInput._noteHandler = updateBucketNote;
+          bucketAmountInput.addEventListener('input', updateBucketNote);
+        } catch (e) {}
+      }, 0);
+    }
+
+    function closeBucketModal() {
+      if (!modalBucket) return;
+      modalBucket.style.display = 'none';
+      editingBucketId = null;
+      if (bucketModalEscHandler) { document.removeEventListener('keydown', bucketModalEscHandler); bucketModalEscHandler = null; }
+      try {
+        if (bucketAmountInput && bucketAmountInput._noteHandler) {
+          bucketAmountInput.removeEventListener('input', bucketAmountInput._noteHandler);
+          bucketAmountInput._noteHandler = null;
+        }
+      } catch (e) {}
+    }
+
+    function saveBucket() {
+      const name = (bucketNameInput.value || '').trim() || 'حافظة';
+      const amount = parseFormattedNumber(bucketAmountInput.value || '0') || 0;
+      if (amount < 0) { alert('أدخل مبلغًا صحيحًا.'); return; }
+      // check total amount
+      const existingTotal = (state.savingsBuckets || []).reduce((s, b) => s + (b.id === editingBucketId ? 0 : (b.amount || 0)), 0);
+      const newTotal = existingTotal + amount;
+      const month = getSelectedMonth();
+      const salary = month ? (month.salary || 0) : 0;
+      if (salary && newTotal > salary) {
+        if (!confirm('مجموع المبالغ يتجاوز الراتب، هل تريد المتابعة؟')) return;
+      }
+      if (!Array.isArray(state.savingsBuckets)) state.savingsBuckets = [];
+      if (editingBucketId) {
+        const b = state.savingsBuckets.find(x => x.id === editingBucketId);
+        if (b) { b.name = name; b.amount = amount; }
+      } else {
+        state.savingsBuckets.push({ id: Date.now().toString(), name, amount });
+      }
+      saveState(); refreshUI(); closeBucketModal();
+    }
+
+    function deleteBucket() {
+      if (!editingBucketId) return;
+      if (!confirm('هل تريد حذف هذه الحافظة؟')) return;
+      const idx = state.savingsBuckets.findIndex(x => x.id === editingBucketId);
+      if (idx !== -1) state.savingsBuckets.splice(idx, 1);
+      saveState(); refreshUI(); closeBucketModal();
+    }
+
+    function previewSplit() {
+      const month = getSelectedMonth();
+      if (!month) { alert('اختر شهرًا أولًا.'); return; }
+      const salary = month.salary || 0;
+      if (!salary) { alert('حدّث الراتب أولًا ليتم المعاينة.'); return; }
+      const buckets = state.savingsBuckets || [];
+      if (buckets.length === 0) { alert('لا توجد حافظات لمعرفة التوزيع.'); return; }
+
+      let totalAlloc = 0;
+      const rows = buckets.map((b) => {
+        const amt = b.amount || 0;
+        totalAlloc += amt;
+        const pct = salary ? Math.round((amt / salary) * 100) : 0;
+        return { name: b.name || 'حافظة', amount: amt, percent: pct };
+      });
+      const leftover = salary - totalAlloc;
+
+      // populate details panel
+      const detailsEl = document.getElementById('splitDetailsPanel');
+      const summaryEl = document.getElementById('splitSummaryPanel');
+      if (detailsEl) {
+        detailsEl.innerHTML = '';
+        const table = document.createElement('table');
+        table.className = 'split-details-table';
+        rows.forEach(r => {
+          const tr = document.createElement('tr');
+          const tdName = document.createElement('td'); tdName.textContent = r.name; tdName.style.width = '50%';
+          const tdAmt = document.createElement('td'); tdAmt.textContent = formatNumber(r.amount); tdAmt.style.textAlign = 'right';
+          const tdPct = document.createElement('td'); tdPct.textContent = r.percent + '%'; tdPct.style.width = '80px'; tdPct.style.textAlign = 'right';
+          tr.appendChild(tdName); tr.appendChild(tdAmt); tr.appendChild(tdPct);
+          table.appendChild(tr);
+        });
+        detailsEl.appendChild(table);
+      }
+
+      if (summaryEl) {
+        summaryEl.innerHTML = '';
+        const wrap = document.createElement('div');
+        wrap.style.display = 'flex'; wrap.style.flexDirection = 'column'; wrap.style.gap = '8px';
+        wrap.innerHTML = `
+          <div><strong>الراتب:</strong> ${formatNumber(salary)}</div>
+          <div><strong>المجموع المخصوم:</strong> ${formatNumber(totalAlloc)}</div>
+          <div><strong>المتبقي:</strong> ${formatNumber(leftover)}</div>
+        `;
+        summaryEl.appendChild(wrap);
+      }
+
+      // show modal and wire interaction
+      const modal = document.getElementById('modalSplitPreview');
+      if (!modal) return;
+      modal.style.display = 'flex';
+
+      // tabs
+      modal.querySelectorAll('.split-tab-btn').forEach((btn) => {
+        btn.onclick = () => {
+          modal.querySelectorAll('.split-tab-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          const tab = btn.dataset.tab;
+          document.getElementById('splitDetailsPanel').style.display = (tab === 'details') ? '' : 'none';
+          document.getElementById('splitSummaryPanel').style.display = (tab === 'summary') ? '' : 'none';
+        };
+      });
+
+      // close & apply
+      const closeModal = () => {
+        modal.style.display = 'none';
+        document.removeEventListener('keydown', escHandler);
+      };
+      const escHandler = (e) => { if (e.key === 'Escape') closeModal(); };
+      document.addEventListener('keydown', escHandler);
+
+      const closeBtn = document.getElementById('btnCloseSplitPreview');
+      const closeBtn2 = document.getElementById('btnCloseSplitPreview2');
+      const applyBtn = document.getElementById('btnApplySplitFromPreview');
+      if (closeBtn) closeBtn.onclick = closeModal;
+      if (closeBtn2) closeBtn2.onclick = closeModal;
+      if (applyBtn) applyBtn.onclick = () => { applySplit(); closeModal(); };
+
+      modal.onclick = (e) => { if (e.target === modal) closeModal(); };
+    }
+
+    function applySplit() {
+      const month = getSelectedMonth();
+      if (!month) { alert('اختر شهرًا أولًا.'); return; }
+      const salary = month.salary || 0;
+      if (!salary) { alert('حدّث الراتب أولًا ليتم التطبيق.'); return; }
+      const buckets = state.savingsBuckets || [];
+      if (buckets.length === 0) { alert('لا توجد حافظات للتطبيق.'); return; }
+      const allocations = buckets.map((b) => ({ bucketId: b.id, name: b.name, amount: b.amount || 0, percent: salary ? Math.round(((b.amount||0)/salary)*100) : 0 }));
+      month.savings = allocations;
+      saveState(); refreshUI();
+      alert('✓ تم تطبيق التوزيع على الشهر.');
+    }
+
+    if (btnAddBucket) btnAddBucket.addEventListener('click', () => openBucketModal(null));
+    if (btnSaveBucket) btnSaveBucket.addEventListener('click', saveBucket);
+    if (btnCancelBucket) btnCancelBucket.addEventListener('click', closeBucketModal);
+    if (btnCloseBucket) btnCloseBucket.addEventListener('click', closeBucketModal);
+    if (btnDeleteBucket) btnDeleteBucket.addEventListener('click', deleteBucket);
+    if (modalBucket) modalBucket.addEventListener('click', (e) => { if (e.target === modalBucket) closeBucketModal(); });
+    if (btnPreviewSplit) btnPreviewSplit.addEventListener('click', previewSplit);
+    if (btnApplySplit) btnApplySplit.addEventListener('click', applySplit);
 
     /* ======= فلترة ======= */
 
@@ -2729,7 +3989,8 @@ async function loadAllUsersForAdmin() {
       }
       try {
         await set(ref(db, "users/" + uid), null);
-        await loadAdminUsers();
+        adminUsersCache = null; // clear cache so next load is fresh
+        await loadAdminUsers(true);
       } catch (e) {
         console.error(e);
         alert("تعذر حذف بيانات المستخدم.");
@@ -2744,14 +4005,15 @@ async function loadAllUsersForAdmin() {
       const newValue = !currentlyDisabled;
       try {
         await set(ref(db, "users/" + uid + "/disabled"), newValue);
-        await loadAdminUsers();
+        adminUsersCache = null;
+        await loadAdminUsers(true);
       } catch (e) {
         console.error(e);
         alert("تعذر تغيير حالة المستخدم.");
       }
     }
 
-    async function loadAdminUsers() {
+    async function loadAdminUsers(forceReload = false) {
       if (!firebaseEnabled || !db || !currentUser) {
         adminUsersContainer.innerHTML =
           '<div class="empty-state">لوحة التحكم تتطلب اتصالاً بالإنترنت وFirebase.</div>';
@@ -2767,46 +4029,88 @@ async function loadAllUsersForAdmin() {
         '<div class="empty-state">جاري تحميل بيانات المستخدمين...</div>';
 
       try {
-        const usersSnap = await get(ref(db, "users"));
-        if (!usersSnap.exists()) {
-          adminUsersContainer.innerHTML =
-            '<div class="empty-state">لا يوجد أي مستخدمين بعد.</div>';
-          return;
+        // fetch once and cache; if forced reload (refresh button) or cache empty
+        let list;
+        if (!adminUsersCache || forceReload) {
+          const usersSnap = await get(ref(db, "users"));
+          if (!usersSnap.exists()) {
+            adminUsersContainer.innerHTML =
+              '<div class="empty-state">لا يوجد أي مستخدمين بعد.</div>';
+            adminUsersCache = [];
+            updateAdminStats();
+            return;
+          }
+          adminUsersCache = [];
+          usersSnap.forEach((userSnap) => {
+            adminUsersCache.push({ uid: userSnap.key, data: userSnap.val() || {} });
+          });
+        }
+        list = adminUsersCache;
+        updateAdminStats();
+        renderAdminUsers(list);
+      } catch (e) {
+        console.error(e);
+        adminUsersContainer.innerHTML =
+          '<div class="empty-state">تعذر تحميل بيانات المستخدمين.</div>';
+      }
+    }
+
+    function updateAdminStats() {
+      const total = adminUsersCache ? adminUsersCache.length : 0;
+      const disabled = adminUsersCache
+        ? adminUsersCache.filter((u) => !!u.data.disabled).length
+        : 0;
+      const active = total - disabled;
+      if (adminStatsEl) {
+        adminStatsEl.innerHTML = `
+          <span>المستخدمون: ${total}</span>
+          <span>النشطون: ${active}</span>
+          <span>المعطَّلون: ${disabled}</span>
+        `;
+      }
+    }
+
+    function renderAdminUsers(list) {
+      const fragment = document.createDocumentFragment();
+      const searchTerm = (adminSearchInput ? adminSearchInput.value.trim().toLowerCase() : "");
+      let shown = 0;
+
+      list.forEach(({ uid, data }) => {
+        const profile = data.profile || {};
+        const disabled = !!data.disabled;
+        if (searchTerm) {
+          const email = (profile.email || "").toLowerCase();
+          if (!email.includes(searchTerm) && !uid.toLowerCase().includes(searchTerm)) {
+            return; // skip this user
+          }
         }
 
-        const fragment = document.createDocumentFragment();
+        shown++;
+        const stateData = data.state || {};
+        const isOwner = uid === ADMIN_UID;
+        const stats = computeUserStats(stateData);
 
-        usersSnap.forEach((userSnap) => {
-          const uid = userSnap.key;
-          const data = userSnap.val() || {};
-          const stateData = data.state || {};
-          const profile = data.profile || {};
-          const disabled = !!data.disabled;
-          const isOwner = uid === ADMIN_UID;
+        const card = document.createElement("div");
+        card.className = "admin-user-card";
 
-          const stats = computeUserStats(stateData);
+        // Header
+        const header = document.createElement("div");
+        header.className = "admin-user-header";
 
-          const card = document.createElement("div");
-          card.className = "admin-user-card";
+        const main = document.createElement("div");
+        main.className = "admin-user-main";
 
-          // Header
-          const header = document.createElement("div");
-          header.className = "admin-user-header";
+        const emailEl = document.createElement("div");
+        emailEl.className = "admin-user-email";
+        emailEl.textContent = profile.email || "(بدون بريد محفوظ)";
+        const uidEl = document.createElement("div");
+        uidEl.className = "admin-user-uid";
+        uidEl.textContent = "UID: " + uid;
 
-          const main = document.createElement("div");
-          main.className = "admin-user-main";
+        main.appendChild(emailEl);
+        main.appendChild(uidEl);
 
-          const emailEl = document.createElement("div");
-          emailEl.className = "admin-user-email";
-          emailEl.textContent = profile.email || "(بدون بريد محفوظ)";
-          const uidEl = document.createElement("div");
-          uidEl.className = "admin-user-uid";
-          uidEl.textContent = "UID: " + uid;
-
-          main.appendChild(emailEl);
-          main.appendChild(uidEl);
-
-          const badgesContainer = document.createElement("div");
+        const badgesContainer = document.createElement("div");
 
           const statusBadge = document.createElement("span");
           statusBadge.className =
@@ -2991,13 +4295,13 @@ async function loadAllUsersForAdmin() {
           fragment.appendChild(card);
         });
 
-        adminUsersContainer.innerHTML = "";
-        adminUsersContainer.appendChild(fragment);
-      } catch (e) {
-        console.error(e);
-        adminUsersContainer.innerHTML =
-          '<div class="empty-state">تعذر تحميل بيانات المستخدمين.</div>';
-      }
+        if (shown === 0) {
+          adminUsersContainer.innerHTML =
+            '<div class="empty-state">لا يوجد مستخدمون مطابقون للبحث.</div>';
+        } else {
+          adminUsersContainer.innerHTML = "";
+          adminUsersContainer.appendChild(fragment);
+        }
     }
 
     // تحميل حالة قفل التسجيل من Firebase
@@ -3188,7 +4492,8 @@ async function loadAllUsersForAdmin() {
         try {
           btnAdminRefresh.disabled = true;
           btnAdminRefresh.textContent = "🔄 جاري التحديث...";
-          await loadAdminUsers();
+          adminUsersCache = null;
+          await loadAdminUsers(true);
           await loadRegistrationStatus();
 
         } catch (err) {
@@ -3201,15 +4506,21 @@ async function loadAllUsersForAdmin() {
       });
     }
 
-    async function refreshUI() {
+    let _hasRunRefresh = false; // track whether we already animated once
+
+    async function refreshUI(options = {}) {
+      // options.noAnimate = true will skip any fade transitions
+      const noAnim = options.noAnimate || (_hasRunRefresh && !options.forceAnimate);
       state = normalizeState(state);
 
-      // apply fade-out to the main app view so existing data hides smoothly
-      if (appView) {
-        appView.classList.remove("fade-in");
-        appView.classList.add("fade-out");
-        // wait for animation to finish (match CSS duration ~280ms)
-        await new Promise((r) => setTimeout(r, 300));
+      if (!noAnim) {
+        // apply fade-out to the main app view so existing data hides smoothly
+        if (appView) {
+          appView.classList.remove("fade-in");
+          appView.classList.add("fade-out");
+          // wait for animation to finish (match CSS duration ~280ms)
+          await new Promise((r) => setTimeout(r, 300));
+        }
       }
 
       refreshMonthSelect();
@@ -3219,28 +4530,35 @@ async function loadAllUsersForAdmin() {
       renderComparison();
       renderCategoryOptions();
       renderCategoryList();
+      renderGoals();
+      renderSavingsBuckets();
 
-      // reveal updated UI with a subtle fade-in
-      if (appView) {
-        appView.classList.remove("fade-out");
-        appView.classList.add("fade-in");
-        // remove the class after animation to keep DOM clean
-        setTimeout(() => appView && appView.classList.remove("fade-in"), 350);
+      if (!noAnim) {
+        // reveal updated UI with a subtle fade-in
+        if (appView) {
+          appView.classList.remove("fade-out");
+          appView.classList.add("fade-in");
+          // remove the class after animation to keep DOM clean
+          setTimeout(() => appView && appView.classList.remove("fade-in"), 350);
+        }
       }
 
       await saveState();
+      _hasRunRefresh = true; // subsequent calls default to no animation
     }
 
     (function init() {
-      const savedTheme = localStorage.getItem(THEME_KEY) || "light";
-      applyTheme(savedTheme);
+      try {
+        const savedTheme = localStorage.getItem(THEME_KEY) || "light";
+        applyTheme(savedTheme);
 
-      // Show loader while we determine auth state to prevent UI flash
-      if (appLoader) {
-        appLoader.style.display = "flex";
-      }
-      if (loginView) loginView.style.display = "none";
-      if (appView) appView.style.display = "none";
+        // loader handling removed: we no longer display during init to avoid
+        // flicker/verification messages when the page reloads after network
+        // interruptions. appLoader is now only used for fatal diagnostics.
+        // const cameFromOffline = !!sessionStorage.getItem('wasOffline');
+        // (no display logic)
+        if (loginView) loginView.style.display = "none";
+        if (appView) appView.style.display = "none";
 
       // If we have a last signed-in uid and local state, show app immediately (avoid loader flash)
       try {
@@ -3284,9 +4602,18 @@ async function loadAllUsersForAdmin() {
 
       if (firebaseEnabled && auth) {
         onAuthStateChanged(auth, async (user) => {
+         try {
+         // ignore repeated null events after initialization unless explicit logout
+         if (authInitialized && !user && !userInitiatedLogout) {
+           console.warn('Ignored auth-null event (not user logout)');
+           return;
+         }
+         authInitialized = true;
          if (user) {
   currentUser = user;
   userRef = ref(db, "users/" + currentUser.uid + "/state");
+  // DO NOT start listener here - will start AFTER initial sync completes
+  // (to avoid pulling old Firebase data before we push local changes)
 
         // remember last uid locally to speed up UI on refresh
         try { localStorage.setItem(LAST_UID_KEY, currentUser.uid); } catch (e) {}
@@ -3312,7 +4639,29 @@ async function loadAllUsersForAdmin() {
     console.warn("Failed to update user profile:", e);
   }
 
-  /* 📧 إظهار بريد المستخدم */
+  /* � نقل الحالة المحلية من 'guest' إذا كانت موجودة */
+  function migrateGuestData() {
+    try {
+      const guestKey = STORAGE_KEY_PREFIX + "guest";
+      const userKey = STORAGE_KEY_PREFIX + currentUser.uid;
+      if (guestKey === userKey) return;
+      const guestRaw = localStorage.getItem(guestKey);
+      if (!guestRaw) return;
+      // لا تقوم بالكتابة فوق بيانات المستخدم إذا كان لديه بالفعل شيء
+      if (!localStorage.getItem(userKey)) {
+        const parsed = JSON.parse(guestRaw);
+        const norm = normalizeState(parsed);
+        localStorage.setItem(userKey, JSON.stringify(norm));
+        state = norm;
+      }
+      // لا تحذف البيانات فوراً؛ قد يحتاج المستخدم لوصول مضاعف
+    } catch (e) {
+      console.warn("Guest migration failed", e);
+    }
+  }
+  migrateGuestData();
+
+  /* �📧 إظهار بريد المستخدم */
   userEmailLabel.textContent = user.email || "";
 
   /* 👑 إظهار تبويب لوحة التحكم إذا كان المستخدم هو المدير */
@@ -3326,11 +4675,24 @@ async function loadAllUsersForAdmin() {
   }
 
   /* ☁️ تحميل بيانات المستخدم */
+  // في حالة وجود بيانات مخزنة محلياً باسم مستخدم آخر أو guest، ستقوم الدالة
+  // السابقة بدمجها مع المفتاح الحالي قبل تحميل أي أشياء.
   loadStateLocal();
   state = normalizeState(state);
 
+  // بعد تحميل محلياً، حاول جلب/مزامنة النسخة البعيدة
   await loadStateRemoteIfExists();
   state = normalizeState(state);
+  
+  // اختيار الشهر الحالي تلقائياً
+  selectCurrentMonth();
+  
+  // if we brought in guest data or made local changes, ensure remote copy is updated
+  if (isOnline) {
+    await saveState();
+  }
+  // listener should also be active after initial sync
+  startRemoteListener();
 
   /* تحميل القسم المحمي */
   loadPrivateState();
@@ -3340,11 +4702,54 @@ async function loadAllUsersForAdmin() {
   loginView.style.display = "none";
   appView.style.display = "block";
 
+  // attach live number formatting to numeric inputs
+  attachNumericInputFormatting();
+
+  // add admin-only test runner button (if admin area is present)
+  try {
+    const adminContainer = document.getElementById('adminUsersContainer');
+    // Removed: format test button - no longer needed
+  } catch (e) {}
+
   await refreshUI();
 
 } else {
   /* 🚪 حالة تسجيل الخروج */
+  // بعد تحديث المنطق أعلاه، أي auth-null يتم تجاهله قبل الوصول إلى هذا الفرع
   currentUser = null;
+  userInitiatedLogout = false; // reset flag
+  if (remoteListenerUnsubscribe) {
+    remoteListenerUnsubscribe();
+    remoteListenerUnsubscribe = null;
+  }
+  userRef = null;
+  userEmailLabel.textContent = "";
+  
+  if (adminTabBtn) adminTabBtn.style.display = "none";
+  if (tabAdmin) tabAdmin.style.display = "none";
+
+  /* 🔄 إعادة ضبط حالة التطبيق */
+  state = {
+    months: [],
+    selectedMonthId: null,
+    categories: [...defaultCategories],
+  };
+
+  filterState = {
+    search: "",
+    category: "all",
+    hasImageOnly: false,
+  };
+
+  /* عرض شاشة الدخول */
+  if (appLoader) appLoader.style.display = "none";
+  appView.style.display = "none";
+  currentUser = null;
+  userInitiatedLogout = false; // reset flag
+  if (remoteListenerUnsubscribe) {
+    remoteListenerUnsubscribe();
+    remoteListenerUnsubscribe = null;
+  }
   userRef = null;
   userEmailLabel.textContent = "";
   
@@ -3369,6 +4774,10 @@ async function loadAllUsersForAdmin() {
   appView.style.display = "none";
   loginView.style.display = "block";
 }
+  } catch (e) {
+    showDiagnostic(e && e.message ? e.message : String(e));
+    console.error(e);
+  }
 });
 } else {
   // في حالة لم يعمل Firebase (وضع Offline)
@@ -3377,7 +4786,12 @@ async function loadAllUsersForAdmin() {
   if (appLoader) appLoader.style.display = "none";
   loginView.style.display = "none";
   appView.style.display = "block";
+  // attach live number formatting in offline mode
+  attachNumericInputFormatting();
   refreshUI();
+}
+} catch (e) {
+  showDiagnostic(e && e.message ? e.message : String(e));
 }
 })();
     </script>

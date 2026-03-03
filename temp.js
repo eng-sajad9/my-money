@@ -1,890 +1,9 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl" data-theme="light">
-<head>
-  <meta charset="UTF-8" />
-  <link rel="manifest" href="/my-money" />
-  <title>نظام إدارة المصاريف</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="theme-color" content="#3498db" />
-  <meta name="description" content="تطبيق لإدارة ومتابعة المصاريف اليومية" />
-  
-  <!-- Web App Manifest للتطبيق -->
-  <link rel="manifest" href="manifest.json" />
-  
-  <!-- أيقونات التطبيق -->
-  <link rel="icon" type="image/jpeg" href="photo_2026-03-03_11-01-38.jpg" />
-  <link rel="apple-touch-icon" href="photo_2026-03-03_11-01-38.jpg" />
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <meta name="apple-mobile-web-app-title" content="المصاريف" />
-  
-  <link rel="stylesheet" href="style.css">
- <style>
-  .connection-toast {
-    position: fixed;
-    top: 16px;
-    left: 50%;
-    transform: translateX(-50%);
-    padding: 8px 16px;
-    background: rgba(0,0,0,0.7);
-    color: #fff;
-    border-radius: 4px;
-    display: none;
-    z-index: 10000;
-    transition: opacity 0.3s;
-  }
-  .connection-toast.show { display: block; opacity: 1; }
-  .connection-toast.hide { opacity: 0; }
-  /* network status indicator */
-  .network-status {
-    display: inline-block;
-    width: 14px;
-    height: 14px;
-    border-radius: 50%;
-    margin: 0 8px;
-    vertical-align: middle;
-    background: #2ecc71; /* online default */
-    position: relative;
-    transition: background 0.3s ease;
-    box-shadow: 0 0 8px rgba(46, 204, 113, 0.5);
-  }
-  .network-status.online {
-    background: #2ecc71;
-    animation: pulse-glow 2s ease-in-out infinite;
-    box-shadow: 0 0 8px rgba(46, 204, 113, 0.6);
-  }
-  .network-status.offline {
-    background: #2ecc71;
-    animation: pulse-glow 2s ease-in-out infinite;
-    box-shadow: 0 0 8px rgba(46, 204, 113, 0.5);
-  }
-  .network-status.syncing {
-    background: #3498db;
-    animation: sync-pulse 1s cubic-bezier(0.68, 0, 0.265, 1) infinite;
-    box-shadow: 0 0 8px rgba(52, 152, 219, 0.6);
-  }
-  .network-status.syncing:after {
-    content: '';
-    position: absolute;
-    top: -3px;
-    left: -3px;
-    width: calc(100% + 6px);
-    height: calc(100% + 6px);
-    border: 2px solid #3498db;
-    border-top-color: rgba(52, 152, 219, 0.3);
-    border-right-color: rgba(52, 152, 219, 0.3);
-    border-radius: 50%;
-    animation: spin-sync 0.7s linear infinite;
-  }
-  @keyframes pulse-glow {
-    0%, 100% { box-shadow: 0 0 8px rgba(46, 204, 113, 0.4), inset 0 0 4px rgba(46, 204, 113, 0.3); }
-    50% { box-shadow: 0 0 16px rgba(46, 204, 113, 0.8), inset 0 0 4px rgba(46, 204, 113, 0.5); }
-  }
-  @keyframes pulse-glow-red {
-    0%, 100% { box-shadow: 0 0 8px rgba(232, 76, 60, 0.4), inset 0 0 4px rgba(232, 76, 60, 0.3); }
-    50% { box-shadow: 0 0 16px rgba(232, 76, 60, 0.8), inset 0 0 4px rgba(232, 76, 60, 0.5); }
-  }
-  @keyframes pulse-glow-blue {
-    0%, 100% { box-shadow: 0 0 12px rgba(52, 152, 219, 0.5); }
-    50% { box-shadow: 0 0 20px rgba(52, 152, 219, 0.9); }
-  }
-  @keyframes sync-glow {
-    0%, 100% { box-shadow: 0 0 8px rgba(52, 152, 219, 0.4), inset 0 0 4px rgba(52, 152, 219, 0.2); }
-    50% { box-shadow: 0 0 16px rgba(52, 152, 219, 0.8), inset 0 0 4px rgba(52, 152, 219, 0.4); }
-  }
-  @keyframes spin {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
-  }
-  @keyframes spin-sync {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-  }
-  @keyframes sync-pulse {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.2); }
-  }
- </style>
- 
-</head>
-<body>
-  <div id="connectionToast" class="connection-toast"></div>
-  <!-- Alert Modal Card -->
-  <div id="alertModal" class="alert-modal-overlay" style="display:none;">
-    <div class="alert-card">
-      <div class="alert-card-header">
-        <div id="alertIcon" class="alert-card-icon">⚠️</div>
-        <div>
-          <h3 id="alertTitle" class="alert-card-title">تنبيه</h3>
-          <div id="alertMessage" class="alert-card-message"></div>
-        </div>
-      </div>
-      <div class="alert-card-footer">
-        <button id="alertBtnCancel" class="btn btn-alert-cancel" style="display:none;">إلغاء</button>
-        <button id="alertBtnConfirm" class="btn btn-alert-confirm">حسناً</button>
-      </div>
-    </div>
-  </div>
-  <!-- لودر تحميل (يظهر أثناء التحقق من حالة الدخول) -->
-  <div id="appLoader" class="app-loader" style="display:none">🔄 جاري التحقق من حالة الدخول...</div>
-
-  <!-- شاشة تسجيل الدخول -->
-  <div id="loginView" class="login-container">
-    <div class="login-header">
-      <div class="login-icon">💸</div>
-      <div class="login-title">
-        <h1>نظام إدارة المصاريف</h1>
-        <span>سجّل الدخول للوصول إلى مصاريفك من أي جهاز.</span>
-      </div>
-    </div>
-        <script>
-          // Service Worker registration and background-sync helpers
-          async function registerServiceWorkerAndSync() {
-            if (!('serviceWorker' in navigator)) return;
-            try {
-              const reg = await navigator.serviceWorker.register('/sw.js');
-              console.log('ServiceWorker registered', reg);
-
-              navigator.serviceWorker.addEventListener('message', (e) => {
-                if (!e.data) return;
-                if (e.data.type === 'sync-now') {
-                  try { if (typeof syncPendingChanges === 'function') syncPendingChanges(); } catch (err) { console.warn(err); }
-                }
-              });
-
-              // helper to request a background sync (best-effort)
-              async function ensureBackgroundSyncRegistered() {
-                if (!('sync' in reg)) return;
-                try {
-                  await reg.sync.register('sync-expenses');
-                  console.log('Background sync registered');
-                } catch (err) {
-                  console.warn('Background sync registration failed', err);
-                }
-              }
-
-              // try to register periodically if the browser supports it
-              setInterval(() => {
-                ensureBackgroundSyncRegistered();
-              }, 30000);
-
-              // also try once on load
-              ensureBackgroundSyncRegistered();
-            } catch (e) {
-              console.warn('SW register failed', e);
-            }
-          }
-
-          // start registration when page loads
-          window.addEventListener('load', () => {
-            registerServiceWorkerAndSync();
-          });
-        </script>
-    <div class="login-body">
-      <div class="login-tabs">
-        <button id="tabLogin" class="login-tab-btn active">تسجيل دخول</button>
-        <button id="tabRegister" class="login-tab-btn">حساب جديد</button>
-      </div>
-
-      <!-- نموذج تسجيل الدخول -->
-      <div id="loginForm">
-        <div class="form-group">
-          <label class="form-label">البريد الإلكتروني</label>
-          <input id="loginEmail" type="email" class="form-input" placeholder="Email" />
-        </div>
-        <div class="form-group">
-          <label class="form-label">كلمة السر</label>
-          <div class="password-row">
-            <input id="loginPassword" type="password" class="form-input" placeholder="password" />
-            <button id="btnTogglePwLogin" class="btn-toggle-pw">👁️</button>
-          </div>
-        </div>
-        <div id="authError" class="login-error"></div>
-        <div class="login-footer">
-          <button id="btnLogin" class="btn btn-primary">تسجيل الدخول</button>
-          
-        </div>
-        <div id="loginProcessingBar" class="login-processing-bar" role="status" aria-live="polite">
-          <div class="processing-spinner" aria-hidden="true"></div>
-          <div>جاري تسجيل الدخول...</div>
-        </div>
-      </div>
-
-      <!-- نموذج التسجيل -->
-      <div id="registerForm" style="display:none;">
-        <div class="form-group">
-          <label class="form-label">البريد الإلكتروني</label>
-          <input id="registerEmail" type="email" class="form-input" placeholder="Email" />
-        </div>
-        <div class="form-group">
-          <label class="form-label">كلمة السر</label>
-          <div class="password-row">
-            <input id="registerPassword" type="password" class="form-input" placeholder="password" />
-            <button id="btnTogglePwReg" class="btn-toggle-pw">👁️</button>
-          </div>
-        </div>
-        <div class="form-group">
-          <label class="form-label">تأكيد كلمة السر</label>
-          <input id="registerPasswordConfirm" type="password" class="form-input" placeholder="password" />
-        </div>
-        <div id="registerError" class="login-error"></div>
-        <div class="login-footer">
-          <button id="btnRegister" class="btn btn-outline">إنشاء حساب</button>
-          <button id="btnCancelRegister" class="btn btn-ghost">إلغاء</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- واجهة التطبيق -->
-  <div id="appView" class="app-container">
-    <header>
-      <div class="header-left">
-        <h2><span class="icon">📊</span>مصروفاتي الشهرية</h2>
-        <div class="header-sub">إدارة الراتب والمصاريف مع فصل كامل بين الأشهر.</div>
-      </div>
-      <div class="header-actions">
-        <span id="userEmailLabel" class="user-label"></span>
-        <!-- حالة الشبكة والمزامنة -->
-        <div id="networkStatus" class="network-status offline" title="حالة الاتصال"></div>
-        <button id="btnChangePasswordQuick" class="btn btn-outline btn-sm">🔐 تغيير كلمة السر</button>
-        <button id="btnToggleTheme" class="btn btn-outline btn-sm">🌙 الوضع الداكن</button>
-        <button id="btnLogout" class="btn btn-outline btn-sm">🚪 تسجيل خروج</button>
-      </div>
-    </header>
-
-    <!-- تبويبات (مع أزرار سريعة إضافية) -->
-    <div class="tabs">
-      <button class="tab-btn active" data-tab="month">الشهر الحالي</button>
-      <button class="tab-btn" data-tab="compare">مقارنة الأشهر</button>
-      <button class="tab-btn" data-tab="planning"> التخطيط والأهداف</button>
-      <button class="tab-btn" data-tab="private"> ملاحظاتي</button>
-      <button id="adminTabBtn" class="tab-btn" data-tab="admin" style="display:none;">لوحة التحكم</button>
-    </div>
-
-    <!-- اختيار الشهر -->
-    <div class="month-row">
-      <select id="monthSelect" class="month-select"></select>
-      <button id="btnEditMonth" class="btn btn-outline btn-sm">⚙️ إدارة الشهر</button>
-      <button id="btnAddMonth" class="btn btn-primary btn-sm">+ شهر</button>
-    </div>
-
-    <!-- تبويب الشهر الحالي -->
-    <div id="tab-month">
-      <!-- ملخص -->
-      <div class="card">
-        <div class="card-header">
-          <h3>ملخص الشهر</h3>
-        </div>
-        <div class="summary-grid">
-          <div class="summary-item">
-            <div class="summary-label">الراتب</div>
-            <div id="summarySalary" class="summary-value">0</div>
-          </div>
-          <div class="summary-item">
-            <div class="summary-label">إجمالي المصاريف</div>
-            <div id="summaryExpenses" class="summary-value negative">0</div>
-          </div>
-          <div class="summary-item">
-            <div class="summary-label">المتبقي</div>
-            <div id="summaryRemaining" class="summary-value positive">0</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- إحصائيات متقدمة -->
-      <div class="card">
-        <div class="card-header">
-          <div class="collapse-toggle" id="advancedStatsToggle">
-            <span>إحصائيات متقدمة للشهر</span>
-            <span id="advancedStatsIcon" class="collapse-icon">▼</span>
-          </div>
-        </div>
-        <div id="advancedStatsBody" class="collapse-body"> 
-          <div class="stats-grid">
-            <div class="stats-item">
-              <div class="stats-item-title">متوسط الصرف اليومي</div>
-              <div id="statDailyAvg" class="stats-item-value">0</div>
-            </div>
-            <div class="stats-item">
-              <div class="stats-item-title">المتبقي لكل يوم</div>
-              <div id="statRemainingPerDay" class="stats-item-value">0</div>
-            </div>
-            <div class="stats-item">
-              <div class="stats-item-title">أكبر مصروف</div>
-              <div id="statMaxExpense" class="stats-item-value">0</div>
-            </div>
-            <div class="stats-item">
-              <div class="stats-item-title">أكثر تصنيف صرفًا</div>
-              <div id="statTopCategory" class="stats-item-value">لا يوجد</div>
-            </div>
-          </div>
-          <div class="category-bars" id="categoryBars"></div>
-        </div>
-      </div>
-
-      <!-- المصاريف -->
-      <div class="card">
-        <div class="card-header">
-          <h3>المصاريف</h3>
-          <button id="btnAddExpense" class="btn btn-success btn-sm">+ مصروف</button>
-        </div>
-        <div class="filter-row">
-          <input
-            id="searchInput"
-            type="text"
-            class="form-input form-input-sm"
-            placeholder="بحث عن مصروف (عنوان أو ملاحظة)"
-          />
-          <select id="filterCategory" class="form-select form-select-sm">
-            <option value="all">كل التصنيفات</option>
-          </select>
-        </div>
-        <label class="filter-toggle">
-          <input type="checkbox" id="filterHasImage" />
-          عرض المصاريف التي تحتوي على صورة فقط
-        </label>
-        <div id="filterSummary" class="filter-summary"></div>
-        <div id="expenseList" class="expense-list"></div>
-      </div>
-
-      <!-- إدارة التصنيفات -->
-      <div class="card">
-        <div class="card-header">
-          <h3>التصنيفات</h3>
-        </div>
-        <div class="form-group" style="margin-bottom:6px;">
-          <div style="display:flex; gap:6px;">
-            <input
-              id="newCategoryInput"
-              type="text"
-              class="form-input form-input-sm"
-              placeholder="إضافة تصنيف جديد (مثال: قهوة)"
-            />
-            <button id="btnAddCategory" class="btn btn-outline btn-sm">+ إضافة</button>
-          </div>
-        </div>
-        <div id="categoryList"></div>
-      </div>
-    </div>
-
-    <!-- تبويب مقارنة الأشهر -->
-    <div id="tab-compare" style="display:none;">
-      <div class="card">
-        <div class="card-header">
-          <h3>مقارنة مصاريف الأشهر</h3>
-        </div>
-        <div id="compareContainer" class="compare-row"></div>
-      </div>
-    </div>
-
-    <!-- تبويب التخطيط والأهداف وتقسيم الراتب -->
-    <div id="tab-planning" style="display:none;">
-      <div id="goalsBucketsCard" class="card">
-        <div class="card-header" style="display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:12px;">
-          <h3>الأهداف وتقسيم الراتب</h3>
-          <div style="display:flex; gap:6px; align-items:center; flex-wrap:wrap;">
-            <button id="btnAddGoal" class="btn btn-primary btn-sm">+ هدف</button>
-            <button id="btnAddBucket" class="btn btn-primary btn-sm">+ حافظة</button>
-          </div>
-        </div>
-        
-        <!-- Goals Section -->
-        <div style="margin-bottom: 24px;">
-          <h4 style="font-size: 16px; font-weight: 600; margin-bottom: 12px; color: var(--text-color);">🎯 الأهداف</h4>
-          <div id="goalsContainer" class="goals-container">
-            <div class="empty-state" id="goalsEmpty">لا توجد أهداف حتى الآن.</div>
-          </div>
-        </div>
-        
-        <!-- Buckets Section -->
-        <div style="border-top: 1px solid var(--border-color); padding-top: 20px;">
-          <h4 style="font-size: 16px; font-weight: 600; margin-bottom: 12px; color: var(--text-color);">💼 تقسيم الراتب</h4>
-          <div id="bucketsContainer" class="buckets-container">
-            <div class="empty-state" id="bucketsEmpty">لا توجد حافظات حتى الآن.</div>
-          </div>
-          <div class="card-footer" style="display:flex; gap:8px; align-items:center; margin-top: 16px;">
-            <div style="flex:1"><strong>المجموع المخصص:</strong> <span id="bucketsTotalPercent">0</span></div>
-            <button id="btnPreviewSplit" class="btn btn-outline btn-sm">معاينة</button>
-            <button id="btnApplySplit" class="btn btn-primary btn-sm">تطبيق</button>
-            <button id="btnClearAllBuckets" class="btn btn-danger btn-sm" title="مسح جميع تقسيمات الراتب">🗑️ مسح الكل</button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- تبويب ملاحظاتي والحسابات (محمي برقم PIN) -->
-    <div id="tab-private" style="display:none;">
-      <div id="privateSection" class="private-section-locked">
-        <div class="private-lock-container">
-          <div class="private-lock-icon">🔐</div>
-          <div class="private-lock-text">بيانات حساسة محمية برقم PIN</div>
-          <div class="private-pin-input-group">
-            <input id="privatePinInput" type="text" inputmode="numeric" pattern="[0-9]*" class="private-pin-input" placeholder="0000" maxlength="6" />
-            <button id="btnOpenPrivate" class="btn-open-private">فتح</button>
-          </div>
-          <div id="privateErrorMsg" class="private-error-msg"></div>
-        </div>
-      </div>
-
-      <div id="privateContent" class="private-content" style="display:none;">
-        <!-- قسم رصيدي الكامل -->
-        <div class="private-card budget-summary-card">
-          <div class="private-card-title">💰 الراتب الكامل</div>
-          <div style="display: flex; flex-direction: column; gap: 12px;">
-            <!-- حقل الرصيد الكلي -->
-            <div class="budget-input-group">
-              <label style="font-size: 11px; color: var(--subtext-color); font-weight: 600; margin-bottom: 4px; display: block;">إجمالي أموالي</label>
-              <input id="totalBalanceInput" type="text" inputmode="numeric" class="form-input form-input-sm" placeholder="0" />
-            </div>
-
-            <!-- اختيار نطاق الأشهر -->
-            <div class="budget-range-group">
-              <label style="font-size: 11px; color: var(--subtext-color); font-weight: 600; margin-bottom: 6px; display: block;">📅 احسب من:</label>
-              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">
-                <div>
-                  <label style="font-size: 10px; color: var(--subtext-color); display: block; margin-bottom: 3px;">من</label>
-                  <select id="budgetFromMonth" class="form-select form-select-sm"></select>
-                </div>
-                <div>
-                  <label style="font-size: 10px; color: var(--subtext-color); display: block; margin-bottom: 3px;">إلى</label>
-                  <select id="budgetToMonth" class="form-select form-select-sm"></select>
-                </div>
-              </div>
-            </div>
-
-            <!-- ملخص الحسابات -->
-            <div class="budget-summary">
-              <div class="budget-stat">
-                <span class="budget-stat-label">المصروف</span>
-                <span id="privateTotalExpenses" class="budget-stat-value danger">0</span>
-              </div>
-              <div class="budget-stat">
-                <span class="budget-stat-label">الأشهر</span>
-                <span id="privateAllMonthsCount" class="budget-stat-value">0</span>
-              </div>
-              <div class="budget-stat">
-                <span class="budget-stat-label">المتبقي</span>
-                <span id="privateActualRemaining" class="budget-stat-value success">0</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- قسم تقسيم الرصيد حسب الفئات -->
-        <div class="private-card budget-allocation-card">
-          <div class="private-card-title">📊 توزيع رصيدي</div>
-          <div style="display: flex; flex-direction: column; gap: 10px;">
-            <div id="budgetAllocations" class="budget-allocations-container"></div>
-            <button id="btnAddAllocation" class="btn btn-outline btn-sm" style="width: 100%; margin-top: 4px;">+ إضافة فئة جديدة</button>
-          </div>
-        </div>
-
-        <!-- قسم الحاسبة الذكية -->
-        <div class="private-card">
-          <div class="private-card-title">🧮 حاسبتي الذكية</div>
-          <div class="private-calculator">
-            <input id="calcInput" type="text" class="calc-input" placeholder="مثال: 100 + 50 * 2 - 20" />
-            <div class="calc-result" id="calcResult">انتظر الحساب...</div>
-            <div style="font-size: 11px; color: var(--subtext-color); text-align: center;">
-              تدعم: + (جمع) | - (طرح) | * (ضرب) | / (قسمة)
-            </div>
-          </div>
-        </div>
-
-
-
-        <!-- قسم الملاحظات العامة -->
-        <div class="private-card">
-          <div class="private-card-title">📝 ملاحظاتي العامة</div>
-          <textarea id="privateNotes" class="private-notes-textarea" placeholder="اكتب ملاحظاتك هنا... (آخر تحديث يتم حفظها تلقائياً)"></textarea>
-          <div class="private-notes-meta" id="privateNotesLastUpdate"></div>
-        </div>
-
-        <!-- زر تعطيل PIN -->
-        <div class="private-card" style="background: linear-gradient(135deg, rgba(239,68,68,0.05), rgba(239,68,68,0.03));">
-          <div class="private-card-title" style="color: #b91c1c;">⚙️ إعدادات الأمان</div>
-          <div style="display: flex; flex-direction: column; gap: 8px; font-size: 12px;">
-            <label style="display: flex; align-items: center; gap: 6px; cursor: pointer;">
-              <input type="checkbox" id="pinEnabledToggle" checked />
-              <span>تفعيل قفل PIN</span>
-            </label>
-            <div style="font-size: 11px; color: var(--subtext-color);">
-              عطّل هذا الخيار إذا كنت تريد الوصول المباشر بدون كلمة سر.
-            </div>
-            <button id="btnChangePinCode" class="btn btn-outline btn-sm">🔄 تغيير رقم PIN</button>
-          </div>
-        </div>
-
-        <!-- زر تسجيل الخروج من القسم -->
-        <button id="btnPrivateLogout" class="btn-private-logout">🔒 قفل هذا القسم</button>
-      </div>
-    </div>
-
- <!-- تبويب لوحة التحكم (يظهر للمدير فقط) -->
-<div id="tab-admin" style="display:none;">
-
-  <div class="card">
-    <div class="card-header">
-      <h3>لوحة تحكم المدير</h3>
-      <button id="btnAdminRefresh" class="btn btn-outline btn-sm">🔄 تحديث البيانات</button>
-    </div>
-
-    <div id="adminNote" class="login-small-note">
-      يمكنك هنا مشاهدة ملخص رواتب ومصاريف جميع المستخدمين مع تفاصيل الأشهر.<br>
-      <strong>مهم:</strong> هذه الصفحة تعمل فقط لحساب المدير.
-    </div>
-  </div>
-
-  <!-- قسم الإعدادات الإدارية -->
-  <div class="card">
-    <div class="card-header">
-      <h3>🔧 الإعدادات الإدارية</h3>
-    </div>
-
-    <!-- قفل التسجيل الجديد -->
-    <div class="admin-settings-card">
-      <div class="admin-settings-group">
-        <div style="display: flex; justify-content: space-between; align-items: center;">
-          <label class="admin-settings-label">
-            📋 التسجيل الجديد
-          </label>
-          <button id="btnToggleRegistration" class="toggle-switch active">
-            <div class="toggle-circle"></div>
-          </button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- قسم إدارة المستخدمين -->
-  <div class="card">
-    <div class="card-header">
-      <h3>👥 المستخدمون</h3>
-    </div>
-    <!-- أدوات بحث وإحصائيات -->
-    <div id="adminControls" class="admin-controls">
-      <!-- <input id="adminSearch" type="text" class="form-input admin-search" placeholder="🔍 ابحث بالبريد أو UID" /> -->
-      <div id="adminStats" class="admin-stats"></div>
-    </div>
-    <div id="adminUsersContainer" class="admin-users-container"></div>
-  </div>
-
-  <div class="admin-note">
-    ⚠️ يمكنك حذف بيانات المستخدمين أو تعطيلهم، لكن لا يمكن حذف حسابهم من Firebase Auth.
-  </div>
-
-</div>
-  <!-- مودال إدارة الشهر -->
-  <div id="modalMonth" class="modal-backdrop">
-    <div class="modal">
-      <div class="modal-header">
-        <h3 id="modalMonthTitle">إدارة الشهر</h3>
-        <button id="btnCloseMonth" class="btn btn-outline btn-sm">✕</button>
-      </div>
-      <div class="form-group">
-        <label class="form-label">الشهر</label>
-        <select id="monthInput" class="form-select">
-          <option value="1">يناير</option>
-          <option value="2">فبراير</option>
-          <option value="3">مارس</option>
-          <option value="4">أبريل</option>
-          <option value="5">مايو</option>
-          <option value="6">يونيو</option>
-          <option value="7">يوليو</option>
-          <option value="8">أغسطس</option>
-          <option value="9">سبتمبر</option>
-          <option value="10">أكتوبر</option>
-          <option value="11">نوفمبر</option>
-          <option value="12">ديسمبر</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label class="form-label">السنة</label>
-        <input id="yearInput" type="number" inputmode="numeric" class="form-input" />
-      </div>
-      <div class="form-group">
-        <label class="form-label">الراتب الشهري</label>
-        <input
-          id="salaryInput"
-          type="text"
-          inputmode="numeric"
-          class="form-input"
-          placeholder="مثال: 5,000"
-        />
-      </div>
-      <div class="modal-footer" style="justify-content: space-between;">
-        <button id="deleteMonthBtn" class="btn btn-outline btn-sm" style="display:none;">
-          🗑️ حذف الشهر
-        </button>
-        <div style="display:flex; gap:6px;">
-          <button class="btn btn-outline" id="btnCancelMonth">إلغاء</button>
-          <button id="saveMonthBtn" class="btn btn-primary">حفظ</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- مودال الهدف -->
-  <div id="modalGoal" class="modal-backdrop" style="display:none;">
-    <div class="modal" style="max-width:480px;">
-      <div class="modal-header">
-        <h3 id="modalGoalTitle">إضافة/تحرير هدف</h3>
-        <button id="btnCloseGoal" class="btn btn-outline btn-sm">✕</button>
-      </div>
-      <div class="form-group">
-        <label class="form-label">اسم الهدف</label>
-        <input id="goalTitleInput" type="text" class="form-input" />
-      </div>
-      <div class="form-group">
-        <label class="form-label">المبلغ المستهدف</label>
-        <input id="goalTargetInput" type="text" class="form-input" inputmode="numeric" />
-      </div>
-      <div class="form-group">
-        <label class="form-label">المبلغ الحالي (اختياري)</label>
-        <input id="goalCurrentInput" type="text" class="form-input" inputmode="numeric" />
-      </div>
-      <div class="form-group">
-        <label class="form-label">تاريخ الإنتهاء (اختياري)</label>
-        <input id="goalDueDate" type="date" class="form-input" />
-      </div>
-      <div class="modal-footer">
-        <button id="btnDeleteGoal" class="btn btn-outline btn-sm" style="display:none;">🗑️ حذف</button>
-        <div style="display:flex; gap:6px;">
-          <button id="btnCancelGoal" class="btn btn-outline">إلغاء</button>
-          <button id="btnSaveGoal" class="btn btn-primary">حفظ الهدف</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Modal for adding amount to a goal (replaces prompt) -->
-  <div id="modalAddToGoal" class="modal-backdrop" style="display:none;">
-    <div class="modal" style="max-width:320px;">
-      <div class="modal-header">
-        <h3>إضافة مبلغ للهدف</h3>
-        <button id="btnCloseAddGoal" class="btn btn-outline btn-sm">✕</button>
-      </div>
-      <div class="form-group">
-        <label class="form-label">المبلغ</label>
-        <input id="addGoalAmountInput" type="text" class="form-input" inputmode="numeric" />
-      </div>
-      <div class="modal-footer">
-        <button id="btnCancelAddGoal" class="btn btn-outline">إلغاء</button>
-        <button id="btnSaveAddGoal" class="btn btn-primary">حفظ</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- مودال إعداد حد الفئة -->
-  <div id="modalCategoryLimit" class="modal-backdrop" style="display:none;">
-    <div class="modal" style="max-width:420px;">
-      <div class="modal-header">
-        <h3 id="modalCategoryLimitTitle">إعداد حد الفئة</h3>
-        <button id="btnCloseCategoryLimit" class="btn btn-outline btn-sm">✕</button>
-      </div>
-      <div class="form-group">
-        <label class="form-label">الفئة</label>
-        <div id="categoryLimitName" class="form-input" style="background:#f7f7f7; padding:8px;"></div>
-      </div>
-      <div class="form-group">
-        <label class="form-label">حد الإنفاق الشهري</label>
-        <input id="categoryLimitAmount" type="text" class="form-input" inputmode="numeric" placeholder="مثال: 5,000" />
-      </div>
-      <div class="form-group">
-        <label class="form-label"><input id="categoryLimitHard" type="checkbox" /> حظر الإضافة عند التجاوز (Hard limit)</label>
-      </div>
-      <div class="modal-footer">
-        <button id="btnDeleteCategoryLimit" class="btn btn-outline btn-sm" style="display:none;">🗑️ حذف الحد</button>
-        <div style="display:flex; gap:6px;">
-          <button id="btnCancelCategoryLimit" class="btn btn-outline">إلغاء</button>
-          <button id="btnSaveCategoryLimit" class="btn btn-primary">حفظ</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- مودال حافظة الادخار -->
-  <div id="modalBucket" class="modal-backdrop" style="display:none;">
-    <div class="modal" style="max-width:440px;">
-      <div class="modal-header">
-        <h3 id="modalBucketTitle">إضافة/تعديل الحافظة</h3>
-        <button id="btnCloseBucket" class="btn btn-outline btn-sm">✕</button>
-      </div>
-      <div class="form-group">
-        <label class="form-label">اسم الحافظة</label>
-        <input id="bucketNameInput" type="text" class="form-input" />
-      </div>
-      <div class="form-group">
-        <label class="form-label">المبلغ</label>
-        <input id="bucketAmountInput" type="text" inputmode="numeric" class="form-input" placeholder="مثال: 5,000" />
-        <div id="bucketAmountNote" class="form-note" style="font-size:12px;color:var(--subtext-color);margin-top:6px;">المجموع: 0</div>
-      </div>
-      <div class="modal-footer">
-        <button id="btnDeleteBucket" class="btn btn-outline btn-sm" style="display:none;">🗑️ حذف</button>
-        <div style="display:flex; gap:6px;">
-          <button id="btnCancelBucket" class="btn btn-outline">إلغاء</button>
-          <button id="btnSaveBucket" class="btn btn-primary">حفظ</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- مودال معاينة التوزيع (تبويبي) -->
-  <div id="modalSplitPreview" class="modal-backdrop" style="display:none;">
-    <div class="modal" style="max-width:720px;">
-      <div class="modal-header">
-        <h3 id="modalSplitPreviewTitle">معاينة التوزيع</h3>
-        <button id="btnCloseSplitPreview" class="btn btn-outline btn-sm">✕</button>
-      </div>
-
-      <div class="split-preview-tabs" role="tablist">
-        <button class="split-tab-btn active" data-tab="details">تفاصيل</button>
-        <button class="split-tab-btn" data-tab="summary">الملخص</button>
-      </div>
-
-      <div class="split-tab-body">
-        <div class="split-tab-panel" id="splitDetailsPanel"></div>
-        <div class="split-tab-panel" id="splitSummaryPanel" style="display:none;"></div>
-      </div>
-
-      <div class="modal-footer">
-        <div style="flex:1"></div>
-        <div style="display:flex; gap:6px;">
-          <button id="btnApplySplitFromPreview" class="btn btn-primary">تطبيق التوزيع</button>
-          <button id="btnCloseSplitPreview2" class="btn btn-outline">إغلاق</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- مودال المصروف -->
-  <div id="modalExpense" class="modal-backdrop">
-    <div class="modal">
-      <div class="modal-header">
-        <h3 id="expenseModalTitle">إضافة مصروف</h3>
-        <button id="btnCloseExpense" class="btn btn-outline btn-sm">✕</button>
-      </div>
-      <div class="form-group">
-        <label class="form-label">عنوان المصروف</label>
-        <input
-          id="expenseTitleInput"
-          type="text"
-          class="form-input"
-          placeholder="مثال: غداء، بنزين، شراء كتاب"
-        />
-      </div>
-      <div class="form-group">
-        <label class="form-label">المبلغ</label>
-        <input
-          id="expenseAmountInput"
-          type="text"
-          inputmode="numeric"
-          class="form-input"
-          placeholder="مثال: 25,000"
-        />
-      </div>
-      <div class="form-group">
-        <label class="form-label">التصنيف</label>
-        <select id="expenseCategoryInput" class="form-select"></select>
-        <div id="categoryError" style="color: var(--danger); font-size: 12px; margin-top: 3px; display: none;">⚠️ من فضلك اختر تصنيفًا</div>
-      </div>
-      <div class="form-group">
-        <label class="form-label">التاريخ</label>
-        <input id="expenseDateInput" type="date" class="form-input" />
-      </div>
-      <div class="form-group">
-        <label class="form-label">ملاحظات</label>
-        <textarea
-          id="expenseNoteInput"
-          class="form-textarea"
-          placeholder="تفاصيل إضافية إن وجدت"
-        ></textarea>
-      </div>
-      <div class="form-group">
-        <label class="form-label">صورة (اختياري)</label>
-        <input id="expenseImageInput" type="file" accept="image/*" class="form-input" />
-        <!-- معاينة الصورة -->
-        <div id="imagePreviewContainer" class="image-preview-container">
-          <div class="image-preview-box">
-            <img id="imagePreviewImg" src="" alt="معاينة الصورة" />
-          </div>
-          <div class="image-preview-info">
-            <span class="image-preview-filename" id="imagePreviewFilename"></span>
-            <span class="image-preview-size" id="imagePreviewSize"></span>
-          </div>
-          <button type="button" id="imagePreviewRemove" class="image-preview-remove">
-            ✕ إزالة الصورة
-          </button>
-        </div>
-      </div>
-      <div class="modal-footer" style="justify-content: space-between;">
-        <button id="deleteExpenseBtn" class="btn btn-outline btn-sm" style="display:none;">
-          🗑️ حذف المصروف
-        </button>
-        <div style="display:flex; gap:6px;">
-          <button class="btn btn-outline" id="btnCancelExpense">إلغاء</button>
-          <button id="saveExpenseBtn" class="btn btn-primary">حفظ</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- مودال عرض الصورة -->
-  <div id="modalImage" class="modal-backdrop">
-    <div class="modal image-modal">
-      <img id="imageModalView" src="" alt="صورة المصروف" />
-    </div>
-  </div>
-
-  <!-- مودال تغيير كلمة السر -->
-  <div id="modalPassword" class="modal-backdrop" style="display:none;">
-    <div class="modal" style="max-width: 400px;">
-      <div class="modal-header">
-        <h3>🔐 تغيير كلمة السر</h3>
-        <button id="btnClosePassword" class="btn btn-outline btn-sm">✕</button>
-      </div>
-      <div class="form-group">
-        <label class="form-label">كلمة السر الحالية</label>
-        <input 
-          id="modalCurrentPassword" 
-          type="password" 
-          class="form-input" 
-          placeholder="كلمة السر الحالية"
-        />
-      </div>
-      <div class="form-group">
-        <label class="form-label">كلمة السر الجديدة</label>
-        <input 
-          id="modalNewPassword" 
-          type="password" 
-          class="form-input" 
-          placeholder="كلمة السر الجديدة (6 أحرف على الأقل)"
-        />
-      </div>
-      <div class="form-group">
-        <label class="form-label">تأكيد كلمة السر الجديدة</label>
-        <input 
-          id="modalConfirmPassword" 
-          type="password" 
-          class="form-input" 
-          placeholder="تأكيد كلمة السر الجديدة"
-        />
-      </div>
-      <div id="modalPasswordMessage" style="font-size: 13px; margin-bottom: 12px; min-height: 18px;"></div>
-      <button id="btnModalChangePassword" class="btn btn-primary" style="width: 100%;">
-        ✓ تحديث كلمة السر
-      </button>
-    </div>
-  </div>
-
-  <!-- سكربت التطبيق + Firebase -->
-  <script type="module">
-    /* ⚠️ ملاحظة الأمان:
-     * - كل مستخدم له بيانات منفصلة في localStorage (محمي برقم UID الفريد)
-     * - البيانات في Firebase مخزنة في مسار users/{uid}/state (محمي بـ UID)
-     * - يتم مسح جميع البيانات من الذاكرة عند تسجيل الخروج
-     * - يجب تطبيق Firebase Security Rules للحماية الإضافية
+﻿  <script type="module">
+    /* âš ï¸ Ù…Ù„Ø§Ø­Ø¸Ø© Ø§Ù„Ø£Ù…Ø§Ù†:
+     * - ÙƒÙ„ Ù…Ø³ØªØ®Ø¯Ù… Ù„Ù‡ Ø¨ÙŠØ§Ù†Ø§Øª Ù…Ù†ÙØµÙ„Ø© ÙÙŠ localStorage (Ù…Ø­Ù…ÙŠ Ø¨Ø±Ù‚Ù… UID Ø§Ù„ÙØ±ÙŠØ¯)
+     * - Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª ÙÙŠ Firebase Ù…Ø®Ø²Ù†Ø© ÙÙŠ Ù…Ø³Ø§Ø± users/{uid}/state (Ù…Ø­Ù…ÙŠ Ø¨Ù€ UID)
+     * - ÙŠØªÙ… Ù…Ø³Ø­ Ø¬Ù…ÙŠØ¹ Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª Ù…Ù† Ø§Ù„Ø°Ø§ÙƒØ±Ø© Ø¹Ù†Ø¯ ØªØ³Ø¬ÙŠÙ„ Ø§Ù„Ø®Ø±ÙˆØ¬
+     * - ÙŠØ¬Ø¨ ØªØ·Ø¨ÙŠÙ‚ Firebase Security Rules Ù„Ù„Ø­Ù…Ø§ÙŠØ© Ø§Ù„Ø¥Ø¶Ø§ÙÙŠØ©
      */
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
     import {
@@ -939,27 +58,27 @@
     const LAST_UID_KEY = STORAGE_KEY_PREFIX + "last_uid";
     const SYNC_QUEUE_KEY = STORAGE_KEY_PREFIX + "sync_queue";
     const LAST_SYNC_KEY = STORAGE_KEY_PREFIX + "last_sync";
-    const defaultCategories = ["أكل", "مواصلات", "تسوق", "فواتير", "ترفيه", "أخرى"];
+    const defaultCategories = ["Ø£ÙƒÙ„", "Ù…ÙˆØ§ØµÙ„Ø§Øª", "ØªØ³ÙˆÙ‚", "ÙÙˆØ§ØªÙŠØ±", "ØªØ±ÙÙŠÙ‡", "Ø£Ø®Ø±Ù‰"];
 
-    // متغيرات لمراقبة حالة الاتصال والمزامنة
+    // Ù…ØªØºÙŠØ±Ø§Øª Ù„Ù…Ø±Ø§Ù‚Ø¨Ø© Ø­Ø§Ù„Ø© Ø§Ù„Ø§ØªØµØ§Ù„ ÙˆØ§Ù„Ù…Ø²Ø§Ù…Ù†Ø©
     let isOnline = navigator.onLine;
     let isSyncing = false;
     let syncQueue = [];
 
-    // مراقبة حالة الاتصال بالانترنت
+    // Ù…Ø±Ø§Ù‚Ø¨Ø© Ø­Ø§Ù„Ø© Ø§Ù„Ø§ØªØµØ§Ù„ Ø¨Ø§Ù„Ø§Ù†ØªØ±Ù†Øª
     window.addEventListener("online", () => {
       isOnline = true;
       updateConnectionUI();
-      // محاولة مزامنة البيانات المعلقة عند العودة للاتصال
+      // Ù…Ø­Ø§ÙˆÙ„Ø© Ù…Ø²Ø§Ù…Ù†Ø© Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª Ø§Ù„Ù…Ø¹Ù„Ù‚Ø© Ø¹Ù†Ø¯ Ø§Ù„Ø¹ÙˆØ¯Ø© Ù„Ù„Ø§ØªØµØ§Ù„
       syncPendingChanges();
-      // بعد العودة للاتصال، علّم أن التحميل التالي ليس بسبب إعادة تحميل من دون اتصال
+      // Ø¨Ø¹Ø¯ Ø§Ù„Ø¹ÙˆØ¯Ø© Ù„Ù„Ø§ØªØµØ§Ù„ØŒ Ø¹Ù„Ù‘Ù… Ø£Ù† Ø§Ù„ØªØ­Ù…ÙŠÙ„ Ø§Ù„ØªØ§Ù„ÙŠ Ù„ÙŠØ³ Ø¨Ø³Ø¨Ø¨ Ø¥Ø¹Ø§Ø¯Ø© ØªØ­Ù…ÙŠÙ„ Ù…Ù† Ø¯ÙˆÙ† Ø§ØªØµØ§Ù„
       sessionStorage.removeItem('wasOffline');
     });
 
     window.addEventListener("offline", () => {
       isOnline = false;
       updateConnectionUI();
-      // حفظ علامة حتى نعالج إعادة تحميل الصفحة لاحقاً
+      // Ø­ÙØ¸ Ø¹Ù„Ø§Ù…Ø© Ø­ØªÙ‰ Ù†Ø¹Ø§Ù„Ø¬ Ø¥Ø¹Ø§Ø¯Ø© ØªØ­Ù…ÙŠÙ„ Ø§Ù„ØµÙØ­Ø© Ù„Ø§Ø­Ù‚Ø§Ù‹
       try { sessionStorage.setItem('wasOffline', '1'); } catch (e) {}
     });
 
@@ -969,13 +88,13 @@
       try {
         const overlay = document.getElementById('diagnosticOverlay');
         if (overlay) {
-          overlay.textContent = 'خطأ في التطبيق: ' + String(msg);
+          overlay.textContent = 'Ø®Ø·Ø£ ÙÙŠ Ø§Ù„ØªØ·Ø¨ÙŠÙ‚: ' + String(msg);
           overlay.style.display = 'flex';
         } else if (appLoader) {
-          appLoader.textContent = 'خطأ في التطبيق: ' + String(msg);
+          appLoader.textContent = 'Ø®Ø·Ø£ ÙÙŠ Ø§Ù„ØªØ·Ø¨ÙŠÙ‚: ' + String(msg);
           appLoader.style.display = 'flex';
         } else {
-          alert('خطأ في التطبيق: ' + String(msg));
+          alert('Ø®Ø·Ø£ ÙÙŠ Ø§Ù„ØªØ·Ø¨ÙŠÙ‚: ' + String(msg));
         }
       } catch (e) {
         /* ignore */
@@ -990,7 +109,7 @@
       showDiagnostic((e && e.reason && e.reason.message) ? e.reason.message : String(e.reason || e));
     });
 
-    // تحديث الواجهة لإظهار حالة الاتصال
+    // ØªØ­Ø¯ÙŠØ« Ø§Ù„ÙˆØ§Ø¬Ù‡Ø© Ù„Ø¥Ø¸Ù‡Ø§Ø± Ø­Ø§Ù„Ø© Ø§Ù„Ø§ØªØµØ§Ù„
     function showToast(msg, type = 'default', duration = 3000) {
       const toast = document.getElementById('connectionToast');
       if (!toast) return;
@@ -1004,7 +123,7 @@
     }
 
     // Professional alert modal
-    function showAlertModal(message, title = 'تنبيه', icon = '⚠️') {
+    function showAlertModal(message, title = 'ØªÙ†Ø¨ÙŠÙ‡', icon = 'âš ï¸') {
       return new Promise((resolve) => {
         const modal = document.getElementById('alertModal');
         const titleEl = document.getElementById('alertTitle');
@@ -1017,7 +136,7 @@
         msgEl.textContent = message;
         iconEl.textContent = icon;
         cancelBtn.style.display = 'none';
-        confirmBtn.textContent = 'حسناً';
+        confirmBtn.textContent = 'Ø­Ø³Ù†Ø§Ù‹';
 
         const handleConfirm = () => {
           modal.style.display = 'none';
@@ -1034,7 +153,7 @@
     }
 
     // Professional confirm modal
-    function showConfirmModal(message, title = 'تأكيد', icon = '❓') {
+    function showConfirmModal(message, title = 'ØªØ£ÙƒÙŠØ¯', icon = 'â“') {
       return new Promise((resolve) => {
         const modal = document.getElementById('alertModal');
         const titleEl = document.getElementById('alertTitle');
@@ -1047,8 +166,8 @@
         msgEl.textContent = message;
         iconEl.textContent = icon;
         cancelBtn.style.display = 'block';
-        confirmBtn.textContent = 'نعم، متابعة';
-        cancelBtn.textContent = 'إلغاء';
+        confirmBtn.textContent = 'Ù†Ø¹Ù…ØŒ Ù…ØªØ§Ø¨Ø¹Ø©';
+        cancelBtn.textContent = 'Ø¥Ù„ØºØ§Ø¡';
 
         const handleConfirm = () => {
           cleanup();
@@ -1093,7 +212,7 @@
       }
       // Only show toast for actual disconnections, not on every state change
       if (!isOnline) {
-        showToast(' انت الان بدون اتصال', 'error');
+        showToast(' Ø§Ù†Øª Ø§Ù„Ø§Ù† Ø¨Ø¯ÙˆÙ† Ø§ØªØµØ§Ù„', 'error');
       }
     }
 
@@ -1108,6 +227,8 @@
       recurring: [],
       challenges: [],
       badges: [],
+      // timestamp used to detect which copy is newer when syncing
+      lastModified: null,
     };
 
     let filterState = {
@@ -1116,18 +237,18 @@
       hasImageOnly: false,
     };
 
-    // حالة القسم المحمي
+    // Ø­Ø§Ù„Ø© Ø§Ù„Ù‚Ø³Ù… Ø§Ù„Ù…Ø­Ù…ÙŠ
     let privateState = {
-      pinCode: "1234", // الرقم الافتراضي
+      pinCode: "1234", // Ø§Ù„Ø±Ù‚Ù… Ø§Ù„Ø§ÙØªØ±Ø§Ø¶ÙŠ
       pinEnabled: true,
       isUnlocked: false,
       totalBalance: 0,
       budgetFromMonth: null,
       budgetToMonth: null,
       allocations: [
-        { id: 1, name: "جامعة", amount: 0 },
-        { id: 2, name: "مواصلات", amount: 0 },
-        { id: 3, name: "أكل", amount: 0 }
+        { id: 1, name: "Ø¬Ø§Ù…Ø¹Ø©", amount: 0 },
+        { id: 2, name: "Ù…ÙˆØ§ØµÙ„Ø§Øª", amount: 0 },
+        { id: 3, name: "Ø£ÙƒÙ„", amount: 0 }
       ],
       notes: "",
       lastNotesUpdate: null,
@@ -1157,8 +278,8 @@
 
     const monthNames = [
       "",
-      "يناير", "فبراير", "مارس", "أبريل", "مايو", "يونيو",
-      "يوليو", "أغسطس", "سبتمبر", "أكتوبر", "نوفمبر", "ديسمبر",
+      "ÙŠÙ†Ø§ÙŠØ±", "ÙØ¨Ø±Ø§ÙŠØ±", "Ù…Ø§Ø±Ø³", "Ø£Ø¨Ø±ÙŠÙ„", "Ù…Ø§ÙŠÙˆ", "ÙŠÙˆÙ†ÙŠÙˆ",
+      "ÙŠÙˆÙ„ÙŠÙˆ", "Ø£ØºØ³Ø·Ø³", "Ø³Ø¨ØªÙ…Ø¨Ø±", "Ø£ÙƒØªÙˆØ¨Ø±", "Ù†ÙˆÙÙ…Ø¨Ø±", "Ø¯ÙŠØ³Ù…Ø¨Ø±",
     ];
 
     function formatNumber(value) {
@@ -1241,6 +362,8 @@
       if (!Array.isArray(s.recurring)) s.recurring = [];
       if (!Array.isArray(s.challenges)) s.challenges = [];
       if (!Array.isArray(s.badges)) s.badges = [];  
+      // ensure we always have a lastModified field for conflict resolution
+      if (typeof s.lastModified !== 'number') s.lastModified = 0;
 
       s.months.forEach((m) => {
         if (!Array.isArray(m.expenses)) m.expenses = [];
@@ -1281,6 +404,8 @@
     function saveStateLocal() {
       const key = getStorageKey();
       try {
+        // ensure the timestamp is present even if saveState wasn't called
+        if (!state.lastModified) state.lastModified = Date.now();
         localStorage.setItem(key, JSON.stringify(state));
       } catch (err) {
         // quota exceeded or other storage error
@@ -1291,13 +416,13 @@
           try {
             localStorage.setItem(key, JSON.stringify(state));
             console.warn('Saved state after stripping images');
-            alert('تمت إزالة الصور الكبيرة من البيانات لتفادي امتلاء التخزين المحلي. يمكنك إعادة رفع الصور إذا احتجت.');
+            alert('ØªÙ…Øª Ø¥Ø²Ø§Ù„Ø© Ø§Ù„ØµÙˆØ± Ø§Ù„ÙƒØ¨ÙŠØ±Ø© Ù…Ù† Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª Ù„ØªÙØ§Ø¯ÙŠ Ø§Ù…ØªÙ„Ø§Ø¡ Ø§Ù„ØªØ®Ø²ÙŠÙ† Ø§Ù„Ù…Ø­Ù„ÙŠ. ÙŠÙ…ÙƒÙ†Ùƒ Ø¥Ø¹Ø§Ø¯Ø© Ø±ÙØ¹ Ø§Ù„ØµÙˆØ± Ø¥Ø°Ø§ Ø§Ø­ØªØ¬Øª.');
             return;
           } catch (e2) {
             console.error('Still failed to save state after cleaning', e2);
           }
         }
-        alert('تعذر حفظ البيانات محلياً: امتلأ التخزين. حاول حذف بعض المصاريف أو الصور الكبيرة.');
+        alert('ØªØ¹Ø°Ø± Ø­ÙØ¸ Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª Ù…Ø­Ù„ÙŠØ§Ù‹: Ø§Ù…ØªÙ„Ø£ Ø§Ù„ØªØ®Ø²ÙŠÙ†. Ø­Ø§ÙˆÙ„ Ø­Ø°Ù Ø¨Ø¹Ø¶ Ø§Ù„Ù…ØµØ§Ø±ÙŠÙ Ø£Ùˆ Ø§Ù„ØµÙˆØ± Ø§Ù„ÙƒØ¨ÙŠØ±Ø©.');
       }
     }
 
@@ -1305,7 +430,7 @@
       if (!firebaseEnabled || !currentUser || !userRef) return;
       try {
         await set(userRef, state);
-        // تسجيل وقت آخر مزامنة ناجحة
+        // ØªØ³Ø¬ÙŠÙ„ ÙˆÙ‚Øª Ø¢Ø®Ø± Ù…Ø²Ø§Ù…Ù†Ø© Ù†Ø§Ø¬Ø­Ø©
         try { localStorage.setItem(LAST_SYNC_KEY, Date.now().toString()); } catch (e) { /* ignore */ }
         return true;
       } catch (e) {
@@ -1343,12 +468,12 @@
           state = remoteData;
           saveStateLocal();
           refreshUI();
-          console.log("✅ تم تحديث الحالة من جهاز آخر");
+          console.log("âœ… ØªÙ… ØªØ­Ø¯ÙŠØ« Ø§Ù„Ø­Ø§Ù„Ø© Ù…Ù† Ø¬Ù‡Ø§Ø² Ø¢Ø®Ø±");
         }
       });
     }
 
-    // إضافة البيانات إلى قائمة الانتظار للمزامنة
+    // Ø¥Ø¶Ø§ÙØ© Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª Ø¥Ù„Ù‰ Ù‚Ø§Ø¦Ù…Ø© Ø§Ù„Ø§Ù†ØªØ¸Ø§Ø± Ù„Ù„Ù…Ø²Ø§Ù…Ù†Ø©
     function queueForSync(action, data) {
       try {
         const queue = JSON.parse(localStorage.getItem(SYNC_QUEUE_KEY) || "[]");
@@ -1364,7 +489,7 @@
       }
     }
 
-    // معالجة قائمة الانتظار عند العودة للاتصال
+    // Ù…Ø¹Ø§Ù„Ø¬Ø© Ù‚Ø§Ø¦Ù…Ø© Ø§Ù„Ø§Ù†ØªØ¸Ø§Ø± Ø¹Ù†Ø¯ Ø§Ù„Ø¹ÙˆØ¯Ø© Ù„Ù„Ø§ØªØµØ§Ù„
     async function syncPendingChanges() {
       if (isSyncing || !isOnline || !firebaseEnabled || !currentUser) return;
       
@@ -1384,20 +509,20 @@
           return;
         }
 
-        // محاولة المزامنة
-        showToast('⟳ جارِ مزامنة البيانات...', 'default', 1500);
+        // Ù…Ø­Ø§ÙˆÙ„Ø© Ø§Ù„Ù…Ø²Ø§Ù…Ù†Ø©
+        showToast('âŸ³ Ø¬Ø§Ø±Ù Ù…Ø²Ø§Ù…Ù†Ø© Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª...', 'default', 1500);
         const success = await saveStateRemote();
         if (success) {
-          // حذف قائمة الانتظار بعد المزامنة الناجحة
+          // Ø­Ø°Ù Ù‚Ø§Ø¦Ù…Ø© Ø§Ù„Ø§Ù†ØªØ¸Ø§Ø± Ø¨Ø¹Ø¯ Ø§Ù„Ù…Ø²Ø§Ù…Ù†Ø© Ø§Ù„Ù†Ø§Ø¬Ø­Ø©
           localStorage.removeItem(SYNC_QUEUE_KEY);
-          showToast('✓ بيانات محدثة', 'success', 2000);
+          showToast('âœ“ Ø¨ÙŠØ§Ù†Ø§Øª Ù…Ø­Ø¯Ø«Ø©', 'success', 2000);
         } else {
           // remote save failed but no exception thrown
-          showToast('⚠️ فشل المزامنة', 'error');
+          showToast('âš ï¸ ÙØ´Ù„ Ø§Ù„Ù…Ø²Ø§Ù…Ù†Ø©', 'error');
         }
       } catch (e) {
         console.warn("Sync failed:", e);
-        showToast('⚠️ فشل المزامنة', 'error');
+        showToast('âš ï¸ ÙØ´Ù„ Ø§Ù„Ù…Ø²Ø§Ù…Ù†Ø©', 'error');
       } finally {
         isSyncing = false;
         if (netEl) {
@@ -1411,18 +536,20 @@
     }
 
     async function saveState() {
+      // update modification timestamp whenever we save
+      state.lastModified = Date.now();
       saveStateLocal();
       
       if (!isOnline) {
-        // إذا كنا دون اتصال، أضف للقائمة
+        // Ø¥Ø°Ø§ ÙƒÙ†Ø§ Ø¯ÙˆÙ† Ø§ØªØµØ§Ù„ØŒ Ø£Ø¶Ù Ù„Ù„Ù‚Ø§Ø¦Ù…Ø©
         queueForSync("save", state);
         return;
       }
       
-      // إذا كان هناك اتصال، حاول المزامنة مباشرة
+      // Ø¥Ø°Ø§ ÙƒØ§Ù† Ù‡Ù†Ø§Ùƒ Ø§ØªØµØ§Ù„ØŒ Ø­Ø§ÙˆÙ„ Ø§Ù„Ù…Ø²Ø§Ù…Ù†Ø© Ù…Ø¨Ø§Ø´Ø±Ø©
       const success = await saveStateRemote();
       if (!success) {
-        // إذا فشلت المزامنة، أضف للقائمة
+        // Ø¥Ø°Ø§ ÙØ´Ù„Øª Ø§Ù„Ù…Ø²Ø§Ù…Ù†Ø©ØŒ Ø£Ø¶Ù Ù„Ù„Ù‚Ø§Ø¦Ù…Ø©
         queueForSync("save", state);
       }
     }
@@ -1439,12 +566,20 @@
       }
     }
 
+    /**
+     * When the app starts we attempt to reconcile local storage with the
+     * contents of the user's node in Firebase.  Previously we always treated
+     * any local copy as the source of truth and blindly overwrote the remote
+     * version, which caused data-loss whenever a device opened an older
+     * snapshot and pushed it to the server.  To prevent that we now compare
+     * timestamps (stored on the state object) and only overwrite when the
+     * local copy is newer than the remote one.  If both copies exist and
+     * differ we pick the freshest, and fall back to the server when in doubt.
+     * A prompt could be added later for manual conflict resolution.
+     */
     async function loadStateRemoteIfExists() {
       if (!firebaseEnabled || !userRef) return;
       try {
-        // If there is a local state saved for this storage key, treat localStorage
-        // as authoritative: do NOT overwrite it with remote data. Instead push
-        // the local copy to Firebase so remote matches the local version.
         const localKey = getStorageKey();
         let localRaw = null;
         try {
@@ -1454,31 +589,62 @@
         }
 
         const snap = await get(userRef);
+        const remoteExists = snap.exists();
+        let remoteState = null;
+        if (remoteExists) {
+          remoteState = normalizeState(snap.val());
+        }
 
-        if (localRaw) {
-          // Local data exists: prefer it. Ensure remote is updated to match local.
+        if (localRaw && remoteExists) {
+          // Both sides have something.  parse and compare timestamps.
+          let localData;
           try {
-            const localData = JSON.parse(localRaw);
-            // normalize then set to remote
-            const normalized = normalizeState(localData);
-            await set(userRef, normalized);
-            // update last sync timestamp locally
-            try { localStorage.setItem(LAST_SYNC_KEY, Date.now().toString()); } catch (e) {}
-            // keep in-memory state in sync with local
-            state = normalizeState(normalized);
-            // notify user that local data was pushed (e.g. after reload)
-            showToast('تم مزامنة البيانات المحلية', 'success');
+            localData = normalizeState(JSON.parse(localRaw));
           } catch (e) {
-            console.warn("Failed to parse local state while syncing to Firebase:", e);
+            console.warn('Bad local data, ignoring it', e);
+            localData = null;
           }
-        } else {
-          // No local data: if remote exists, load it; otherwise write current (empty) state
-          if (snap.exists()) {
-            const remoteState = normalizeState(snap.val());
-            state = remoteState;
-          } else {
+
+          if (localData) {
+            const localTs = localData.lastModified || 0;
+            const remoteTs = remoteState.lastModified || 0;
+
+            if (localTs > remoteTs) {
+              // local copy is newer â€“ push it up
+              state = localData;
+              try { await set(userRef, state); } catch (e) { console.warn('Failed to update remote during init', e); }
+              try { localStorage.setItem(LAST_SYNC_KEY, Date.now().toString()); } catch (e) {}
+              showToast('ØªÙ…Øª Ù…Ø²Ø§Ù…Ù†Ø© Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª Ø§Ù„Ù…Ø­Ù„ÙŠØ© (Ø£Ø­Ø¯Ø« Ù†Ø³Ø®Ø©)', 'success');
+            } else {
+              // remote is at least as new â€“ load it down
+              state = remoteState;
+              saveStateLocal();
+              showToast('ØªÙ…Øª Ù…Ø²Ø§Ù…Ù†Ø© Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª Ù…Ù† Ø§Ù„Ø®Ø§Ø¯Ù…', 'success');
+            }
+            return;
+          }
+          // if localData was null we drop through and treat as if it didn't exist
+        }
+
+        // if we reach here either only one side has data or neither side has data
+        if (localRaw && !remoteExists) {
+          // push the lone local copy
+          try {
+            const localData = normalizeState(JSON.parse(localRaw));
+            state = localData;
             await set(userRef, state);
+            try { localStorage.setItem(LAST_SYNC_KEY, Date.now().toString()); } catch (e) {}
+            showToast('ØªÙ…Øª Ù…Ø²Ø§Ù…Ù†Ø© Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª Ø§Ù„Ù…Ø­Ù„ÙŠØ©', 'success');
+          } catch (e) {
+            console.warn('Failed parsing previous local data', e);
           }
+        } else if (!localRaw && remoteExists) {
+          // only remote exists
+          state = remoteState;
+        } else if (!localRaw && !remoteExists) {
+          // nothing anywhere, just write the initial state so future devices
+          // see it.
+          await set(userRef, state);
         }
       } catch (e) {
         console.warn("Failed to load/sync from Firebase:", e);
@@ -1490,10 +656,10 @@
       root.setAttribute("data-theme", theme);
       localStorage.setItem(THEME_KEY, theme);
       const btn = document.getElementById("btnToggleTheme");
-      if (btn) btn.textContent = theme === "dark" ? "☀️ الوضع الفاتح" : "🌙 الوضع الداكن";
+      if (btn) btn.textContent = theme === "dark" ? "â˜€ï¸ Ø§Ù„ÙˆØ¶Ø¹ Ø§Ù„ÙØ§ØªØ­" : "ðŸŒ™ Ø§Ù„ÙˆØ¶Ø¹ Ø§Ù„Ø¯Ø§ÙƒÙ†";
     }
 
-    /* ======= عناصر DOM ======= */
+    /* ======= Ø¹Ù†Ø§ØµØ± DOM ======= */
 
     const loginView = document.getElementById("loginView");
     const appView = document.getElementById("appView");
@@ -1526,7 +692,7 @@ const tabPlanning = document.getElementById("tab-planning");
 const tabPrivate = document.getElementById("tab-private");
 const tabAdminBtn = document.getElementById("tabAdminBtn");
 
-    // عناصر القسم المحمي
+    // Ø¹Ù†Ø§ØµØ± Ø§Ù„Ù‚Ø³Ù… Ø§Ù„Ù…Ø­Ù…ÙŠ
     const privateSection = document.getElementById("privateSection");
     const privateContent = document.getElementById("privateContent");
     const privatePinInput = document.getElementById("privatePinInput");
@@ -1647,9 +813,9 @@ const modalPasswordMessage = document.getElementById("modalPasswordMessage");
 
     let editingMonthId = null;
     let editingExpenseId = null;
-    let isSavingExpense = false; // علم للتحكم بعملية الحفظ ومنع التكرار
+    let isSavingExpense = false; // Ø¹Ù„Ù… Ù„Ù„ØªØ­ÙƒÙ… Ø¨Ø¹Ù…Ù„ÙŠØ© Ø§Ù„Ø­ÙØ¸ ÙˆÙ…Ù†Ø¹ Ø§Ù„ØªÙƒØ±Ø§Ø±
 
-    /* ======= تسجيل الدخول (نماذج منفصلة) ======= */
+    /* ======= ØªØ³Ø¬ÙŠÙ„ Ø§Ù„Ø¯Ø®ÙˆÙ„ (Ù†Ù…Ø§Ø°Ø¬ Ù…Ù†ÙØµÙ„Ø©) ======= */
 
     const tabLoginBtn = document.getElementById("tabLogin");
     const tabRegisterBtn = document.getElementById("tabRegister");
@@ -1686,7 +852,7 @@ const modalPasswordMessage = document.getElementById("modalPasswordMessage");
       btnTogglePwLogin.addEventListener("click", () => {
         const isPassword = loginPasswordInput.type === "password";
         loginPasswordInput.type = isPassword ? "text" : "password";
-        btnTogglePwLogin.textContent = isPassword ? "🙈" : "👁️";
+        btnTogglePwLogin.textContent = isPassword ? "ðŸ™ˆ" : "ðŸ‘ï¸";
       });
     }
     const btnTogglePwReg = document.getElementById("btnTogglePwReg");
@@ -1694,7 +860,7 @@ const modalPasswordMessage = document.getElementById("modalPasswordMessage");
       btnTogglePwReg.addEventListener("click", () => {
         const isPassword = registerPasswordInput.type === "password";
         registerPasswordInput.type = isPassword ? "text" : "password";
-        btnTogglePwReg.textContent = isPassword ? "🙈" : "👁️";
+        btnTogglePwReg.textContent = isPassword ? "ðŸ™ˆ" : "ðŸ‘ï¸";
       });
     }
 
@@ -1712,32 +878,32 @@ const modalPasswordMessage = document.getElementById("modalPasswordMessage");
       const password = (registerPasswordInput.value || "").trim();
       const confirm = (registerPasswordConfirmInput.value || "").trim();
       if (!email || !password) {
-        registerErrorEl.textContent = "أدخل البريد وكلمة السر.";
+        registerErrorEl.textContent = "Ø£Ø¯Ø®Ù„ Ø§Ù„Ø¨Ø±ÙŠØ¯ ÙˆÙƒÙ„Ù…Ø© Ø§Ù„Ø³Ø±.";
         return;
       }
       if (password !== confirm) {
-        registerErrorEl.textContent = "كلمة السر وتأكيدها غير متطابقين.";
+        registerErrorEl.textContent = "ÙƒÙ„Ù…Ø© Ø§Ù„Ø³Ø± ÙˆØªØ£ÙƒÙŠØ¯Ù‡Ø§ ØºÙŠØ± Ù…ØªØ·Ø§Ø¨Ù‚ÙŠÙ†.";
         return;
       }
       if (!firebaseEnabled || !auth) {
-        registerErrorEl.textContent = "يتطلب إنشاء الحساب اتصالاً بالإنترنت. حاول مرة أخرى عند توفر الشبكة.";
+        registerErrorEl.textContent = "ÙŠØªØ·Ù„Ø¨ Ø¥Ù†Ø´Ø§Ø¡ Ø§Ù„Ø­Ø³Ø§Ø¨ Ø§ØªØµØ§Ù„Ø§Ù‹ Ø¨Ø§Ù„Ø¥Ù†ØªØ±Ù†Øª. Ø­Ø§ÙˆÙ„ Ù…Ø±Ø© Ø£Ø®Ø±Ù‰ Ø¹Ù†Ø¯ ØªÙˆÙØ± Ø§Ù„Ø´Ø¨ÙƒØ©.";
         return;
       }
 
-      // التحقق من حالة التسجيل
+      // Ø§Ù„ØªØ­Ù‚Ù‚ Ù…Ù† Ø­Ø§Ù„Ø© Ø§Ù„ØªØ³Ø¬ÙŠÙ„
       try {
         if (firebaseEnabled && db) {
           const statusRef = ref(db, "settings/registrationEnabled");
           const snap = await get(statusRef);
           const isEnabled = snap.exists() ? snap.val() : true;
           if (!isEnabled) {
-            registerErrorEl.textContent = "✗ التسجيل الجديد معطّل حالياً. يرجى التواصل مع المسؤول.";
+            registerErrorEl.textContent = "âœ— Ø§Ù„ØªØ³Ø¬ÙŠÙ„ Ø§Ù„Ø¬Ø¯ÙŠØ¯ Ù…Ø¹Ø·Ù‘Ù„ Ø­Ø§Ù„ÙŠØ§Ù‹. ÙŠØ±Ø¬Ù‰ Ø§Ù„ØªÙˆØ§ØµÙ„ Ù…Ø¹ Ø§Ù„Ù…Ø³Ø¤ÙˆÙ„.";
             return;
           }
         }
       } catch (err) {
         console.error("Error checking registration status:", err);
-        // في حالة الخطأ، اسمح بالمتابعة
+        // ÙÙŠ Ø­Ø§Ù„Ø© Ø§Ù„Ø®Ø·Ø£ØŒ Ø§Ø³Ù…Ø­ Ø¨Ø§Ù„Ù…ØªØ§Ø¨Ø¹Ø©
       }
 
       try {
@@ -1765,7 +931,7 @@ const modalPasswordMessage = document.getElementById("modalPasswordMessage");
         try { localStorage.setItem(STORAGE_KEY_PREFIX + currentUser.uid + "_profile", JSON.stringify({ email: currentUser.email || "" })); } catch (e) {}
       } catch (e) {
         console.error(e);
-        registerErrorEl.textContent = "تعذر إنشاء الحساب. تأكد من صحة البريد وكلمة السر.";
+        registerErrorEl.textContent = "ØªØ¹Ø°Ø± Ø¥Ù†Ø´Ø§Ø¡ Ø§Ù„Ø­Ø³Ø§Ø¨. ØªØ£ÙƒØ¯ Ù…Ù† ØµØ­Ø© Ø§Ù„Ø¨Ø±ÙŠØ¯ ÙˆÙƒÙ„Ù…Ø© Ø§Ù„Ø³Ø±.";
       }
     });
 
@@ -1774,7 +940,7 @@ const modalPasswordMessage = document.getElementById("modalPasswordMessage");
       const email = (loginEmailInput.value || "").trim();
       const password = (loginPasswordInput.value || "").trim();
       if (!email || !password) {
-        authErrorEl.textContent = "أدخل البريد وكلمة السر.";
+        authErrorEl.textContent = "Ø£Ø¯Ø®Ù„ Ø§Ù„Ø¨Ø±ÙŠØ¯ ÙˆÙƒÙ„Ù…Ø© Ø§Ù„Ø³Ø±.";
         return;
       }
 
@@ -1792,7 +958,7 @@ const modalPasswordMessage = document.getElementById("modalPasswordMessage");
         loginPasswordInput.value = "";
       } catch (e) {
         console.error(e);
-        authErrorEl.textContent = "بيانات الدخول غير صحيحة أو حدث خطأ.";
+        authErrorEl.textContent = "Ø¨ÙŠØ§Ù†Ø§Øª Ø§Ù„Ø¯Ø®ÙˆÙ„ ØºÙŠØ± ØµØ­ÙŠØ­Ø© Ø£Ùˆ Ø­Ø¯Ø« Ø®Ø·Ø£.";
       } finally {
         // hide processing UI
         if (loginProcessingBar) {
@@ -1830,13 +996,13 @@ const modalPasswordMessage = document.getElementById("modalPasswordMessage");
         await signOut(auth);
       } catch (e) {
         console.error(e);
-        alert("حدث خطأ أثناء تسجيل الخروج.");
+        alert("Ø­Ø¯Ø« Ø®Ø·Ø£ Ø£Ø«Ù†Ø§Ø¡ ØªØ³Ø¬ÙŠÙ„ Ø§Ù„Ø®Ø±ÙˆØ¬.");
       }
     });
 
-    /* ======= تبويبات ======= */
+    /* ======= ØªØ¨ÙˆÙŠØ¨Ø§Øª ======= */
 
-    /* ======= القسم المحمي (ملاحظاتي والحسابات) ======= */
+    /* ======= Ø§Ù„Ù‚Ø³Ù… Ø§Ù„Ù…Ø­Ù…ÙŠ (Ù…Ù„Ø§Ø­Ø¸Ø§ØªÙŠ ÙˆØ§Ù„Ø­Ø³Ø§Ø¨Ø§Øª) ======= */
 
     function loadPrivateState() {
       const key = getStorageKey();
@@ -1857,7 +1023,7 @@ const modalPasswordMessage = document.getElementById("modalPasswordMessage");
       populateBudgetMonthSelects();
       updatePrivateSummary();
       
-      // استعادة البيانات في الحقول
+      // Ø§Ø³ØªØ¹Ø§Ø¯Ø© Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª ÙÙŠ Ø§Ù„Ø­Ù‚ÙˆÙ„
       totalBalanceInput.value = formatNumber(privateState.totalBalance || 0);
       if (privateState.budgetFromMonth && budgetFromMonth) {
         budgetFromMonth.value = privateState.budgetFromMonth;
@@ -1868,7 +1034,7 @@ const modalPasswordMessage = document.getElementById("modalPasswordMessage");
       if (privateNotes) {
         privateNotes.value = privateState.notes || "";
         if (privateState.lastNotesUpdate && privateNotesLastUpdate) {
-          privateNotesLastUpdate.textContent = `آخر حفظ: ${privateState.lastNotesUpdate}`;
+          privateNotesLastUpdate.textContent = `Ø¢Ø®Ø± Ø­ÙØ¸: ${privateState.lastNotesUpdate}`;
         }
       }
       if (pinEnabledToggle) {
@@ -1884,15 +1050,15 @@ const modalPasswordMessage = document.getElementById("modalPasswordMessage");
     function resetPrivateUI() {
       privatePinInput.value = "";
       privateErrorMsg.textContent = "";
-      calcResult.textContent = "انتظر الحساب...";
+      calcResult.textContent = "Ø§Ù†ØªØ¸Ø± Ø§Ù„Ø­Ø³Ø§Ø¨...";
       
-      // إذا كان PIN معطّل، فتح مباشرة
+      // Ø¥Ø°Ø§ ÙƒØ§Ù† PIN Ù…Ø¹Ø·Ù‘Ù„ØŒ ÙØªØ­ Ù…Ø¨Ø§Ø´Ø±Ø©
       if (!privateState.pinEnabled) {
         privateSection.style.display = "none";
         privateContent.style.display = "flex";
         privateState.isUnlocked = true;
       } else {
-        // إذا كان PIN مفعّل، أظهر شاشة القفل
+        // Ø¥Ø°Ø§ ÙƒØ§Ù† PIN Ù…ÙØ¹Ù‘Ù„ØŒ Ø£Ø¸Ù‡Ø± Ø´Ø§Ø´Ø© Ø§Ù„Ù‚ÙÙ„
         privateSection.style.display = "flex";
         privateContent.style.display = "none";
         privateState.isUnlocked = false;
@@ -1922,14 +1088,14 @@ const modalPasswordMessage = document.getElementById("modalPasswordMessage");
     }
 
     function unlockPrivateSection() {
-      // إذا كان القفل معطّل، فتح مباشرة
+      // Ø¥Ø°Ø§ ÙƒØ§Ù† Ø§Ù„Ù‚ÙÙ„ Ù…Ø¹Ø·Ù‘Ù„ØŒ ÙØªØ­ Ù…Ø¨Ø§Ø´Ø±Ø©
       if (!privateState.pinEnabled) {
         privateState.isUnlocked = true;
         privateSection.style.display = "none";
         privateContent.style.display = "flex";
         updatePrivateSummary();
         renderAllocations();
-        // إخفاء الكيبورد بإزالة التركيز مؤقتاً
+        // Ø¥Ø®ÙØ§Ø¡ Ø§Ù„ÙƒÙŠØ¨ÙˆØ±Ø¯ Ø¨Ø¥Ø²Ø§Ù„Ø© Ø§Ù„ØªØ±ÙƒÙŠØ² Ù…Ø¤Ù‚ØªØ§Ù‹
         document.activeElement.blur();
         setTimeout(() => {
           calcInput.focus();
@@ -1941,12 +1107,12 @@ const modalPasswordMessage = document.getElementById("modalPasswordMessage");
       privateErrorMsg.textContent = "";
 
       if (!pin) {
-        privateErrorMsg.textContent = "أدخل رقم PIN";
+        privateErrorMsg.textContent = "Ø£Ø¯Ø®Ù„ Ø±Ù‚Ù… PIN";
         return;
       }
 
       if (pin !== privateState.pinCode) {
-        privateErrorMsg.textContent = "❌ رقم PIN غير صحيح";
+        privateErrorMsg.textContent = "âŒ Ø±Ù‚Ù… PIN ØºÙŠØ± ØµØ­ÙŠØ­";
         privatePinInput.value = "";
         privatePinInput.focus();
         return;
@@ -1957,7 +1123,7 @@ const modalPasswordMessage = document.getElementById("modalPasswordMessage");
       privateContent.style.display = "flex";
       updatePrivateSummary();
       renderAllocations();
-      // إخفاء الكيبورد بإزالة التركيز مؤقتاً
+      // Ø¥Ø®ÙØ§Ø¡ Ø§Ù„ÙƒÙŠØ¨ÙˆØ±Ø¯ Ø¨Ø¥Ø²Ø§Ù„Ø© Ø§Ù„ØªØ±ÙƒÙŠØ² Ù…Ø¤Ù‚ØªØ§Ù‹
       document.activeElement.blur();
       setTimeout(() => {
         calcInput.focus();
@@ -2021,7 +1187,7 @@ const modalPasswordMessage = document.getElementById("modalPasswordMessage");
         nameInput.type = "text";
         nameInput.className = "form-input form-input-sm";
         nameInput.value = alloc.name;
-        nameInput.placeholder = "اسم الفئة";
+        nameInput.placeholder = "Ø§Ø³Ù… Ø§Ù„ÙØ¦Ø©";
         nameInput.addEventListener("change", () => {
           privateState.allocations[idx].name = nameInput.value;
           savePrivateState();
@@ -2059,7 +1225,7 @@ const modalPasswordMessage = document.getElementById("modalPasswordMessage");
         resultDiv.className = "allocation-result";
         const resultLabel = document.createElement("div");
         resultLabel.className = "allocation-result-label";
-        resultLabel.textContent = "متبقي";
+        resultLabel.textContent = "Ù…ØªØ¨Ù‚ÙŠ";
         const resultValue = document.createElement("div");
         resultValue.className = "allocation-result-value";
         resultValue.id = "alloc-result-" + alloc.id;
@@ -2069,7 +1235,7 @@ const modalPasswordMessage = document.getElementById("modalPasswordMessage");
 
         const removeBtn = document.createElement("button");
         removeBtn.className = "allocation-remove-btn";
-        removeBtn.textContent = "حذف";
+        removeBtn.textContent = "Ø­Ø°Ù";
         removeBtn.addEventListener("click", () => {
           privateState.allocations.splice(idx, 1);
           savePrivateState();
@@ -2083,7 +1249,7 @@ const modalPasswordMessage = document.getElementById("modalPasswordMessage");
         budgetAllocationsContainer.appendChild(item);
       });
 
-      // تحديث النتائج
+      // ØªØ­Ø¯ÙŠØ« Ø§Ù„Ù†ØªØ§Ø¦Ø¬
       privateState.allocations.forEach((_, idx) => updateAllocationResult(idx));
     }
 
@@ -2106,28 +1272,28 @@ const modalPasswordMessage = document.getElementById("modalPasswordMessage");
           .replace(/\d+/g, (match) => match)
           .trim();
 
-        if (!sanitized) return "أدخل معادلة";
+        if (!sanitized) return "Ø£Ø¯Ø®Ù„ Ù…Ø¹Ø§Ø¯Ù„Ø©";
 
         if (!/^[\d+\-*/.()]+$/.test(sanitized)) {
-          return "معادلة غير صحيحة";
+          return "Ù…Ø¹Ø§Ø¯Ù„Ø© ØºÙŠØ± ØµØ­ÙŠØ­Ø©";
         }
 
         const result = new Function(`"use strict"; return (${sanitized})`)();
         
         if (typeof result !== "number" || !isFinite(result)) {
-          return "خطأ في الحساب";
+          return "Ø®Ø·Ø£ ÙÙŠ Ø§Ù„Ø­Ø³Ø§Ø¨";
         }
 
         return formatNumber(Math.round(result * 100) / 100);
       } catch (e) {
-        return "خطأ: " + (e.message || "معادلة غير صحيحة");
+        return "Ø®Ø·Ø£: " + (e.message || "Ù…Ø¹Ø§Ø¯Ù„Ø© ØºÙŠØ± ØµØ­ÙŠØ­Ø©");
       }
     }
 
     function updateCalculator() {
       const expr = calcInput.value;
       if (!expr) {
-        calcResult.textContent = "انتظر الحساب...";
+        calcResult.textContent = "Ø§Ù†ØªØ¸Ø± Ø§Ù„Ø­Ø³Ø§Ø¨...";
         return;
       }
       const result = evaluateExpression(expr);
@@ -2135,26 +1301,26 @@ const modalPasswordMessage = document.getElementById("modalPasswordMessage");
     }
 
     function openChangePinDialog() {
-      const newPin = prompt("أدخل رقم PIN جديد (4-6 أرقام):");
+      const newPin = prompt("Ø£Ø¯Ø®Ù„ Ø±Ù‚Ù… PIN Ø¬Ø¯ÙŠØ¯ (4-6 Ø£Ø±Ù‚Ø§Ù…):");
       if (!newPin) return;
 
       if (!/^\d{4,6}$/.test(newPin)) {
-        alert("رقم PIN يجب أن يكون 4-6 أرقام فقط");
+        alert("Ø±Ù‚Ù… PIN ÙŠØ¬Ø¨ Ø£Ù† ÙŠÙƒÙˆÙ† 4-6 Ø£Ø±Ù‚Ø§Ù… ÙÙ‚Ø·");
         return;
       }
 
       privateState.pinCode = newPin;
       savePrivateState();
-      alert("✓ تم تحديث رقم PIN بنجاح");
+      alert("âœ“ ØªÙ… ØªØ­Ø¯ÙŠØ« Ø±Ù‚Ù… PIN Ø¨Ù†Ø¬Ø§Ø­");
     }
 
-    // مستمعي أحداث القسم المحمي
+    // Ù…Ø³ØªÙ…Ø¹ÙŠ Ø£Ø­Ø¯Ø§Ø« Ø§Ù„Ù‚Ø³Ù… Ø§Ù„Ù…Ø­Ù…ÙŠ
     if (btnOpenPrivate) {
       btnOpenPrivate.addEventListener("click", unlockPrivateSection);
     }
 
     if (privatePinInput) {
-      // تصفية الأرقام فقط من PIN input
+      // ØªØµÙÙŠØ© Ø§Ù„Ø£Ø±Ù‚Ø§Ù… ÙÙ‚Ø· Ù…Ù† PIN input
       privatePinInput.addEventListener("input", (e) => {
         e.target.value = e.target.value.replace(/[^0-9]/g, "");
       });
@@ -2209,7 +1375,7 @@ const modalPasswordMessage = document.getElementById("modalPasswordMessage");
       btnAddAllocation.addEventListener("click", () => {
         privateState.allocations.push({
           id: privateState.nextAllocationId++,
-          name: "فئة جديدة",
+          name: "ÙØ¦Ø© Ø¬Ø¯ÙŠØ¯Ø©",
           amount: 0
         });
         savePrivateState();
@@ -2227,7 +1393,7 @@ const modalPasswordMessage = document.getElementById("modalPasswordMessage");
         privateState.lastNotesUpdate = new Date().toLocaleString("ar-EG");
         savePrivateState();
         if (privateNotesLastUpdate) {
-          privateNotesLastUpdate.textContent = `آخر حفظ: ${privateState.lastNotesUpdate}`;
+          privateNotesLastUpdate.textContent = `Ø¢Ø®Ø± Ø­ÙØ¸: ${privateState.lastNotesUpdate}`;
         }
       });
     }
@@ -2243,7 +1409,7 @@ const modalPasswordMessage = document.getElementById("modalPasswordMessage");
       btnChangePinCode.addEventListener("click", openChangePinDialog);
     }
 
-    /* ======= تبويبات ======= */
+    /* ======= ØªØ¨ÙˆÙŠØ¨Ø§Øª ======= */
 
 tabButtons.forEach((btn) => {
   btn.addEventListener("click", async () => {
@@ -2288,14 +1454,14 @@ tabButtons.forEach((btn) => {
       if (tabAdmin) tabAdmin.style.display = "block";
       if (monthRow) monthRow.style.display = "none";
 
-      // عند فتح تبويب لوحة التحكم، حمّل بيانات المستخدمين
+      // Ø¹Ù†Ø¯ ÙØªØ­ ØªØ¨ÙˆÙŠØ¨ Ù„ÙˆØ­Ø© Ø§Ù„ØªØ­ÙƒÙ…ØŒ Ø­Ù…Ù‘Ù„ Ø¨ÙŠØ§Ù†Ø§Øª Ø§Ù„Ù…Ø³ØªØ®Ø¯Ù…ÙŠÙ†
       await loadAdminUsers();
     }
   });
 });
 
 
-    /* ======= إحصائيات متقدمة طي/فتح ======= */
+    /* ======= Ø¥Ø­ØµØ§Ø¦ÙŠØ§Øª Ù…ØªÙ‚Ø¯Ù…Ø© Ø·ÙŠ/ÙØªØ­ ======= */
 
     advancedStatsToggle.addEventListener("click", () => {
       const isOpen = advancedStatsBody.classList.contains("open");
@@ -2308,19 +1474,19 @@ tabButtons.forEach((btn) => {
       }
     });
 
-    // اختيار الشهر الحالي تلقائياً عند الفتح أو التحديث
+    // Ø§Ø®ØªÙŠØ§Ø± Ø§Ù„Ø´Ù‡Ø± Ø§Ù„Ø­Ø§Ù„ÙŠ ØªÙ„Ù‚Ø§Ø¦ÙŠØ§Ù‹ Ø¹Ù†Ø¯ Ø§Ù„ÙØªØ­ Ø£Ùˆ Ø§Ù„ØªØ­Ø¯ÙŠØ«
     function selectCurrentMonth() {
       const now = new Date();
       const currentMonth = now.getMonth() + 1; // 1-12
       const currentYear = now.getFullYear();
       
-      // البحث عن الشهر الحالي في قائمة الأشهر
+      // Ø§Ù„Ø¨Ø­Ø« Ø¹Ù† Ø§Ù„Ø´Ù‡Ø± Ø§Ù„Ø­Ø§Ù„ÙŠ ÙÙŠ Ù‚Ø§Ø¦Ù…Ø© Ø§Ù„Ø£Ø´Ù‡Ø±
       const currentMonthData = state.months.find(m => m.month === currentMonth && m.year === currentYear);
       
       if (currentMonthData) {
         state.selectedMonthId = currentMonthData.id;
       } else {
-        // إذا لم يكن الشهر الحالي موجوداً، اختر آخر شهر
+        // Ø¥Ø°Ø§ Ù„Ù… ÙŠÙƒÙ† Ø§Ù„Ø´Ù‡Ø± Ø§Ù„Ø­Ø§Ù„ÙŠ Ù…ÙˆØ¬ÙˆØ¯Ø§Ù‹ØŒ Ø§Ø®ØªØ± Ø¢Ø®Ø± Ø´Ù‡Ø±
         if (state.months.length > 0) {
           state.selectedMonthId = state.months[state.months.length - 1].id;
         }
@@ -2332,7 +1498,7 @@ tabButtons.forEach((btn) => {
       if (!Array.isArray(state.months) || state.months.length === 0) {
         const option = document.createElement("option");
         option.value = "";
-        option.textContent = "لا يوجد أشهر";
+        option.textContent = "Ù„Ø§ ÙŠÙˆØ¬Ø¯ Ø£Ø´Ù‡Ø±";
         monthSelect.appendChild(option);
         monthSelect.disabled = true;
         return;
@@ -2380,7 +1546,7 @@ tabButtons.forEach((btn) => {
         dailyAvgEl.textContent = "0";
         remainingPerDayEl.textContent = "0";
         maxExpenseEl.textContent = "0";
-        topCategoryEl.textContent = "لا يوجد";
+        topCategoryEl.textContent = "Ù„Ø§ ÙŠÙˆØ¬Ø¯";
         return;
       }
       const expenses = Array.isArray(month.expenses) ? month.expenses : [];
@@ -2388,7 +1554,7 @@ tabButtons.forEach((btn) => {
         dailyAvgEl.textContent = "0";
         remainingPerDayEl.textContent = "0";
         maxExpenseEl.textContent = "0";
-        topCategoryEl.textContent = "لا يوجد";
+        topCategoryEl.textContent = "Ù„Ø§ ÙŠÙˆØ¬Ø¯";
         return;
       }
 
@@ -2422,15 +1588,15 @@ tabButtons.forEach((btn) => {
         (max, e) => (e.amount > max.amount ? e : max),
         expenses[0]
       );
-      maxExpenseEl.textContent = `${formatNumber(maxExpense.amount || 0)} (${maxExpense.title || "مصروف"})`;
+      maxExpenseEl.textContent = `${formatNumber(maxExpense.amount || 0)} (${maxExpense.title || "Ù…ØµØ±ÙˆÙ"})`;
 
       const categoryTotals = {};
       expenses.forEach((e) => {
-        const cat = e.category || "أخرى";
+        const cat = e.category || "Ø£Ø®Ø±Ù‰";
         categoryTotals[cat] = (categoryTotals[cat] || 0) + (e.amount || 0);
       });
 
-      let topCategory = "لا يوجد";
+      let topCategory = "Ù„Ø§ ÙŠÙˆØ¬Ø¯";
       let topTotal = 0;
       Object.entries(categoryTotals).forEach(([cat, total]) => {
         if (total > topTotal) {
@@ -2496,14 +1662,14 @@ tabButtons.forEach((btn) => {
 
       if (!month) {
         expenseList.innerHTML =
-          '<div class="empty-state">أضف شهرًا ثم أضف مصاريف لعرضها هنا.</div>';
+          '<div class="empty-state">Ø£Ø¶Ù Ø´Ù‡Ø±Ù‹Ø§ Ø«Ù… Ø£Ø¶Ù Ù…ØµØ§Ø±ÙŠÙ Ù„Ø¹Ø±Ø¶Ù‡Ø§ Ù‡Ù†Ø§.</div>';
         return;
       }
 
       const expenses = Array.isArray(month.expenses) ? month.expenses : [];
       if (expenses.length === 0) {
         expenseList.innerHTML =
-          '<div class="empty-state">لا توجد مصاريف لهذا الشهر بعد.</div>';
+          '<div class="empty-state">Ù„Ø§ ØªÙˆØ¬Ø¯ Ù…ØµØ§Ø±ÙŠÙ Ù„Ù‡Ø°Ø§ Ø§Ù„Ø´Ù‡Ø± Ø¨Ø¹Ø¯.</div>';
         return;
       }
 
@@ -2515,7 +1681,7 @@ tabButtons.forEach((btn) => {
 
       if (filtered.length === 0) {
         expenseList.innerHTML =
-          '<div class="empty-state">لا توجد مصاريف مطابقة لخيارات البحث/الفلترة.</div>';
+          '<div class="empty-state">Ù„Ø§ ØªÙˆØ¬Ø¯ Ù…ØµØ§Ø±ÙŠÙ Ù…Ø·Ø§Ø¨Ù‚Ø© Ù„Ø®ÙŠØ§Ø±Ø§Øª Ø§Ù„Ø¨Ø­Ø«/Ø§Ù„ÙÙ„ØªØ±Ø©.</div>';
       } else {
         filtered.forEach((e) => {
           const item = document.createElement("div");
@@ -2526,16 +1692,16 @@ tabButtons.forEach((btn) => {
 
           const title = document.createElement("div");
           title.className = "expense-title";
-          title.textContent = e.title || "بدون عنوان";
+          title.textContent = e.title || "Ø¨Ø¯ÙˆÙ† Ø¹Ù†ÙˆØ§Ù†";
 
           const meta = document.createElement("div");
           meta.className = "expense-meta";
           const catSpan = document.createElement("span");
-          catSpan.textContent = e.category || "غير محدد";
+          catSpan.textContent = e.category || "ØºÙŠØ± Ù…Ø­Ø¯Ø¯";
           const dateSpan = document.createElement("span");
-          dateSpan.textContent = e.date || "بدون تاريخ";
+          dateSpan.textContent = e.date || "Ø¨Ø¯ÙˆÙ† ØªØ§Ø±ÙŠØ®";
           meta.appendChild(catSpan);
-          meta.appendChild(document.createTextNode(" · "));
+          meta.appendChild(document.createTextNode(" Â· "));
           meta.appendChild(dateSpan);
 
           const note = document.createElement("div");
@@ -2549,12 +1715,12 @@ tabButtons.forEach((btn) => {
           if (e.imageDataUrl) {
             const imgBadge = document.createElement("div");
             imgBadge.className = "expense-image-badge";
-            imgBadge.textContent = "📷 توجد صورة";
+            imgBadge.textContent = "ðŸ“· ØªÙˆØ¬Ø¯ ØµÙˆØ±Ø©";
             main.appendChild(imgBadge);
 
             const img = document.createElement("img");
             img.src = e.imageDataUrl;
-            img.alt = "صورة المصروف";
+            img.alt = "ØµÙˆØ±Ø© Ø§Ù„Ù…ØµØ±ÙˆÙ";
             img.className = "expense-thumb";
             img.addEventListener("click", () => {
               imageModalView.src = e.imageDataUrl;
@@ -2567,12 +1733,12 @@ tabButtons.forEach((btn) => {
           actions.className = "expense-actions";
           const editBtn = document.createElement("button");
           editBtn.className = "btn-ghost btn-edit";
-          editBtn.textContent = "✏️ تعديل";
+          editBtn.textContent = "âœï¸ ØªØ¹Ø¯ÙŠÙ„";
           editBtn.addEventListener("click", () => openExpenseModal(e.id));
 
           const delBtn = document.createElement("button");
           delBtn.className = "btn-ghost btn-delete";
-          delBtn.textContent = "🗑️ حذف";
+          delBtn.textContent = "ðŸ—‘ï¸ Ø­Ø°Ù";
           delBtn.addEventListener("click", () => deleteExpense(e.id));
 
           actions.appendChild(editBtn);
@@ -2584,7 +1750,7 @@ tabButtons.forEach((btn) => {
 
           const amountBadge = document.createElement("div");
           amountBadge.className = "expense-amount-badge";
-          amountBadge.textContent = "💰";
+          amountBadge.textContent = "ðŸ’°";
 
           const amount = document.createElement("div");
           amount.className = "expense-amount";
@@ -2601,18 +1767,18 @@ tabButtons.forEach((btn) => {
       if (filterState.category !== "all") {
         const catTotal = filtered.reduce((sum, e) => sum + (e.amount || 0), 0);
         filterSummaryEl.textContent =
-          "إجمالي فئة " +
+          "Ø¥Ø¬Ù…Ø§Ù„ÙŠ ÙØ¦Ø© " +
           filterState.category +
           ": " +
           formatNumber(catTotal);
       }
     }
 async function loadAllUsersForAdmin() {
-  adminUsersContainer.innerHTML = "<p>جاري تحميل البيانات...</p>";
+  adminUsersContainer.innerHTML = "<p>Ø¬Ø§Ø±ÙŠ ØªØ­Ù…ÙŠÙ„ Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª...</p>";
 
   const usersSnap = await get(ref(db, "users"));
   if (!usersSnap.exists()) {
-    adminUsersContainer.innerHTML = "<p>لا يوجد مستخدمين.</p>";
+    adminUsersContainer.innerHTML = "<p>Ù„Ø§ ÙŠÙˆØ¬Ø¯ Ù…Ø³ØªØ®Ø¯Ù…ÙŠÙ†.</p>";
     return;
   }
 
@@ -2639,12 +1805,12 @@ async function loadAllUsersForAdmin() {
     card.className = "admin-user-card";
 
     card.innerHTML = `
-      <h3>${profile.email || "بدون بريد"}</h3>
-      <p><strong>المستخدم:</strong> ${uid}</p>
-      <p><strong>عدد الأشهر:</strong> ${months.length}</p>
-      <p><strong>إجمالي الرواتب:</strong> ${formatNumber(totalSalaries)}</p>
-      <p><strong>إجمالي المصاريف:</strong> ${formatNumber(totalExpenses)}</p>
-      <p><strong>المتبقي:</strong> ${formatNumber(totalSalaries - totalExpenses)}</p>
+      <h3>${profile.email || "Ø¨Ø¯ÙˆÙ† Ø¨Ø±ÙŠØ¯"}</h3>
+      <p><strong>Ø§Ù„Ù…Ø³ØªØ®Ø¯Ù…:</strong> ${uid}</p>
+      <p><strong>Ø¹Ø¯Ø¯ Ø§Ù„Ø£Ø´Ù‡Ø±:</strong> ${months.length}</p>
+      <p><strong>Ø¥Ø¬Ù…Ø§Ù„ÙŠ Ø§Ù„Ø±ÙˆØ§ØªØ¨:</strong> ${formatNumber(totalSalaries)}</p>
+      <p><strong>Ø¥Ø¬Ù…Ø§Ù„ÙŠ Ø§Ù„Ù…ØµØ§Ø±ÙŠÙ:</strong> ${formatNumber(totalExpenses)}</p>
+      <p><strong>Ø§Ù„Ù…ØªØ¨Ù‚ÙŠ:</strong> ${formatNumber(totalSalaries - totalExpenses)}</p>
     `;
 
     adminUsersContainer.appendChild(card);
@@ -2677,7 +1843,7 @@ async function loadAllUsersForAdmin() {
       compareContainer.innerHTML = "";
       if (!Array.isArray(state.months) || state.months.length === 0) {
         compareContainer.innerHTML =
-          '<div class="empty-state">أضف شهراً واحداً على الأقل لعرض المقارنة.</div>';
+          '<div class="empty-state">Ø£Ø¶Ù Ø´Ù‡Ø±Ø§Ù‹ ÙˆØ§Ø­Ø¯Ø§Ù‹ Ø¹Ù„Ù‰ Ø§Ù„Ø£Ù‚Ù„ Ù„Ø¹Ø±Ø¶ Ø§Ù„Ù…Ù‚Ø§Ø±Ù†Ø©.</div>';
         return;
       }
 
@@ -2688,7 +1854,7 @@ async function loadAllUsersForAdmin() {
       // collect category list across months
       const allCategories = new Set();
       monthsSorted.forEach((m) => {
-        (m.expenses || []).forEach((e) => allCategories.add(e.category || "أخرى"));
+        (m.expenses || []).forEach((e) => allCategories.add(e.category || "Ø£Ø®Ø±Ù‰"));
       });
       const categories = Array.from(allCategories.length ? allCategories : state.categories);
 
@@ -2699,7 +1865,7 @@ async function loadAllUsersForAdmin() {
         const catTotals = {};
         categories.forEach((c) => (catTotals[c] = 0));
         expenses.forEach((e) => {
-          const cat = e.category || "أخرى";
+          const cat = e.category || "Ø£Ø®Ø±Ù‰";
           catTotals[cat] = (catTotals[cat] || 0) + (e.amount || 0);
         });
         return {
@@ -2722,9 +1888,9 @@ async function loadAllUsersForAdmin() {
 
       const topCard = document.createElement("div");
       topCard.className = "compare-card";
-      topCard.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center"><h3>مقارنة الأشهر</h3><div class="compare-meta">` +
-        `<div>أشهر: ${monthData.length}</div>` +
-        `<div>تصنيفات مفحوصة: ${categories.length}</div>` +
+      topCard.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center"><h3>Ù…Ù‚Ø§Ø±Ù†Ø© Ø§Ù„Ø£Ø´Ù‡Ø±</h3><div class="compare-meta">` +
+        `<div>Ø£Ø´Ù‡Ø±: ${monthData.length}</div>` +
+        `<div>ØªØµÙ†ÙŠÙØ§Øª Ù…ÙØ­ÙˆØµØ©: ${categories.length}</div>` +
         `</div></div>`;
 
       // legend for categories (show top few)
@@ -2760,7 +1926,7 @@ async function loadAllUsersForAdmin() {
         title.textContent = d.label;
         const meta = document.createElement("div");
         meta.className = "compare-meta";
-        meta.innerHTML = `الراتب: ${formatNumber(d.salary)} · المصاريف: ${formatNumber(d.total)} · المتبقي: ${formatNumber(d.remaining)}`;
+        meta.innerHTML = `Ø§Ù„Ø±Ø§ØªØ¨: ${formatNumber(d.salary)} Â· Ø§Ù„Ù…ØµØ§Ø±ÙŠÙ: ${formatNumber(d.total)} Â· Ø§Ù„Ù…ØªØ¨Ù‚ÙŠ: ${formatNumber(d.remaining)}`;
         left.appendChild(title);
         left.appendChild(meta);
 
@@ -2768,7 +1934,7 @@ async function loadAllUsersForAdmin() {
         right.style.width = "140px";
         right.style.textAlign = "right";
         right.innerHTML = `<div style="font-weight:700;color:#2563eb">${formatNumber(d.total)}</div>` +
-          `<div style="font-size:12px;color:var(--subtext-color)">المتبقي: ${formatNumber(d.remaining)}</div>`;
+          `<div style="font-size:12px;color:var(--subtext-color)">Ø§Ù„Ù…ØªØ¨Ù‚ÙŠ: ${formatNumber(d.remaining)}</div>`;
 
         row.appendChild(left);
         row.appendChild(right);
@@ -2802,7 +1968,7 @@ async function loadAllUsersForAdmin() {
         const table = document.createElement("table");
         table.className = "compare-table";
         const thead = document.createElement("thead");
-        thead.innerHTML = `<tr><th>التصنيف</th><th>المبلغ</th><th>النسبة</th></tr>`;
+        thead.innerHTML = `<tr><th>Ø§Ù„ØªØµÙ†ÙŠÙ</th><th>Ø§Ù„Ù…Ø¨Ù„Øº</th><th>Ø§Ù„Ù†Ø³Ø¨Ø©</th></tr>`;
         table.appendChild(thead);
         const tbody = document.createElement("tbody");
         const top4 = catEntries.slice(0, 4);
@@ -2821,14 +1987,14 @@ async function loadAllUsersForAdmin() {
       compareContainer.appendChild(grid);
     }
 
-    /* ======= التصنيفات ======= */
+    /* ======= Ø§Ù„ØªØµÙ†ÙŠÙØ§Øª ======= */
 
     function renderCategoryOptions() {
       expenseCategoryInput.innerHTML = "";
       filterCategory.innerHTML = "";
       const allOpt = document.createElement("option");
       allOpt.value = "all";
-      allOpt.textContent = "كل التصنيفات";
+      allOpt.textContent = "ÙƒÙ„ Ø§Ù„ØªØµÙ†ÙŠÙØ§Øª";
       filterCategory.appendChild(allOpt);
 
       state.categories.forEach((cat) => {
@@ -2862,8 +2028,8 @@ async function loadAllUsersForAdmin() {
         if (limitObj && limitObj.limit) {
           const badge = document.createElement('span');
           badge.className = 'category-limit-badge';
-          badge.textContent = `${formatNumber(limitObj.limit)}` + (limitObj.hard ? ' ⚠️' : '');
-          badge.title = limitObj.hard ? 'حظر مفعل عند التجاوز' : 'تنبيه عند الاقتراب من الحد';
+          badge.textContent = `${formatNumber(limitObj.limit)}` + (limitObj.hard ? ' âš ï¸' : '');
+          badge.title = limitObj.hard ? 'Ø­Ø¸Ø± Ù…ÙØ¹Ù„ Ø¹Ù†Ø¯ Ø§Ù„ØªØ¬Ø§ÙˆØ²' : 'ØªÙ†Ø¨ÙŠÙ‡ Ø¹Ù†Ø¯ Ø§Ù„Ø§Ù‚ØªØ±Ø§Ø¨ Ù…Ù† Ø§Ù„Ø­Ø¯';
           chip.appendChild(badge);
         }
 
@@ -2872,8 +2038,8 @@ async function loadAllUsersForAdmin() {
 
         if (index > 0) {
           const upBtn = document.createElement("button");
-          upBtn.textContent = "↑";
-          upBtn.title = "تحريك لأعلى";
+          upBtn.textContent = "â†‘";
+          upBtn.title = "ØªØ­Ø±ÙŠÙƒ Ù„Ø£Ø¹Ù„Ù‰";
           upBtn.addEventListener("click", (e) => {
             e.stopPropagation();
             const temp = state.categories[index];
@@ -2886,8 +2052,8 @@ async function loadAllUsersForAdmin() {
 
         if (index < state.categories.length - 1) {
           const downBtn = document.createElement("button");
-          downBtn.textContent = "↓";
-          downBtn.title = "تحريك لأسفل";
+          downBtn.textContent = "â†“";
+          downBtn.title = "ØªØ­Ø±ÙŠÙƒ Ù„Ø£Ø³ÙÙ„";
           downBtn.addEventListener("click", (e) => {
             e.stopPropagation();
             const temp = state.categories[index];
@@ -2900,11 +2066,11 @@ async function loadAllUsersForAdmin() {
 
         if (state.categories.length > 1) {
           const delBtn = document.createElement("button");
-          delBtn.textContent = "✕";
-          delBtn.title = "حذف التصنيف";
+          delBtn.textContent = "âœ•";
+          delBtn.title = "Ø­Ø°Ù Ø§Ù„ØªØµÙ†ÙŠÙ";
           delBtn.addEventListener("click", (e) => {
             e.stopPropagation();
-            if (!confirm("متأكد من حذف هذا التصنيف؟")) return;
+            if (!confirm("Ù…ØªØ£ÙƒØ¯ Ù…Ù† Ø­Ø°Ù Ù‡Ø°Ø§ Ø§Ù„ØªØµÙ†ÙŠÙØŸ")) return;
             state.categories.splice(index, 1);
             refreshUI();
           });
@@ -2913,8 +2079,8 @@ async function loadAllUsersForAdmin() {
 
         // settings button for category limits
         const settingsBtn = document.createElement('button');
-        settingsBtn.textContent = '⚙️';
-        settingsBtn.title = 'إعدادات الفئة';
+        settingsBtn.textContent = 'âš™ï¸';
+        settingsBtn.title = 'Ø¥Ø¹Ø¯Ø§Ø¯Ø§Øª Ø§Ù„ÙØ¦Ø©';
         settingsBtn.addEventListener('click', (e) => {
           e.stopPropagation();
           openCategoryLimitModal(cat);
@@ -2959,7 +2125,7 @@ async function loadAllUsersForAdmin() {
       const name = newCategoryInput.value.trim();
       if (!name) return;
       if (state.categories.includes(name)) {
-        alert("هذا التصنيف موجود بالفعل.");
+        alert("Ù‡Ø°Ø§ Ø§Ù„ØªØµÙ†ÙŠÙ Ù…ÙˆØ¬ÙˆØ¯ Ø¨Ø§Ù„ÙØ¹Ù„.");
         return;
       }
       state.categories.push(name);
@@ -2983,14 +2149,14 @@ async function loadAllUsersForAdmin() {
       const currentMonth = getSelectedMonth();
       if (edit && currentMonth) {
         editingMonthId = currentMonth.id;
-        modalMonthTitle.textContent = "تعديل الشهر";
+        modalMonthTitle.textContent = "ØªØ¹Ø¯ÙŠÙ„ Ø§Ù„Ø´Ù‡Ø±";
         monthInput.value = String(currentMonth.month);
         yearInput.value = currentMonth.year;
         salaryInput.value = formatNumber(currentMonth.salary || 0);
         deleteMonthBtn.style.display = "inline-flex";
       } else {
         editingMonthId = null;
-        modalMonthTitle.textContent = "إضافة شهر جديد";
+        modalMonthTitle.textContent = "Ø¥Ø¶Ø§ÙØ© Ø´Ù‡Ø± Ø¬Ø¯ÙŠØ¯";
         monthInput.value = String(now.getMonth() + 1);
         yearInput.value = now.getFullYear();
         salaryInput.value = "";
@@ -3036,7 +2202,7 @@ async function loadAllUsersForAdmin() {
 
     deleteMonthBtn.addEventListener("click", async () => {
       if (!editingMonthId) return;
-      if (!confirm("هل أنت متأكد من حذف هذا الشهر وجميع مصاريفه؟")) return;
+      if (!confirm("Ù‡Ù„ Ø£Ù†Øª Ù…ØªØ£ÙƒØ¯ Ù…Ù† Ø­Ø°Ù Ù‡Ø°Ø§ Ø§Ù„Ø´Ù‡Ø± ÙˆØ¬Ù…ÙŠØ¹ Ù…ØµØ§Ø±ÙŠÙÙ‡ØŸ")) return;
       const idx = state.months.findIndex((m) => m.id === editingMonthId);
       if (idx !== -1) state.months.splice(idx, 1);
       if (state.months.length === 0) {
@@ -3055,11 +2221,11 @@ async function loadAllUsersForAdmin() {
       const salary = parseFormattedNumber(salaryInput.value);
 
       if (!yearNum || yearNum < 1900) {
-        alert("من فضلك أدخل سنة صحيحة.");
+        alert("Ù…Ù† ÙØ¶Ù„Ùƒ Ø£Ø¯Ø®Ù„ Ø³Ù†Ø© ØµØ­ÙŠØ­Ø©.");
         return;
       }
       if (!monthNum || monthNum < 1 || monthNum > 12) {
-        alert("من فضلك اختر شهرًا صحيحًا.");
+        alert("Ù…Ù† ÙØ¶Ù„Ùƒ Ø§Ø®ØªØ± Ø´Ù‡Ø±Ù‹Ø§ ØµØ­ÙŠØ­Ù‹Ø§.");
         return;
       }
 
@@ -3072,7 +2238,7 @@ async function loadAllUsersForAdmin() {
         if (editingMonthId !== id) {
           const conflict = state.months.find((m) => m.id === id);
           if (conflict) {
-            alert("يوجد شهر بنفس التاريخ بالفعل.");
+            alert("ÙŠÙˆØ¬Ø¯ Ø´Ù‡Ø± Ø¨Ù†ÙØ³ Ø§Ù„ØªØ§Ø±ÙŠØ® Ø¨Ø§Ù„ÙØ¹Ù„.");
             return;
           }
         }
@@ -3085,7 +2251,7 @@ async function loadAllUsersForAdmin() {
       } else {
         const exists = state.months.find((m) => m.id === id);
         if (exists) {
-          alert("هذا الشهر موجود مسبقًا. افتحه من القائمة لتعديله.");
+          alert("Ù‡Ø°Ø§ Ø§Ù„Ø´Ù‡Ø± Ù…ÙˆØ¬ÙˆØ¯ Ù…Ø³Ø¨Ù‚Ù‹Ø§. Ø§ÙØªØ­Ù‡ Ù…Ù† Ø§Ù„Ù‚Ø§Ø¦Ù…Ø© Ù„ØªØ¹Ø¯ÙŠÙ„Ù‡.");
           return;
         }
         state.months.push({
@@ -3116,27 +2282,27 @@ async function loadAllUsersForAdmin() {
     /* ======= Expense Modal ======= */
 
     function openExpenseModal(expenseId = null) {
-      isSavingExpense = false; // إعادة تعيين العلم عند فتح الـ Modal
+      isSavingExpense = false; // Ø¥Ø¹Ø§Ø¯Ø© ØªØ¹ÙŠÙŠÙ† Ø§Ù„Ø¹Ù„Ù… Ø¹Ù†Ø¯ ÙØªØ­ Ø§Ù„Ù€ Modal
       const month = getSelectedMonth();
       if (!month) {
-        alert("من فضلك أضف شهرًا أولاً.");
+        alert("Ù…Ù† ÙØ¶Ù„Ùƒ Ø£Ø¶Ù Ø´Ù‡Ø±Ù‹Ø§ Ø£ÙˆÙ„Ø§Ù‹.");
         return;
       }
       if (expenseId) {
         const exp = (month.expenses || []).find((e) => e.id === expenseId);
         if (!exp) return;
         editingExpenseId = expenseId;
-        expenseModalTitle.textContent = "تعديل مصروف";
+        expenseModalTitle.textContent = "ØªØ¹Ø¯ÙŠÙ„ Ù…ØµØ±ÙˆÙ";
         expenseTitleInput.value = exp.title || "";
         expenseAmountInput.value = formatNumber(exp.amount || 0);
         expenseCategoryInput.value = exp.category || state.categories[0];
         expenseDateInput.value = exp.date || "";
         expenseNoteInput.value = exp.note || "";
         expenseImageInput.value = "";
-        // عرض معاينة الصورة القديمة إن وجدت
+        // Ø¹Ø±Ø¶ Ù…Ø¹Ø§ÙŠÙ†Ø© Ø§Ù„ØµÙˆØ±Ø© Ø§Ù„Ù‚Ø¯ÙŠÙ…Ø© Ø¥Ù† ÙˆØ¬Ø¯Øª
         if (exp.imageDataUrl) {
           imagePreviewImg.src = exp.imageDataUrl;
-          imagePreviewFilename.textContent = "صورة موجودة";
+          imagePreviewFilename.textContent = "ØµÙˆØ±Ø© Ù…ÙˆØ¬ÙˆØ¯Ø©";
           imagePreviewSize.textContent = "";
           imagePreviewContainer.classList.add("active");
         } else {
@@ -3146,7 +2312,7 @@ async function loadAllUsersForAdmin() {
         deleteExpenseBtn.style.display = "inline-flex";
       } else {
         editingExpenseId = null;
-        expenseModalTitle.textContent = "إضافة مصروف";
+        expenseModalTitle.textContent = "Ø¥Ø¶Ø§ÙØ© Ù…ØµØ±ÙˆÙ";
         expenseTitleInput.value = "";
         expenseAmountInput.value = "";
         expenseCategoryInput.value = state.categories[0];
@@ -3162,7 +2328,7 @@ async function loadAllUsersForAdmin() {
 
     function closeExpenseModal() {
       modalExpense.style.display = "none";
-      // إزالة معاينة الصورة عند الإغلاق
+      // Ø¥Ø²Ø§Ù„Ø© Ù…Ø¹Ø§ÙŠÙ†Ø© Ø§Ù„ØµÙˆØ±Ø© Ø¹Ù†Ø¯ Ø§Ù„Ø¥ØºÙ„Ø§Ù‚
       imagePreviewContainer.classList.remove("active");
       imagePreviewImg.src = "";
     }
@@ -3177,7 +2343,7 @@ async function loadAllUsersForAdmin() {
 
 
 
-    // معالجة معاينة الصور
+    // Ù…Ø¹Ø§Ù„Ø¬Ø© Ù…Ø¹Ø§ÙŠÙ†Ø© Ø§Ù„ØµÙˆØ±
     const imagePreviewContainer = document.getElementById("imagePreviewContainer");
     const imagePreviewImg = document.getElementById("imagePreviewImg");
     const imagePreviewFilename = document.getElementById("imagePreviewFilename");
@@ -3192,7 +2358,7 @@ async function loadAllUsersForAdmin() {
       return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + " " + sizes[i];
     }
 
-    // دالة ضغط الصور لتقليل حجم البيانات المنقولة
+    // Ø¯Ø§Ù„Ø© Ø¶ØºØ· Ø§Ù„ØµÙˆØ± Ù„ØªÙ‚Ù„ÙŠÙ„ Ø­Ø¬Ù… Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª Ø§Ù„Ù…Ù†Ù‚ÙˆÙ„Ø©
     function compressImage(dataUrl, maxWidth = 800, maxHeight = 800, quality = 0.7) {
       return new Promise((resolve) => {
         const img = new Image();
@@ -3202,7 +2368,7 @@ async function loadAllUsersForAdmin() {
           let width = img.width;
           let height = img.height;
 
-          // حساب الأبعاد الجديدة مع الحفاظ على النسبة
+          // Ø­Ø³Ø§Ø¨ Ø§Ù„Ø£Ø¨Ø¹Ø§Ø¯ Ø§Ù„Ø¬Ø¯ÙŠØ¯Ø© Ù…Ø¹ Ø§Ù„Ø­ÙØ§Ø¸ Ø¹Ù„Ù‰ Ø§Ù„Ù†Ø³Ø¨Ø©
           if (width > maxWidth || height > maxHeight) {
             const ratio = Math.min(maxWidth / width, maxHeight / height);
             width *= ratio;
@@ -3215,7 +2381,7 @@ async function loadAllUsersForAdmin() {
           ctx.drawImage(img, 0, 0, width, height);
           resolve(canvas.toDataURL("image/jpeg", quality));
         };
-        img.onerror = () => resolve(dataUrl); // إرجاع الأصل في حالة الخطأ
+        img.onerror = () => resolve(dataUrl); // Ø¥Ø±Ø¬Ø§Ø¹ Ø§Ù„Ø£ØµÙ„ ÙÙŠ Ø­Ø§Ù„Ø© Ø§Ù„Ø®Ø·Ø£
       });
     }
 
@@ -3231,7 +2397,7 @@ async function loadAllUsersForAdmin() {
         };
         reader.readAsDataURL(file);
       } else if (file) {
-        alert("من فضلك اختر ملف صورة صحيح");
+        alert("Ù…Ù† ÙØ¶Ù„Ùƒ Ø§Ø®ØªØ± Ù…Ù„Ù ØµÙˆØ±Ø© ØµØ­ÙŠØ­");
         expenseImageInput.value = "";
         imagePreviewContainer.classList.remove("active");
       }
@@ -3249,7 +2415,7 @@ async function loadAllUsersForAdmin() {
     async function deleteExpense(expenseId) {
       const month = getSelectedMonth();
       if (!month || !Array.isArray(month.expenses)) return;
-      if (!confirm("متأكد من حذف هذا المصروف؟")) return;
+      if (!confirm("Ù…ØªØ£ÙƒØ¯ Ù…Ù† Ø­Ø°Ù Ù‡Ø°Ø§ Ø§Ù„Ù…ØµØ±ÙˆÙØŸ")) return;
       const idx = month.expenses.findIndex((e) => e.id === expenseId);
       if (idx !== -1) {
         month.expenses.splice(idx, 1);
@@ -3264,7 +2430,7 @@ async function loadAllUsersForAdmin() {
     });
 
     saveExpenseBtn.addEventListener("click", async () => {
-      // منع النقر المتكرر
+      // Ù…Ù†Ø¹ Ø§Ù„Ù†Ù‚Ø± Ø§Ù„Ù…ØªÙƒØ±Ø±
       if (isSavingExpense) return;
       isSavingExpense = true;
 
@@ -3272,20 +2438,20 @@ async function loadAllUsersForAdmin() {
       const categoryError = document.getElementById("categoryError");
 
       if (!month) {
-        await showAlertModal("من فضلك أضف شهرًا أولاً.", "تنبيه", "ℹ️");
+        await showAlertModal("Ù…Ù† ÙØ¶Ù„Ùƒ Ø£Ø¶Ù Ø´Ù‡Ø±Ù‹Ø§ Ø£ÙˆÙ„Ø§Ù‹.", "ØªÙ†Ø¨ÙŠÙ‡", "â„¹ï¸");
         isSavingExpense = false;
         return;
       }
       if (!Array.isArray(month.expenses)) month.expenses = [];
 
-      const title = expenseTitleInput.value.trim() || "مصروف";
+      const title = expenseTitleInput.value.trim() || "Ù…ØµØ±ÙˆÙ";
       const amount = parseFormattedNumber(expenseAmountInput.value);
       const category = expenseCategoryInput.value;
       const date = expenseDateInput.value || "";
       const note = expenseNoteInput.value.trim();
 
       if (!amount || amount <= 0) {
-        await showAlertModal("من فضلك أدخل مبلغًا صحيحًا.", "خطأ في المبلغ", "❌");
+        await showAlertModal("Ù…Ù† ÙØ¶Ù„Ùƒ Ø£Ø¯Ø®Ù„ Ù…Ø¨Ù„ØºÙ‹Ø§ ØµØ­ÙŠØ­Ù‹Ø§.", "Ø®Ø·Ø£ ÙÙŠ Ø§Ù„Ù…Ø¨Ù„Øº", "âŒ");
         isSavingExpense = false;
         return;
       }
@@ -3305,9 +2471,9 @@ async function loadAllUsersForAdmin() {
       const limitCheck = checkCategoryLimit(category, amount);
       if (!limitCheck.allowed) {
         await showAlertModal(
-          limitCheck.message || 'هذا المصروف يتجاوز حد الفئة وسيتم منعه.',
-          '⚠️ تحذير',
-          '⛔'
+          limitCheck.message || 'Ù‡Ø°Ø§ Ø§Ù„Ù…ØµØ±ÙˆÙ ÙŠØªØ¬Ø§ÙˆØ² Ø­Ø¯ Ø§Ù„ÙØ¦Ø© ÙˆØ³ÙŠØªÙ… Ù…Ù†Ø¹Ù‡.',
+          'âš ï¸ ØªØ­Ø°ÙŠØ±',
+          'â›”'
         );
         isSavingExpense = false;
         return;
@@ -3315,8 +2481,8 @@ async function loadAllUsersForAdmin() {
       if (limitCheck.message && !limitCheck.allowed) {
         await showAlertModal(
           limitCheck.message,
-          '⚠️ تحذير',
-          '⛔'
+          'âš ï¸ ØªØ­Ø°ÙŠØ±',
+          'â›”'
         );
         isSavingExpense = false;
         return;
@@ -3324,8 +2490,8 @@ async function loadAllUsersForAdmin() {
       if (limitCheck.message && limitCheck.allowed) {
         const confirmed = await showConfirmModal(
           limitCheck.message,
-          '⚠️ تنبيه الفئة',
-          '⚠️'
+          'âš ï¸ ØªÙ†Ø¨ÙŠÙ‡ Ø§Ù„ÙØ¦Ø©',
+          'âš ï¸'
         );
         if (!confirmed) {
           isSavingExpense = false;
@@ -3336,7 +2502,7 @@ async function loadAllUsersForAdmin() {
       // Proceed with expense save
       const file = expenseImageInput.files[0];
 
-      // إغلاق الـ Modal فوراً لتجنب النقر المتكرر
+      // Ø¥ØºÙ„Ø§Ù‚ Ø§Ù„Ù€ Modal ÙÙˆØ±Ø§Ù‹ Ù„ØªØ¬Ù†Ø¨ Ø§Ù„Ù†Ù‚Ø± Ø§Ù„Ù…ØªÙƒØ±Ø±
       closeExpenseModal();
 
       if (file) {
@@ -3344,8 +2510,8 @@ async function loadAllUsersForAdmin() {
         reader.onload = async function (e) {
           let imageDataUrl = e.target.result;
           
-          // ضغط الصورة إذا كانت كبيرة الحجم
-          if (file.size > 500000) { // أكبر من 500KB
+          // Ø¶ØºØ· Ø§Ù„ØµÙˆØ±Ø© Ø¥Ø°Ø§ ÙƒØ§Ù†Øª ÙƒØ¨ÙŠØ±Ø© Ø§Ù„Ø­Ø¬Ù…
+          if (file.size > 500000) { // Ø£ÙƒØ¨Ø± Ù…Ù† 500KB
             imageDataUrl = await compressImage(imageDataUrl, 800, 800, 0.7);
           }
           
@@ -3419,7 +2585,7 @@ async function loadAllUsersForAdmin() {
       if (goals.length === 0) {
         const empty = document.createElement('div');
         empty.className = 'empty-state';
-        empty.textContent = 'لا توجد أهداف حتى الآن.';
+        empty.textContent = 'Ù„Ø§ ØªÙˆØ¬Ø¯ Ø£Ù‡Ø¯Ø§Ù Ø­ØªÙ‰ Ø§Ù„Ø¢Ù†.';
         goalsContainer.appendChild(empty);
         return;
       }
@@ -3432,7 +2598,7 @@ async function loadAllUsersForAdmin() {
         left.className = 'goal-left';
         const title = document.createElement('div');
         title.className = 'goal-title';
-        title.textContent = g.title || 'هدف';
+        title.textContent = g.title || 'Ù‡Ø¯Ù';
         left.appendChild(title);
 
         const meta = document.createElement('div');
@@ -3455,14 +2621,22 @@ async function loadAllUsersForAdmin() {
         actions.className = 'goal-actions';
         const btnView = document.createElement('button');
         btnView.className = 'btn btn-outline btn-sm';
-        btnView.textContent = 'تفاصيل';
+        btnView.textContent = 'ØªÙØ§ØµÙŠÙ„';
         btnView.addEventListener('click', () => openGoalModal(g.id));
         actions.appendChild(btnView);
 
         const btnAdd = document.createElement('button');
         btnAdd.className = 'btn btn-primary btn-sm';
-        btnAdd.textContent = '+ أضف مبلغ';
-        btnAdd.addEventListener('click', () => openAddGoalAmount(g.id));
+        btnAdd.textContent = '+ Ø£Ø¶Ù Ù…Ø¨Ù„Øº';
+        btnAdd.addEventListener('click', () => {
+          const val = prompt('Ø£Ø¯Ø®Ù„ Ù…Ø¨Ù„Øº Ø§Ù„Ø¥Ø¶Ø§ÙØ© Ø¥Ù„Ù‰ Ø§Ù„Ù‡Ø¯Ù:');
+          if (!val) return;
+          const num = parseFormattedNumber(val);
+          if (!num) { alert('Ø£Ø¯Ø®Ù„ Ù…Ø¨Ù„ØºÙ‹Ø§ ØµØ­ÙŠØ­Ù‹Ø§'); return; }
+          g.current = (g.current || 0) + num;
+          saveState();
+          renderGoals();
+        });
         actions.appendChild(btnAdd);
 
         item.appendChild(actions);
@@ -3475,7 +2649,7 @@ async function loadAllUsersForAdmin() {
       editingGoalId = goalId;
       modalGoal.style.display = 'flex';
       if (goalId) {
-        modalGoalTitle.textContent = 'تعديل الهدف';
+        modalGoalTitle.textContent = 'ØªØ¹Ø¯ÙŠÙ„ Ø§Ù„Ù‡Ø¯Ù';
         btnDeleteGoal.style.display = 'inline-flex';
         const g = state.goals.find(x => x.id === goalId);
         if (g) {
@@ -3485,7 +2659,7 @@ async function loadAllUsersForAdmin() {
           goalDueDate.value = g.dueDate || '';
         }
       } else {
-        modalGoalTitle.textContent = 'إضافة هدف جديد';
+        modalGoalTitle.textContent = 'Ø¥Ø¶Ø§ÙØ© Ù‡Ø¯Ù Ø¬Ø¯ÙŠØ¯';
         btnDeleteGoal.style.display = 'none';
         goalTitleInput.value = '';
         goalTargetInput.value = '';
@@ -3494,13 +2668,6 @@ async function loadAllUsersForAdmin() {
       }
       // ensure numeric inputs in modals get formatting attached and focus first field
       setTimeout(() => {
-        // Re-apply formatting for goal inputs specifically
-        if (goalTargetInput) {
-          goalTargetInput.value = formatNumber(parseFormattedNumber(goalTargetInput.value || '0'));
-        }
-        if (goalCurrentInput) {
-          goalCurrentInput.value = formatNumber(parseFormattedNumber(goalCurrentInput.value || '0'));
-        }
         attachNumericInputFormatting();
         try { goalTitleInput && goalTitleInput.focus(); } catch (e) {}
         goalModalEscHandler = (e) => { if (e.key === 'Escape') closeGoalModal(); };
@@ -3515,11 +2682,11 @@ async function loadAllUsersForAdmin() {
     }
 
     async function saveGoal() {
-      const title = (goalTitleInput.value || '').trim() || 'هدف';
+      const title = (goalTitleInput.value || '').trim() || 'Ù‡Ø¯Ù';
       const target = parseFormattedNumber(goalTargetInput.value || '0');
       const current = parseFormattedNumber(goalCurrentInput.value || '0');
       const due = goalDueDate.value || null;
-      if (!target || target <= 0) { alert('أدخل مبلغًا مستهدفًا صحيحًا'); return; }
+      if (!target || target <= 0) { alert('Ø£Ø¯Ø®Ù„ Ù…Ø¨Ù„ØºÙ‹Ø§ Ù…Ø³ØªÙ‡Ø¯ÙÙ‹Ø§ ØµØ­ÙŠØ­Ù‹Ø§'); return; }
       if (!Array.isArray(state.goals)) state.goals = [];
       if (editingGoalId) {
         const g = state.goals.find(x => x.id === editingGoalId);
@@ -3536,47 +2703,12 @@ async function loadAllUsersForAdmin() {
 
     function deleteGoal() {
       if (!editingGoalId) return;
-      if (!confirm('هل تريد حذف هذا الهدف؟')) return;
+      if (!confirm('Ù‡Ù„ ØªØ±ÙŠØ¯ Ø­Ø°Ù Ù‡Ø°Ø§ Ø§Ù„Ù‡Ø¯ÙØŸ')) return;
       const idx = state.goals.findIndex(x => x.id === editingGoalId);
       if (idx !== -1) state.goals.splice(idx, 1);
       saveState();
       closeGoalModal();
       renderGoals();
-    }
-
-    // add-goal modal functions
-    let addingGoalId = null;
-    function openAddGoalAmount(goalId) {
-      addingGoalId = goalId;
-      if (!modalAddToGoal) return;
-      modalAddToGoal.style.display = 'flex';
-      addGoalAmountInput.value = '';
-      setTimeout(() => {
-        attachNumericInputFormatting();
-        try { addGoalAmountInput && addGoalAmountInput.focus(); } catch (e) {}
-      }, 0);
-    }
-
-    function closeAddGoalModal() {
-      if (!modalAddToGoal) return;
-      modalAddToGoal.style.display = 'none';
-      addingGoalId = null;
-    }
-
-    function saveAddGoalAmount() {
-      if (addingGoalId === null) return;
-      const val = parseFormattedNumber(addGoalAmountInput.value || '0');
-      if (!val || val <= 0) {
-        alert('أدخل مبلغًا صحيحًا');
-        return;
-      }
-      const g = state.goals.find(x => x.id === addingGoalId);
-      if (g) {
-        g.current = (g.current || 0) + val;
-        saveState();
-        renderGoals();
-      }
-      closeAddGoalModal();
     }
 
     // Category limits check - with overflow tracking
@@ -3596,7 +2728,7 @@ async function loadAllUsersForAdmin() {
       if (would <= obj.limit) {
         // Still within limit
         if (would >= Math.round(obj.limit * 0.8)) {
-          return { allowed: true, message: `⚠️ اقتربت من حد الفئة "${cat}" (${formatNumber(would)} / ${formatNumber(obj.limit)})` };
+          return { allowed: true, message: `âš ï¸ Ø§Ù‚ØªØ±Ø¨Øª Ù…Ù† Ø­Ø¯ Ø§Ù„ÙØ¦Ø© "${cat}" (${formatNumber(would)} / ${formatNumber(obj.limit)})` };
         }
         return { allowed: true };
       }
@@ -3605,18 +2737,18 @@ async function loadAllUsersForAdmin() {
       if (would > obj.limit) {
         if (hasOverflowed) {
           // Already exceeded once, block further additions
-          const msg = `❌ لا يمكن إضافة مصاريف إضافية. تجاوزت حد الفئة "${cat}" (${formatNumber(obj.limit)}) بالفعل.`;
+          const msg = `âŒ Ù„Ø§ ÙŠÙ…ÙƒÙ† Ø¥Ø¶Ø§ÙØ© Ù…ØµØ§Ø±ÙŠÙ Ø¥Ø¶Ø§ÙÙŠØ©. ØªØ¬Ø§ÙˆØ²Øª Ø­Ø¯ Ø§Ù„ÙØ¦Ø© "${cat}" (${formatNumber(obj.limit)}) Ø¨Ø§Ù„ÙØ¹Ù„.`;
           return { allowed: false, message: msg };
         }
         
         if (obj.hard) {
           // Hard limit, no overflow allowed
-          const msg = `⛔ سيتم تجاوز حد الفئة "${cat}" (${formatNumber(obj.limit)}) — بعد الإضافة: ${formatNumber(would)}. هذا الحد لا يمكن تجاوزه.`;
+          const msg = `â›” Ø³ÙŠØªÙ… ØªØ¬Ø§ÙˆØ² Ø­Ø¯ Ø§Ù„ÙØ¦Ø© "${cat}" (${formatNumber(obj.limit)}) â€” Ø¨Ø¹Ø¯ Ø§Ù„Ø¥Ø¶Ø§ÙØ©: ${formatNumber(would)}. Ù‡Ø°Ø§ Ø§Ù„Ø­Ø¯ Ù„Ø§ ÙŠÙ…ÙƒÙ† ØªØ¬Ø§ÙˆØ²Ù‡.`;
           return { allowed: false, message: msg };
         }
         
         // Soft limit, allow one overflow
-        const msg = `⚠️ سيتم تجاوز حد الفئة "${cat}" (${formatNumber(obj.limit)}) — بعد الإضافة: ${formatNumber(would)}.\n\nهذا التجاوز مسموح لمرة واحدة فقط.`;
+        const msg = `âš ï¸ Ø³ÙŠØªÙ… ØªØ¬Ø§ÙˆØ² Ø­Ø¯ Ø§Ù„ÙØ¦Ø© "${cat}" (${formatNumber(obj.limit)}) â€” Ø¨Ø¹Ø¯ Ø§Ù„Ø¥Ø¶Ø§ÙØ©: ${formatNumber(would)}.\n\nÙ‡Ø°Ø§ Ø§Ù„ØªØ¬Ø§ÙˆØ² Ù…Ø³Ù…ÙˆØ­ Ù„Ù…Ø±Ø© ÙˆØ§Ø­Ø¯Ø© ÙÙ‚Ø·.`;
         return { allowed: true, message: msg, markOverflow: true };
       }
       
@@ -3698,7 +2830,7 @@ async function loadAllUsersForAdmin() {
         return;
       }
       const num = parseFormattedNumber(categoryLimitAmount.value);
-      if (!num) { alert('أدخل مبلغًا صحيحًا.'); return; }
+      if (!num) { alert('Ø£Ø¯Ø®Ù„ Ù…Ø¨Ù„ØºÙ‹Ø§ ØµØ­ÙŠØ­Ù‹Ø§.'); return; }
       state.categoryLimits = state.categoryLimits || {};
       state.categoryLimits[editingCategoryForLimit] = { limit: num, hard: !!categoryLimitHard.checked };
       saveState(); refreshUI(); closeCategoryLimitModal();
@@ -3706,7 +2838,7 @@ async function loadAllUsersForAdmin() {
 
     function deleteCategoryLimit() {
       if (!editingCategoryForLimit) return;
-      if (!confirm('هل تريد حذف حد الفئة؟')) return;
+      if (!confirm('Ù‡Ù„ ØªØ±ÙŠØ¯ Ø­Ø°Ù Ø­Ø¯ Ø§Ù„ÙØ¦Ø©ØŸ')) return;
       if (state.categoryLimits) delete state.categoryLimits[editingCategoryForLimit];
       saveState(); refreshUI(); closeCategoryLimitModal();
     }
@@ -3723,14 +2855,6 @@ async function loadAllUsersForAdmin() {
     const bucketsTotalPercent = document.getElementById('bucketsTotalPercent');
     const btnPreviewSplit = document.getElementById('btnPreviewSplit');
     const btnApplySplit = document.getElementById('btnApplySplit');
-    const btnClearAllBuckets = document.getElementById('btnClearAllBuckets');
-
-    // add-goal modal elements
-    const modalAddToGoal = document.getElementById('modalAddToGoal');
-    const addGoalAmountInput = document.getElementById('addGoalAmountInput');
-    const btnCloseAddGoal = document.getElementById('btnCloseAddGoal');
-    const btnCancelAddGoal = document.getElementById('btnCancelAddGoal');
-    const btnSaveAddGoal = document.getElementById('btnSaveAddGoal');
 
     // modal elements
     const modalBucket = document.getElementById('modalBucket');
@@ -3751,7 +2875,7 @@ async function loadAllUsersForAdmin() {
       if (buckets.length === 0) {
         const empty = document.createElement('div');
         empty.className = 'empty-state';
-        empty.textContent = 'لا توجد حافظات حتى الآن.';
+        empty.textContent = 'Ù„Ø§ ØªÙˆØ¬Ø¯ Ø­Ø§ÙØ¸Ø§Øª Ø­ØªÙ‰ Ø§Ù„Ø¢Ù†.';
         bucketsContainer.appendChild(empty);
         bucketsTotalPercent.textContent = '0';
         return;
@@ -3769,7 +2893,7 @@ async function loadAllUsersForAdmin() {
         left.className = 'bucket-left';
         const name = document.createElement('div');
         name.className = 'bucket-name';
-        name.textContent = b.name || 'حافظة';
+        name.textContent = b.name || 'Ø­Ø§ÙØ¸Ø©';
         left.appendChild(name);
 
         const meta = document.createElement('div');
@@ -3785,16 +2909,16 @@ async function loadAllUsersForAdmin() {
         controls.className = 'bucket-controls';
         const editBtn = document.createElement('button');
         editBtn.className = 'btn btn-outline btn-sm';
-        editBtn.textContent = '✎';
-        editBtn.title = 'تعديل الحافظة';
+        editBtn.textContent = 'âœŽ';
+        editBtn.title = 'ØªØ¹Ø¯ÙŠÙ„ Ø§Ù„Ø­Ø§ÙØ¸Ø©';
         editBtn.addEventListener('click', (e) => { e.stopPropagation(); openBucketModal(b.id); });
         controls.appendChild(editBtn);
 
         const delBtn = document.createElement('button');
         delBtn.className = 'btn btn-outline btn-sm';
-        delBtn.textContent = '🗑️';
-        delBtn.title = 'حذف الحافظة';
-        delBtn.addEventListener('click', (e) => { e.stopPropagation(); if (!confirm('هل تريد حذف هذه الحافظة؟')) return; const idx = state.savingsBuckets.findIndex(x => x.id === b.id); if (idx !== -1) state.savingsBuckets.splice(idx, 1); saveState(); refreshUI(); });
+        delBtn.textContent = 'ðŸ—‘ï¸';
+        delBtn.title = 'Ø­Ø°Ù Ø§Ù„Ø­Ø§ÙØ¸Ø©';
+        delBtn.addEventListener('click', (e) => { e.stopPropagation(); if (!confirm('Ù‡Ù„ ØªØ±ÙŠØ¯ Ø­Ø°Ù Ù‡Ø°Ù‡ Ø§Ù„Ø­Ø§ÙØ¸Ø©ØŸ')) return; const idx = state.savingsBuckets.findIndex(x => x.id === b.id); if (idx !== -1) state.savingsBuckets.splice(idx, 1); saveState(); refreshUI(); });
         controls.appendChild(delBtn);
 
         item.appendChild(controls);
@@ -3802,7 +2926,7 @@ async function loadAllUsersForAdmin() {
       });
 
       const percentOfSalary = salary ? Math.round((totalAlloc / salary) * 100) : 0;
-      bucketsTotalPercent.textContent = `${formatNumber(totalAlloc)} — ${percentOfSalary}%`;
+      bucketsTotalPercent.textContent = `${formatNumber(totalAlloc)} â€” ${percentOfSalary}%`;
       if (salary && totalAlloc > salary) bucketsTotalPercent.style.color = 'var(--danger)'; else bucketsTotalPercent.style.color = '';
     }
 
@@ -3834,7 +2958,7 @@ async function loadAllUsersForAdmin() {
             const newTotal = existingTotal + curVal;
             const pct = salary ? Math.round((newTotal / salary) * 100) : 0;
             if (noteEl) {
-              noteEl.textContent = `إجمالي بعد الإضافة: ${formatNumber(newTotal)} من ${formatNumber(salary)} (${pct}%)`;
+              noteEl.textContent = `Ø¥Ø¬Ù…Ø§Ù„ÙŠ Ø¨Ø¹Ø¯ Ø§Ù„Ø¥Ø¶Ø§ÙØ©: ${formatNumber(newTotal)} Ù…Ù† ${formatNumber(salary)} (${pct}%)`;
               if (salary && newTotal > salary) noteEl.style.color = 'var(--danger)'; else noteEl.style.color = 'var(--subtext-color)';
             }
           };
@@ -3859,16 +2983,16 @@ async function loadAllUsersForAdmin() {
     }
 
     function saveBucket() {
-      const name = (bucketNameInput.value || '').trim() || 'حافظة';
+      const name = (bucketNameInput.value || '').trim() || 'Ø­Ø§ÙØ¸Ø©';
       const amount = parseFormattedNumber(bucketAmountInput.value || '0') || 0;
-      if (amount < 0) { alert('أدخل مبلغًا صحيحًا.'); return; }
+      if (amount < 0) { alert('Ø£Ø¯Ø®Ù„ Ù…Ø¨Ù„ØºÙ‹Ø§ ØµØ­ÙŠØ­Ù‹Ø§.'); return; }
       // check total amount
       const existingTotal = (state.savingsBuckets || []).reduce((s, b) => s + (b.id === editingBucketId ? 0 : (b.amount || 0)), 0);
       const newTotal = existingTotal + amount;
       const month = getSelectedMonth();
       const salary = month ? (month.salary || 0) : 0;
       if (salary && newTotal > salary) {
-        if (!confirm('مجموع المبالغ يتجاوز الراتب، هل تريد المتابعة؟')) return;
+        if (!confirm('Ù…Ø¬Ù…ÙˆØ¹ Ø§Ù„Ù…Ø¨Ø§Ù„Øº ÙŠØªØ¬Ø§ÙˆØ² Ø§Ù„Ø±Ø§ØªØ¨ØŒ Ù‡Ù„ ØªØ±ÙŠØ¯ Ø§Ù„Ù…ØªØ§Ø¨Ø¹Ø©ØŸ')) return;
       }
       if (!Array.isArray(state.savingsBuckets)) state.savingsBuckets = [];
       if (editingBucketId) {
@@ -3882,34 +3006,26 @@ async function loadAllUsersForAdmin() {
 
     function deleteBucket() {
       if (!editingBucketId) return;
-      if (!confirm('هل تريد حذف هذه الحافظة؟')) return;
+      if (!confirm('Ù‡Ù„ ØªØ±ÙŠØ¯ Ø­Ø°Ù Ù‡Ø°Ù‡ Ø§Ù„Ø­Ø§ÙØ¸Ø©ØŸ')) return;
       const idx = state.savingsBuckets.findIndex(x => x.id === editingBucketId);
       if (idx !== -1) state.savingsBuckets.splice(idx, 1);
       saveState(); refreshUI(); closeBucketModal();
     }
 
-    function clearAllBuckets() {
-      if (!confirm('⚠️ هل تريد مسح جميع تقسيمات الراتب؟\n\nهذا الإجراء لا يمكن التراجع عنه!')) return;
-      state.savingsBuckets = [];
-      saveState();
-      refreshUI();
-      showToast('✓ تم مسح جميع تقسيمات الراتب بنجاح', 'success', 2000);
-    }
-
     function previewSplit() {
       const month = getSelectedMonth();
-      if (!month) { alert('اختر شهرًا أولًا.'); return; }
+      if (!month) { alert('Ø§Ø®ØªØ± Ø´Ù‡Ø±Ù‹Ø§ Ø£ÙˆÙ„Ù‹Ø§.'); return; }
       const salary = month.salary || 0;
-      if (!salary) { alert('حدّث الراتب أولًا ليتم المعاينة.'); return; }
+      if (!salary) { alert('Ø­Ø¯Ù‘Ø« Ø§Ù„Ø±Ø§ØªØ¨ Ø£ÙˆÙ„Ù‹Ø§ Ù„ÙŠØªÙ… Ø§Ù„Ù…Ø¹Ø§ÙŠÙ†Ø©.'); return; }
       const buckets = state.savingsBuckets || [];
-      if (buckets.length === 0) { alert('لا توجد حافظات لمعرفة التوزيع.'); return; }
+      if (buckets.length === 0) { alert('Ù„Ø§ ØªÙˆØ¬Ø¯ Ø­Ø§ÙØ¸Ø§Øª Ù„Ù…Ø¹Ø±ÙØ© Ø§Ù„ØªÙˆØ²ÙŠØ¹.'); return; }
 
       let totalAlloc = 0;
       const rows = buckets.map((b) => {
         const amt = b.amount || 0;
         totalAlloc += amt;
         const pct = salary ? Math.round((amt / salary) * 100) : 0;
-        return { name: b.name || 'حافظة', amount: amt, percent: pct };
+        return { name: b.name || 'Ø­Ø§ÙØ¸Ø©', amount: amt, percent: pct };
       });
       const leftover = salary - totalAlloc;
 
@@ -3936,9 +3052,9 @@ async function loadAllUsersForAdmin() {
         const wrap = document.createElement('div');
         wrap.style.display = 'flex'; wrap.style.flexDirection = 'column'; wrap.style.gap = '8px';
         wrap.innerHTML = `
-          <div><strong>الراتب:</strong> ${formatNumber(salary)}</div>
-          <div><strong>المجموع المخصوم:</strong> ${formatNumber(totalAlloc)}</div>
-          <div><strong>المتبقي:</strong> ${formatNumber(leftover)}</div>
+          <div><strong>Ø§Ù„Ø±Ø§ØªØ¨:</strong> ${formatNumber(salary)}</div>
+          <div><strong>Ø§Ù„Ù…Ø¬Ù…ÙˆØ¹ Ø§Ù„Ù…Ø®ØµÙˆÙ…:</strong> ${formatNumber(totalAlloc)}</div>
+          <div><strong>Ø§Ù„Ù…ØªØ¨Ù‚ÙŠ:</strong> ${formatNumber(leftover)}</div>
         `;
         summaryEl.appendChild(wrap);
       }
@@ -3979,15 +3095,15 @@ async function loadAllUsersForAdmin() {
 
     function applySplit() {
       const month = getSelectedMonth();
-      if (!month) { alert('اختر شهرًا أولًا.'); return; }
+      if (!month) { alert('Ø§Ø®ØªØ± Ø´Ù‡Ø±Ù‹Ø§ Ø£ÙˆÙ„Ù‹Ø§.'); return; }
       const salary = month.salary || 0;
-      if (!salary) { alert('حدّث الراتب أولًا ليتم التطبيق.'); return; }
+      if (!salary) { alert('Ø­Ø¯Ù‘Ø« Ø§Ù„Ø±Ø§ØªØ¨ Ø£ÙˆÙ„Ù‹Ø§ Ù„ÙŠØªÙ… Ø§Ù„ØªØ·Ø¨ÙŠÙ‚.'); return; }
       const buckets = state.savingsBuckets || [];
-      if (buckets.length === 0) { alert('لا توجد حافظات للتطبيق.'); return; }
+      if (buckets.length === 0) { alert('Ù„Ø§ ØªÙˆØ¬Ø¯ Ø­Ø§ÙØ¸Ø§Øª Ù„Ù„ØªØ·Ø¨ÙŠÙ‚.'); return; }
       const allocations = buckets.map((b) => ({ bucketId: b.id, name: b.name, amount: b.amount || 0, percent: salary ? Math.round(((b.amount||0)/salary)*100) : 0 }));
       month.savings = allocations;
       saveState(); refreshUI();
-      alert('✓ تم تطبيق التوزيع على الشهر.');
+      alert('âœ“ ØªÙ… ØªØ·Ø¨ÙŠÙ‚ Ø§Ù„ØªÙˆØ²ÙŠØ¹ Ø¹Ù„Ù‰ Ø§Ù„Ø´Ù‡Ø±.');
     }
 
     if (btnAddBucket) btnAddBucket.addEventListener('click', () => openBucketModal(null));
@@ -3998,15 +3114,8 @@ async function loadAllUsersForAdmin() {
     if (modalBucket) modalBucket.addEventListener('click', (e) => { if (e.target === modalBucket) closeBucketModal(); });
     if (btnPreviewSplit) btnPreviewSplit.addEventListener('click', previewSplit);
     if (btnApplySplit) btnApplySplit.addEventListener('click', applySplit);
-    if (btnClearAllBuckets) btnClearAllBuckets.addEventListener('click', clearAllBuckets);
 
-    // add-goal modal listeners
-    if (btnCloseAddGoal) btnCloseAddGoal.addEventListener('click', closeAddGoalModal);
-    if (btnCancelAddGoal) btnCancelAddGoal.addEventListener('click', closeAddGoalModal);
-    if (btnSaveAddGoal) btnSaveAddGoal.addEventListener('click', saveAddGoalAmount);
-    if (modalAddToGoal) modalAddToGoal.addEventListener('click', (e) => { if (e.target === modalAddToGoal) closeAddGoalModal(); });
-
-    /* ======= فلترة ======= */
+    /* ======= ÙÙ„ØªØ±Ø© ======= */
 
     searchInput.addEventListener("input", () => {
       filterState.search = searchInput.value;
@@ -4039,7 +3148,7 @@ async function loadAllUsersForAdmin() {
       applyTheme(current === "light" ? "dark" : "light");
     });
 
-    /* ======= لوحة التحكم: حساب إحصائيات المستخدم ======= */
+    /* ======= Ù„ÙˆØ­Ø© Ø§Ù„ØªØ­ÙƒÙ…: Ø­Ø³Ø§Ø¨ Ø¥Ø­ØµØ§Ø¦ÙŠØ§Øª Ø§Ù„Ù…Ø³ØªØ®Ø¯Ù… ======= */
 
     function computeUserStats(userState) {
       const normalized = normalizeState(userState || {});
@@ -4070,10 +3179,10 @@ async function loadAllUsersForAdmin() {
 
     async function adminDeleteUserData(uid) {
       if (!firebaseEnabled || !db) {
-        alert("لوحة التحكم تتطلب اتصالاً بالإنترنت.");
+        alert("Ù„ÙˆØ­Ø© Ø§Ù„ØªØ­ÙƒÙ… ØªØªØ·Ù„Ø¨ Ø§ØªØµØ§Ù„Ø§Ù‹ Ø¨Ø§Ù„Ø¥Ù†ØªØ±Ù†Øª.");
         return;
       }
-      if (!confirm("هل أنت متأكد من حذف جميع بيانات هذا المستخدم من قاعدة البيانات؟")) {
+      if (!confirm("Ù‡Ù„ Ø£Ù†Øª Ù…ØªØ£ÙƒØ¯ Ù…Ù† Ø­Ø°Ù Ø¬Ù…ÙŠØ¹ Ø¨ÙŠØ§Ù†Ø§Øª Ù‡Ø°Ø§ Ø§Ù„Ù…Ø³ØªØ®Ø¯Ù… Ù…Ù† Ù‚Ø§Ø¹Ø¯Ø© Ø§Ù„Ø¨ÙŠØ§Ù†Ø§ØªØŸ")) {
         return;
       }
       try {
@@ -4082,13 +3191,13 @@ async function loadAllUsersForAdmin() {
         await loadAdminUsers(true);
       } catch (e) {
         console.error(e);
-        alert("تعذر حذف بيانات المستخدم.");
+        alert("ØªØ¹Ø°Ø± Ø­Ø°Ù Ø¨ÙŠØ§Ù†Ø§Øª Ø§Ù„Ù…Ø³ØªØ®Ø¯Ù….");
       }
     }
 
     async function adminToggleUserDisabled(uid, currentlyDisabled) {
       if (!firebaseEnabled || !db) {
-        alert("لوحة التحكم تتطلب اتصالاً بالإنترنت.");
+        alert("Ù„ÙˆØ­Ø© Ø§Ù„ØªØ­ÙƒÙ… ØªØªØ·Ù„Ø¨ Ø§ØªØµØ§Ù„Ø§Ù‹ Ø¨Ø§Ù„Ø¥Ù†ØªØ±Ù†Øª.");
         return;
       }
       const newValue = !currentlyDisabled;
@@ -4098,24 +3207,24 @@ async function loadAllUsersForAdmin() {
         await loadAdminUsers(true);
       } catch (e) {
         console.error(e);
-        alert("تعذر تغيير حالة المستخدم.");
+        alert("ØªØ¹Ø°Ø± ØªØºÙŠÙŠØ± Ø­Ø§Ù„Ø© Ø§Ù„Ù…Ø³ØªØ®Ø¯Ù….");
       }
     }
 
     async function loadAdminUsers(forceReload = false) {
       if (!firebaseEnabled || !db || !currentUser) {
         adminUsersContainer.innerHTML =
-          '<div class="empty-state">لوحة التحكم تتطلب اتصالاً بالإنترنت وFirebase.</div>';
+          '<div class="empty-state">Ù„ÙˆØ­Ø© Ø§Ù„ØªØ­ÙƒÙ… ØªØªØ·Ù„Ø¨ Ø§ØªØµØ§Ù„Ø§Ù‹ Ø¨Ø§Ù„Ø¥Ù†ØªØ±Ù†Øª ÙˆFirebase.</div>';
         return;
       }
       if (currentUser.uid !== ADMIN_UID) {
         adminUsersContainer.innerHTML =
-          '<div class="empty-state">ليست لديك صلاحية عرض لوحة التحكم.</div>';
+          '<div class="empty-state">Ù„ÙŠØ³Øª Ù„Ø¯ÙŠÙƒ ØµÙ„Ø§Ø­ÙŠØ© Ø¹Ø±Ø¶ Ù„ÙˆØ­Ø© Ø§Ù„ØªØ­ÙƒÙ….</div>';
         return;
       }
 
       adminUsersContainer.innerHTML =
-        '<div class="empty-state">جاري تحميل بيانات المستخدمين...</div>';
+        '<div class="empty-state">Ø¬Ø§Ø±ÙŠ ØªØ­Ù…ÙŠÙ„ Ø¨ÙŠØ§Ù†Ø§Øª Ø§Ù„Ù…Ø³ØªØ®Ø¯Ù…ÙŠÙ†...</div>';
 
       try {
         // fetch once and cache; if forced reload (refresh button) or cache empty
@@ -4124,7 +3233,7 @@ async function loadAllUsersForAdmin() {
           const usersSnap = await get(ref(db, "users"));
           if (!usersSnap.exists()) {
             adminUsersContainer.innerHTML =
-              '<div class="empty-state">لا يوجد أي مستخدمين بعد.</div>';
+              '<div class="empty-state">Ù„Ø§ ÙŠÙˆØ¬Ø¯ Ø£ÙŠ Ù…Ø³ØªØ®Ø¯Ù…ÙŠÙ† Ø¨Ø¹Ø¯.</div>';
             adminUsersCache = [];
             updateAdminStats();
             return;
@@ -4140,7 +3249,7 @@ async function loadAllUsersForAdmin() {
       } catch (e) {
         console.error(e);
         adminUsersContainer.innerHTML =
-          '<div class="empty-state">تعذر تحميل بيانات المستخدمين.</div>';
+          '<div class="empty-state">ØªØ¹Ø°Ø± ØªØ­Ù…ÙŠÙ„ Ø¨ÙŠØ§Ù†Ø§Øª Ø§Ù„Ù…Ø³ØªØ®Ø¯Ù…ÙŠÙ†.</div>';
       }
     }
 
@@ -4152,9 +3261,9 @@ async function loadAllUsersForAdmin() {
       const active = total - disabled;
       if (adminStatsEl) {
         adminStatsEl.innerHTML = `
-          <span>المستخدمون: ${total}</span>
-          <span>النشطون: ${active}</span>
-          <span>المعطَّلون: ${disabled}</span>
+          <span>Ø§Ù„Ù…Ø³ØªØ®Ø¯Ù…ÙˆÙ†: ${total}</span>
+          <span>Ø§Ù„Ù†Ø´Ø·ÙˆÙ†: ${active}</span>
+          <span>Ø§Ù„Ù…Ø¹Ø·Ù‘ÙŽÙ„ÙˆÙ†: ${disabled}</span>
         `;
       }
     }
@@ -4191,7 +3300,7 @@ async function loadAllUsersForAdmin() {
 
         const emailEl = document.createElement("div");
         emailEl.className = "admin-user-email";
-        emailEl.textContent = profile.email || "(بدون بريد محفوظ)";
+        emailEl.textContent = profile.email || "(Ø¨Ø¯ÙˆÙ† Ø¨Ø±ÙŠØ¯ Ù…Ø­ÙÙˆØ¸)";
         const uidEl = document.createElement("div");
         uidEl.className = "admin-user-uid";
         uidEl.textContent = "UID: " + uid;
@@ -4204,14 +3313,14 @@ async function loadAllUsersForAdmin() {
           const statusBadge = document.createElement("span");
           statusBadge.className =
             "admin-badge " + (disabled ? "admin-badge-disabled" : "admin-badge-active");
-          statusBadge.textContent = disabled ? "معطّل" : "نشط";
+          statusBadge.textContent = disabled ? "Ù…Ø¹Ø·Ù‘Ù„" : "Ù†Ø´Ø·";
 
           badgesContainer.appendChild(statusBadge);
 
           if (isOwner) {
             const ownerBadge = document.createElement("span");
             ownerBadge.className = "admin-badge admin-badge-admin";
-            ownerBadge.textContent = "مالك النظام";
+            ownerBadge.textContent = "Ù…Ø§Ù„Ùƒ Ø§Ù„Ù†Ø¸Ø§Ù…";
             badgesContainer.appendChild(ownerBadge);
           }
 
@@ -4236,11 +3345,11 @@ async function loadAllUsersForAdmin() {
             return line;
           }
 
-          statsEl.appendChild(makeStat("إجمالي الرواتب:", formatNumber(stats.totalSalary)));
-          statsEl.appendChild(makeStat("إجمالي المصاريف:", formatNumber(stats.totalExpenses)));
-          statsEl.appendChild(makeStat("المتبقي الإجمالي:", formatNumber(stats.remaining)));
-          statsEl.appendChild(makeStat("عدد الأشهر:", stats.monthsCount));
-          statsEl.appendChild(makeStat("عدد المصاريف:", stats.expensesCount));
+          statsEl.appendChild(makeStat("Ø¥Ø¬Ù…Ø§Ù„ÙŠ Ø§Ù„Ø±ÙˆØ§ØªØ¨:", formatNumber(stats.totalSalary)));
+          statsEl.appendChild(makeStat("Ø¥Ø¬Ù…Ø§Ù„ÙŠ Ø§Ù„Ù…ØµØ§Ø±ÙŠÙ:", formatNumber(stats.totalExpenses)));
+          statsEl.appendChild(makeStat("Ø§Ù„Ù…ØªØ¨Ù‚ÙŠ Ø§Ù„Ø¥Ø¬Ù…Ø§Ù„ÙŠ:", formatNumber(stats.remaining)));
+          statsEl.appendChild(makeStat("Ø¹Ø¯Ø¯ Ø§Ù„Ø£Ø´Ù‡Ø±:", stats.monthsCount));
+          statsEl.appendChild(makeStat("Ø¹Ø¯Ø¯ Ø§Ù„Ù…ØµØ§Ø±ÙŠÙ:", stats.expensesCount));
 
           // Actions
           const actions = document.createElement("div");
@@ -4249,7 +3358,7 @@ async function loadAllUsersForAdmin() {
           if (!isOwner) {
             const toggleBtn = document.createElement("button");
             toggleBtn.className = "btn-soft";
-            toggleBtn.textContent = disabled ? "إلغاء التعطيل" : "تعطيل المستخدم";
+            toggleBtn.textContent = disabled ? "Ø¥Ù„ØºØ§Ø¡ Ø§Ù„ØªØ¹Ø·ÙŠÙ„" : "ØªØ¹Ø·ÙŠÙ„ Ø§Ù„Ù…Ø³ØªØ®Ø¯Ù…";
             toggleBtn.addEventListener("click", () => {
               adminToggleUserDisabled(uid, disabled);
             });
@@ -4257,7 +3366,7 @@ async function loadAllUsersForAdmin() {
 
             const deleteBtn = document.createElement("button");
             deleteBtn.className = "btn-danger-soft";
-            deleteBtn.textContent = "🗑️ حذف جميع البيانات";
+            deleteBtn.textContent = "ðŸ—‘ï¸ Ø­Ø°Ù Ø¬Ù…ÙŠØ¹ Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª";
             deleteBtn.addEventListener("click", () => {
               adminDeleteUserData(uid);
             });
@@ -4265,7 +3374,7 @@ async function loadAllUsersForAdmin() {
           } else {
             const infoOwner = document.createElement("div");
             infoOwner.className = "admin-note";
-            infoOwner.textContent = "لا يمكن حذف أو تعطيل مالك النظام.";
+            infoOwner.textContent = "Ù„Ø§ ÙŠÙ…ÙƒÙ† Ø­Ø°Ù Ø£Ùˆ ØªØ¹Ø·ÙŠÙ„ Ù…Ø§Ù„Ùƒ Ø§Ù„Ù†Ø¸Ø§Ù….";
             actions.appendChild(infoOwner);
           }
 
@@ -4282,7 +3391,7 @@ async function loadAllUsersForAdmin() {
           if (monthsSorted.length === 0) {
             const empty = document.createElement("div");
             empty.className = "admin-note";
-            empty.textContent = "لا يوجد أشهر محفوظة لهذا المستخدم.";
+            empty.textContent = "Ù„Ø§ ÙŠÙˆØ¬Ø¯ Ø£Ø´Ù‡Ø± Ù…Ø­ÙÙˆØ¸Ø© Ù„Ù‡Ø°Ø§ Ø§Ù„Ù…Ø³ØªØ®Ø¯Ù….";
             monthsContainer.appendChild(empty);
           } else {
             monthsSorted.forEach((m) => {
@@ -4296,7 +3405,7 @@ async function loadAllUsersForAdmin() {
               const statsSpan = document.createElement("span");
               const mTotal = (Array.isArray(m.expenses) ? m.expenses.reduce((s, e) => s + (e.amount || 0), 0) : 0);
               const mRemaining = (m.salary || 0) - mTotal;
-              statsSpan.textContent = `الراتب: ${formatNumber(m.salary || 0)} · المصاريف: ${formatNumber(mTotal)} · المتبقي: ${formatNumber(mRemaining)}`;
+              statsSpan.textContent = `Ø§Ù„Ø±Ø§ØªØ¨: ${formatNumber(m.salary || 0)} Â· Ø§Ù„Ù…ØµØ§Ø±ÙŠÙ: ${formatNumber(mTotal)} Â· Ø§Ù„Ù…ØªØ¨Ù‚ÙŠ: ${formatNumber(mRemaining)}`;
               mHeader.appendChild(nameSpan);
               mHeader.appendChild(statsSpan);
 
@@ -4314,7 +3423,7 @@ async function loadAllUsersForAdmin() {
               if (expensesArr.length === 0) {
                 const emptyRow = document.createElement("div");
                 emptyRow.className = "empty-state";
-                emptyRow.textContent = "لا توجد مصاريف لهذا الشهر.";
+                emptyRow.textContent = "Ù„Ø§ ØªÙˆØ¬Ø¯ Ù…ØµØ§Ø±ÙŠÙ Ù„Ù‡Ø°Ø§ Ø§Ù„Ø´Ù‡Ø±.";
                 mExpenses.appendChild(emptyRow);
               } else {
                 expensesArr.forEach((ex) => {
@@ -4324,12 +3433,12 @@ async function loadAllUsersForAdmin() {
                   const left = document.createElement("div");
                   left.style.flex = "1";
                   const t = document.createElement("div");
-                  t.textContent = ex.title || "بدون عنوان";
+                  t.textContent = ex.title || "Ø¨Ø¯ÙˆÙ† Ø¹Ù†ÙˆØ§Ù†";
                   t.style.fontWeight = "600";
                   const meta = document.createElement("div");
                   meta.style.fontSize = "12px";
                   meta.style.color = "var(--subtext-color)";
-                  meta.textContent = `${ex.category || 'غير محدد'} · ${ex.date || 'بدون تاريخ'}`;
+                  meta.textContent = `${ex.category || 'ØºÙŠØ± Ù…Ø­Ø¯Ø¯'} Â· ${ex.date || 'Ø¨Ø¯ÙˆÙ† ØªØ§Ø±ÙŠØ®'}`;
                   if (ex.note) {
                     const note = document.createElement("div");
                     note.style.fontSize = "12px";
@@ -4355,7 +3464,7 @@ async function loadAllUsersForAdmin() {
                   if (ex.imageDataUrl) {
                     const img = document.createElement("img");
                     img.src = ex.imageDataUrl;
-                    img.alt = "صورة المصروف";
+                    img.alt = "ØµÙˆØ±Ø© Ø§Ù„Ù…ØµØ±ÙˆÙ";
                     img.style.height = "40px";
                     img.style.borderRadius = "6px";
                     img.style.marginLeft = "8px";
@@ -4386,14 +3495,14 @@ async function loadAllUsersForAdmin() {
 
         if (shown === 0) {
           adminUsersContainer.innerHTML =
-            '<div class="empty-state">لا يوجد مستخدمون مطابقون للبحث.</div>';
+            '<div class="empty-state">Ù„Ø§ ÙŠÙˆØ¬Ø¯ Ù…Ø³ØªØ®Ø¯Ù…ÙˆÙ† Ù…Ø·Ø§Ø¨Ù‚ÙˆÙ† Ù„Ù„Ø¨Ø­Ø«.</div>';
         } else {
           adminUsersContainer.innerHTML = "";
           adminUsersContainer.appendChild(fragment);
         }
     }
 
-    // تحميل حالة قفل التسجيل من Firebase
+    // ØªØ­Ù…ÙŠÙ„ Ø­Ø§Ù„Ø© Ù‚ÙÙ„ Ø§Ù„ØªØ³Ø¬ÙŠÙ„ Ù…Ù† Firebase
     async function loadRegistrationStatus() {
       if (!firebaseEnabled || !db) return;
       try {
@@ -4407,7 +3516,7 @@ async function loadAllUsersForAdmin() {
       }
     }
 
-    // تحديث واجهة قفل التسجيل
+    // ØªØ­Ø¯ÙŠØ« ÙˆØ§Ø¬Ù‡Ø© Ù‚ÙÙ„ Ø§Ù„ØªØ³Ø¬ÙŠÙ„
     function updateRegistrationUI(isEnabled) {
       if (btnToggleRegistration) {
         btnToggleRegistration.classList.toggle("active", isEnabled);
@@ -4416,7 +3525,7 @@ async function loadAllUsersForAdmin() {
       }
     }
 
-    // تبديل حالة التسجيل
+    // ØªØ¨Ø¯ÙŠÙ„ Ø­Ø§Ù„Ø© Ø§Ù„ØªØ³Ø¬ÙŠÙ„
     async function toggleRegistration() {
       if (!firebaseEnabled || !db || currentUser?.uid !== ADMIN_UID) {
         return;
@@ -4438,52 +3547,52 @@ async function loadAllUsersForAdmin() {
       }
     }
 
-    // تغيير كلمة السر
+    // ØªØºÙŠÙŠØ± ÙƒÙ„Ù…Ø© Ø§Ù„Ø³Ø±
     async function changePassword() {
       const current = modalCurrentPassword?.value?.trim();
       const newPwd = modalNewPassword?.value?.trim();
       const confirmPwd = modalConfirmPassword?.value?.trim();
 
-      // التحقق من المدخلات
+      // Ø§Ù„ØªØ­Ù‚Ù‚ Ù…Ù† Ø§Ù„Ù…Ø¯Ø®Ù„Ø§Øª
       if (!current) {
-        showModalPasswordMessage("الرجاء إدخال كلمة السر الحالية.", "error");
+        showModalPasswordMessage("Ø§Ù„Ø±Ø¬Ø§Ø¡ Ø¥Ø¯Ø®Ø§Ù„ ÙƒÙ„Ù…Ø© Ø§Ù„Ø³Ø± Ø§Ù„Ø­Ø§Ù„ÙŠØ©.", "error");
         return;
       }
       if (!newPwd) {
-        showModalPasswordMessage("الرجاء إدخال كلمة السر الجديدة.", "error");
+        showModalPasswordMessage("Ø§Ù„Ø±Ø¬Ø§Ø¡ Ø¥Ø¯Ø®Ø§Ù„ ÙƒÙ„Ù…Ø© Ø§Ù„Ø³Ø± Ø§Ù„Ø¬Ø¯ÙŠØ¯Ø©.", "error");
         return;
       }
       if (newPwd.length < 6) {
-        showModalPasswordMessage("كلمة السر يجب أن تكون 6 أحرف على الأقل.", "error");
+        showModalPasswordMessage("ÙƒÙ„Ù…Ø© Ø§Ù„Ø³Ø± ÙŠØ¬Ø¨ Ø£Ù† ØªÙƒÙˆÙ† 6 Ø£Ø­Ø±Ù Ø¹Ù„Ù‰ Ø§Ù„Ø£Ù‚Ù„.", "error");
         return;
       }
       if (newPwd !== confirmPwd) {
-        showModalPasswordMessage("كلمة السر الجديدة وتأكيدها غير متطابقة.", "error");
+        showModalPasswordMessage("ÙƒÙ„Ù…Ø© Ø§Ù„Ø³Ø± Ø§Ù„Ø¬Ø¯ÙŠØ¯Ø© ÙˆØªØ£ÙƒÙŠØ¯Ù‡Ø§ ØºÙŠØ± Ù…ØªØ·Ø§Ø¨Ù‚Ø©.", "error");
         return;
       }
       if (newPwd === current) {
-        showModalPasswordMessage("كلمة السر الجديدة يجب أن تكون مختلفة عن الحالية.", "error");
+        showModalPasswordMessage("ÙƒÙ„Ù…Ø© Ø§Ù„Ø³Ø± Ø§Ù„Ø¬Ø¯ÙŠØ¯Ø© ÙŠØ¬Ø¨ Ø£Ù† ØªÙƒÙˆÙ† Ù…Ø®ØªÙ„ÙØ© Ø¹Ù† Ø§Ù„Ø­Ø§Ù„ÙŠØ©.", "error");
         return;
       }
 
       try {
         btnModalChangePassword.disabled = true;
-        btnModalChangePassword.textContent = "⏳ جاري التحديث...";
+        btnModalChangePassword.textContent = "â³ Ø¬Ø§Ø±ÙŠ Ø§Ù„ØªØ­Ø¯ÙŠØ«...";
 
-        // إعادة المصادقة
+        // Ø¥Ø¹Ø§Ø¯Ø© Ø§Ù„Ù…ØµØ§Ø¯Ù‚Ø©
         const email = currentUser.email;
         const credential = EmailAuthProvider.credential(email, current);
         await reauthenticateWithCredential(currentUser, credential);
 
-        // تحديث كلمة السر
+        // ØªØ­Ø¯ÙŠØ« ÙƒÙ„Ù…Ø© Ø§Ù„Ø³Ø±
         await updatePassword(currentUser, newPwd);
 
-        // مسح الحقول
+        // Ù…Ø³Ø­ Ø§Ù„Ø­Ù‚ÙˆÙ„
         modalCurrentPassword.value = "";
         modalNewPassword.value = "";
         modalConfirmPassword.value = "";
 
-        showModalPasswordMessage("✓ تم تحديث كلمة السر بنجاح.", "success");
+        showModalPasswordMessage("âœ“ ØªÙ… ØªØ­Ø¯ÙŠØ« ÙƒÙ„Ù…Ø© Ø§Ù„Ø³Ø± Ø¨Ù†Ø¬Ø§Ø­.", "success");
         setTimeout(() => {
           closePasswordModal();
         }, 1500);
@@ -4491,28 +3600,28 @@ async function loadAllUsersForAdmin() {
         console.error("Error changing password:", err);
 
         if (err.code === "auth/wrong-password") {
-          showModalPasswordMessage("كلمة السر الحالية غير صحيحة.", "error");
+          showModalPasswordMessage("ÙƒÙ„Ù…Ø© Ø§Ù„Ø³Ø± Ø§Ù„Ø­Ø§Ù„ÙŠØ© ØºÙŠØ± ØµØ­ÙŠØ­Ø©.", "error");
         } else if (err.code === "auth/weak-password") {
-          showModalPasswordMessage("كلمة السر ضعيفة جداً.", "error");
+          showModalPasswordMessage("ÙƒÙ„Ù…Ø© Ø§Ù„Ø³Ø± Ø¶Ø¹ÙŠÙØ© Ø¬Ø¯Ø§Ù‹.", "error");
         } else if (err.code === "auth/requires-recent-login") {
-          showModalPasswordMessage("الرجاء تسجيل الدخول مرة أخرى ثم حاول.", "error");
+          showModalPasswordMessage("Ø§Ù„Ø±Ø¬Ø§Ø¡ ØªØ³Ø¬ÙŠÙ„ Ø§Ù„Ø¯Ø®ÙˆÙ„ Ù…Ø±Ø© Ø£Ø®Ø±Ù‰ Ø«Ù… Ø­Ø§ÙˆÙ„.", "error");
         } else {
-          showModalPasswordMessage("تعذر تحديث كلمة السر: " + (err.message || "خطأ غير معروف"), "error");
+          showModalPasswordMessage("ØªØ¹Ø°Ø± ØªØ­Ø¯ÙŠØ« ÙƒÙ„Ù…Ø© Ø§Ù„Ø³Ø±: " + (err.message || "Ø®Ø·Ø£ ØºÙŠØ± Ù…Ø¹Ø±ÙˆÙ"), "error");
         }
       } finally {
         btnModalChangePassword.disabled = false;
-        btnModalChangePassword.textContent = "✓ تحديث كلمة السر";
+        btnModalChangePassword.textContent = "âœ“ ØªØ­Ø¯ÙŠØ« ÙƒÙ„Ù…Ø© Ø§Ù„Ø³Ø±";
       }
     }
 
-    // عرض رسالة تحديث كلمة السر في المودال
+    // Ø¹Ø±Ø¶ Ø±Ø³Ø§Ù„Ø© ØªØ­Ø¯ÙŠØ« ÙƒÙ„Ù…Ø© Ø§Ù„Ø³Ø± ÙÙŠ Ø§Ù„Ù…ÙˆØ¯Ø§Ù„
     function showModalPasswordMessage(message, type) {
       if (!modalPasswordMessage) return;
       modalPasswordMessage.textContent = message;
       modalPasswordMessage.className = type === "success" ? "password-success" : "password-error";
     }
 
-    // فتح مودال تغيير كلمة السر
+    // ÙØªØ­ Ù…ÙˆØ¯Ø§Ù„ ØªØºÙŠÙŠØ± ÙƒÙ„Ù…Ø© Ø§Ù„Ø³Ø±
     function openPasswordModal() {
       if (modalPassword) {
         modalPassword.style.display = "flex";
@@ -4522,7 +3631,7 @@ async function loadAllUsersForAdmin() {
       }
     }
 
-    // إغلاق مودال تغيير كلمة السر
+    // Ø¥ØºÙ„Ø§Ù‚ Ù…ÙˆØ¯Ø§Ù„ ØªØºÙŠÙŠØ± ÙƒÙ„Ù…Ø© Ø§Ù„Ø³Ø±
     function closePasswordModal() {
       if (modalPassword) {
         modalPassword.style.display = "none";
@@ -4534,27 +3643,27 @@ async function loadAllUsersForAdmin() {
       }
     }
 
-    // زر قفل/فتح التسجيل (في لوحة التحكم فقط)
+    // Ø²Ø± Ù‚ÙÙ„/ÙØªØ­ Ø§Ù„ØªØ³Ø¬ÙŠÙ„ (ÙÙŠ Ù„ÙˆØ­Ø© Ø§Ù„ØªØ­ÙƒÙ… ÙÙ‚Ø·)
     if (btnToggleRegistration) {
       btnToggleRegistration.addEventListener("click", toggleRegistration);
     }
 
-    // زر تغيير كلمة السر من الرأس
+    // Ø²Ø± ØªØºÙŠÙŠØ± ÙƒÙ„Ù…Ø© Ø§Ù„Ø³Ø± Ù…Ù† Ø§Ù„Ø±Ø£Ø³
     if (btnChangePasswordQuick) {
       btnChangePasswordQuick.addEventListener("click", openPasswordModal);
     }
 
-    // إغلاق مودال تغيير كلمة السر
+    // Ø¥ØºÙ„Ø§Ù‚ Ù…ÙˆØ¯Ø§Ù„ ØªØºÙŠÙŠØ± ÙƒÙ„Ù…Ø© Ø§Ù„Ø³Ø±
     if (btnClosePassword) {
       btnClosePassword.addEventListener("click", closePasswordModal);
     }
 
-    // زر تحديث كلمة السر في المودال
+    // Ø²Ø± ØªØ­Ø¯ÙŠØ« ÙƒÙ„Ù…Ø© Ø§Ù„Ø³Ø± ÙÙŠ Ø§Ù„Ù…ÙˆØ¯Ø§Ù„
     if (btnModalChangePassword) {
       btnModalChangePassword.addEventListener("click", changePassword);
     }
 
-    // إغلاق المودال عند النقر خارجه
+    // Ø¥ØºÙ„Ø§Ù‚ Ø§Ù„Ù…ÙˆØ¯Ø§Ù„ Ø¹Ù†Ø¯ Ø§Ù„Ù†Ù‚Ø± Ø®Ø§Ø±Ø¬Ù‡
     if (modalPassword) {
       modalPassword.addEventListener("click", (e) => {
         if (e.target === modalPassword) {
@@ -4563,7 +3672,7 @@ async function loadAllUsersForAdmin() {
       });
     }
 
-    // تحميل حالة التسجيل عند فتح لوحة التحكم
+    // ØªØ­Ù…ÙŠÙ„ Ø­Ø§Ù„Ø© Ø§Ù„ØªØ³Ø¬ÙŠÙ„ Ø¹Ù†Ø¯ ÙØªØ­ Ù„ÙˆØ­Ø© Ø§Ù„ØªØ­ÙƒÙ…
     let registrationLoaded = false;
     if (adminTabBtn) {
       adminTabBtn.addEventListener("click", () => {
@@ -4574,20 +3683,20 @@ async function loadAllUsersForAdmin() {
       });
     }
 
-    // زر تحديث بيانات لوحة التحكم (يعمل على إعادة تحميل قائمة المستخدمين)
+    // Ø²Ø± ØªØ­Ø¯ÙŠØ« Ø¨ÙŠØ§Ù†Ø§Øª Ù„ÙˆØ­Ø© Ø§Ù„ØªØ­ÙƒÙ… (ÙŠØ¹Ù…Ù„ Ø¹Ù„Ù‰ Ø¥Ø¹Ø§Ø¯Ø© ØªØ­Ù…ÙŠÙ„ Ù‚Ø§Ø¦Ù…Ø© Ø§Ù„Ù…Ø³ØªØ®Ø¯Ù…ÙŠÙ†)
     if (btnAdminRefresh) {
       btnAdminRefresh.addEventListener("click", async () => {
         const prevText = btnAdminRefresh.textContent;
         try {
           btnAdminRefresh.disabled = true;
-          btnAdminRefresh.textContent = "🔄 جاري التحديث...";
+          btnAdminRefresh.textContent = "ðŸ”„ Ø¬Ø§Ø±ÙŠ Ø§Ù„ØªØ­Ø¯ÙŠØ«...";
           adminUsersCache = null;
           await loadAdminUsers(true);
           await loadRegistrationStatus();
 
         } catch (err) {
           console.error(err);
-          alert("تعذر تحديث بيانات المستخدمين.");
+          alert("ØªØ¹Ø°Ø± ØªØ­Ø¯ÙŠØ« Ø¨ÙŠØ§Ù†Ø§Øª Ø§Ù„Ù…Ø³ØªØ®Ø¯Ù…ÙŠÙ†.");
         } finally {
           btnAdminRefresh.textContent = prevText;
           btnAdminRefresh.disabled = false;
@@ -4707,11 +3816,11 @@ async function loadAllUsersForAdmin() {
         // remember last uid locally to speed up UI on refresh
         try { localStorage.setItem(LAST_UID_KEY, currentUser.uid); } catch (e) {}
 
-  /* 🔒 التحقق إذا كان المستخدم معطّلاً */
+  /* ðŸ”’ Ø§Ù„ØªØ­Ù‚Ù‚ Ø¥Ø°Ø§ ÙƒØ§Ù† Ø§Ù„Ù…Ø³ØªØ®Ø¯Ù… Ù…Ø¹Ø·Ù‘Ù„Ø§Ù‹ */
   try {
     const disabledSnap = await get(ref(db, "users/" + currentUser.uid + "/disabled"));
     if (disabledSnap.exists() && disabledSnap.val() === true) {
-      alert("تم تعطيل حسابك من قبل الإدارة.");
+      alert("ØªÙ… ØªØ¹Ø·ÙŠÙ„ Ø­Ø³Ø§Ø¨Ùƒ Ù…Ù† Ù‚Ø¨Ù„ Ø§Ù„Ø¥Ø¯Ø§Ø±Ø©.");
       await signOut(auth);
       return;
     }
@@ -4719,7 +3828,7 @@ async function loadAllUsersForAdmin() {
     console.warn("Failed to check disabled flag:", e);
   }
 
-  /* 📌 تحديث بروفايل المستخدم داخل قاعدة البيانات */
+  /* ðŸ“Œ ØªØ­Ø¯ÙŠØ« Ø¨Ø±ÙˆÙØ§ÙŠÙ„ Ø§Ù„Ù…Ø³ØªØ®Ø¯Ù… Ø¯Ø§Ø®Ù„ Ù‚Ø§Ø¹Ø¯Ø© Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª */
   try {
     await set(ref(db, "users/" + currentUser.uid + "/profile"), {
       email: currentUser.email || "",
@@ -4728,7 +3837,7 @@ async function loadAllUsersForAdmin() {
     console.warn("Failed to update user profile:", e);
   }
 
-  /* � نقل الحالة المحلية من 'guest' إذا كانت موجودة */
+  /* ï¿½ Ù†Ù‚Ù„ Ø§Ù„Ø­Ø§Ù„Ø© Ø§Ù„Ù…Ø­Ù„ÙŠØ© Ù…Ù† 'guest' Ø¥Ø°Ø§ ÙƒØ§Ù†Øª Ù…ÙˆØ¬ÙˆØ¯Ø© */
   function migrateGuestData() {
     try {
       const guestKey = STORAGE_KEY_PREFIX + "guest";
@@ -4736,24 +3845,24 @@ async function loadAllUsersForAdmin() {
       if (guestKey === userKey) return;
       const guestRaw = localStorage.getItem(guestKey);
       if (!guestRaw) return;
-      // لا تقوم بالكتابة فوق بيانات المستخدم إذا كان لديه بالفعل شيء
+      // Ù„Ø§ ØªÙ‚ÙˆÙ… Ø¨Ø§Ù„ÙƒØªØ§Ø¨Ø© ÙÙˆÙ‚ Ø¨ÙŠØ§Ù†Ø§Øª Ø§Ù„Ù…Ø³ØªØ®Ø¯Ù… Ø¥Ø°Ø§ ÙƒØ§Ù† Ù„Ø¯ÙŠÙ‡ Ø¨Ø§Ù„ÙØ¹Ù„ Ø´ÙŠØ¡
       if (!localStorage.getItem(userKey)) {
         const parsed = JSON.parse(guestRaw);
         const norm = normalizeState(parsed);
         localStorage.setItem(userKey, JSON.stringify(norm));
         state = norm;
       }
-      // لا تحذف البيانات فوراً؛ قد يحتاج المستخدم لوصول مضاعف
+      // Ù„Ø§ ØªØ­Ø°Ù Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª ÙÙˆØ±Ø§Ù‹Ø› Ù‚Ø¯ ÙŠØ­ØªØ§Ø¬ Ø§Ù„Ù…Ø³ØªØ®Ø¯Ù… Ù„ÙˆØµÙˆÙ„ Ù…Ø¶Ø§Ø¹Ù
     } catch (e) {
       console.warn("Guest migration failed", e);
     }
   }
   migrateGuestData();
 
-  /* �📧 إظهار بريد المستخدم */
+  /* ï¿½ðŸ“§ Ø¥Ø¸Ù‡Ø§Ø± Ø¨Ø±ÙŠØ¯ Ø§Ù„Ù…Ø³ØªØ®Ø¯Ù… */
   userEmailLabel.textContent = user.email || "";
 
-  /* 👑 إظهار تبويب لوحة التحكم إذا كان المستخدم هو المدير */
+  /* ðŸ‘‘ Ø¥Ø¸Ù‡Ø§Ø± ØªØ¨ÙˆÙŠØ¨ Ù„ÙˆØ­Ø© Ø§Ù„ØªØ­ÙƒÙ… Ø¥Ø°Ø§ ÙƒØ§Ù† Ø§Ù„Ù…Ø³ØªØ®Ø¯Ù… Ù‡Ùˆ Ø§Ù„Ù…Ø¯ÙŠØ± */
   if (adminTabBtn) {
     if (currentUser.uid === ADMIN_UID) {
       adminTabBtn.style.display = "block";
@@ -4763,17 +3872,17 @@ async function loadAllUsersForAdmin() {
     }
   }
 
-  /* ☁️ تحميل بيانات المستخدم */
-  // في حالة وجود بيانات مخزنة محلياً باسم مستخدم آخر أو guest، ستقوم الدالة
-  // السابقة بدمجها مع المفتاح الحالي قبل تحميل أي أشياء.
+  /* â˜ï¸ ØªØ­Ù…ÙŠÙ„ Ø¨ÙŠØ§Ù†Ø§Øª Ø§Ù„Ù…Ø³ØªØ®Ø¯Ù… */
+  // ÙÙŠ Ø­Ø§Ù„Ø© ÙˆØ¬ÙˆØ¯ Ø¨ÙŠØ§Ù†Ø§Øª Ù…Ø®Ø²Ù†Ø© Ù…Ø­Ù„ÙŠØ§Ù‹ Ø¨Ø§Ø³Ù… Ù…Ø³ØªØ®Ø¯Ù… Ø¢Ø®Ø± Ø£Ùˆ guestØŒ Ø³ØªÙ‚ÙˆÙ… Ø§Ù„Ø¯Ø§Ù„Ø©
+  // Ø§Ù„Ø³Ø§Ø¨Ù‚Ø© Ø¨Ø¯Ù…Ø¬Ù‡Ø§ Ù…Ø¹ Ø§Ù„Ù…ÙØªØ§Ø­ Ø§Ù„Ø­Ø§Ù„ÙŠ Ù‚Ø¨Ù„ ØªØ­Ù…ÙŠÙ„ Ø£ÙŠ Ø£Ø´ÙŠØ§Ø¡.
   loadStateLocal();
   state = normalizeState(state);
 
-  // بعد تحميل محلياً، حاول جلب/مزامنة النسخة البعيدة
+  // Ø¨Ø¹Ø¯ ØªØ­Ù…ÙŠÙ„ Ù…Ø­Ù„ÙŠØ§Ù‹ØŒ Ø­Ø§ÙˆÙ„ Ø¬Ù„Ø¨/Ù…Ø²Ø§Ù…Ù†Ø© Ø§Ù„Ù†Ø³Ø®Ø© Ø§Ù„Ø¨Ø¹ÙŠØ¯Ø©
   await loadStateRemoteIfExists();
   state = normalizeState(state);
   
-  // اختيار الشهر الحالي تلقائياً
+  // Ø§Ø®ØªÙŠØ§Ø± Ø§Ù„Ø´Ù‡Ø± Ø§Ù„Ø­Ø§Ù„ÙŠ ØªÙ„Ù‚Ø§Ø¦ÙŠØ§Ù‹
   selectCurrentMonth();
   
   // if we brought in guest data or made local changes, ensure remote copy is updated
@@ -4783,10 +3892,10 @@ async function loadAllUsersForAdmin() {
   // listener should also be active after initial sync
   startRemoteListener();
 
-  /* تحميل القسم المحمي */
+  /* ØªØ­Ù…ÙŠÙ„ Ø§Ù„Ù‚Ø³Ù… Ø§Ù„Ù…Ø­Ù…ÙŠ */
   loadPrivateState();
 
-  /* 🔄 عرض واجهة التطبيق */
+  /* ðŸ”„ Ø¹Ø±Ø¶ ÙˆØ§Ø¬Ù‡Ø© Ø§Ù„ØªØ·Ø¨ÙŠÙ‚ */
   if (appLoader) appLoader.style.display = "none";
   loginView.style.display = "none";
   appView.style.display = "block";
@@ -4803,8 +3912,8 @@ async function loadAllUsersForAdmin() {
   await refreshUI();
 
 } else {
-  /* 🚪 حالة تسجيل الخروج */
-  // بعد تحديث المنطق أعلاه، أي auth-null يتم تجاهله قبل الوصول إلى هذا الفرع
+  /* ðŸšª Ø­Ø§Ù„Ø© ØªØ³Ø¬ÙŠÙ„ Ø§Ù„Ø®Ø±ÙˆØ¬ */
+  // Ø¨Ø¹Ø¯ ØªØ­Ø¯ÙŠØ« Ø§Ù„Ù…Ù†Ø·Ù‚ Ø£Ø¹Ù„Ø§Ù‡ØŒ Ø£ÙŠ auth-null ÙŠØªÙ… ØªØ¬Ø§Ù‡Ù„Ù‡ Ù‚Ø¨Ù„ Ø§Ù„ÙˆØµÙˆÙ„ Ø¥Ù„Ù‰ Ù‡Ø°Ø§ Ø§Ù„ÙØ±Ø¹
   currentUser = null;
   userInitiatedLogout = false; // reset flag
   if (remoteListenerUnsubscribe) {
@@ -4817,7 +3926,7 @@ async function loadAllUsersForAdmin() {
   if (adminTabBtn) adminTabBtn.style.display = "none";
   if (tabAdmin) tabAdmin.style.display = "none";
 
-  /* 🔄 إعادة ضبط حالة التطبيق */
+  /* ðŸ”„ Ø¥Ø¹Ø§Ø¯Ø© Ø¶Ø¨Ø· Ø­Ø§Ù„Ø© Ø§Ù„ØªØ·Ø¨ÙŠÙ‚ */
   state = {
     months: [],
     selectedMonthId: null,
@@ -4830,7 +3939,7 @@ async function loadAllUsersForAdmin() {
     hasImageOnly: false,
   };
 
-  /* عرض شاشة الدخول */
+  /* Ø¹Ø±Ø¶ Ø´Ø§Ø´Ø© Ø§Ù„Ø¯Ø®ÙˆÙ„ */
   if (appLoader) appLoader.style.display = "none";
   appView.style.display = "none";
   currentUser = null;
@@ -4845,7 +3954,7 @@ async function loadAllUsersForAdmin() {
   if (adminTabBtn) adminTabBtn.style.display = "none";
   if (tabAdmin) tabAdmin.style.display = "none";
 
-  /* 🔄 إعادة ضبط حالة التطبيق */
+  /* ðŸ”„ Ø¥Ø¹Ø§Ø¯Ø© Ø¶Ø¨Ø· Ø­Ø§Ù„Ø© Ø§Ù„ØªØ·Ø¨ÙŠÙ‚ */
   state = {
     months: [],
     selectedMonthId: null,
@@ -4858,7 +3967,7 @@ async function loadAllUsersForAdmin() {
     hasImageOnly: false,
   };
 
-  /* عرض شاشة الدخول */
+  /* Ø¹Ø±Ø¶ Ø´Ø§Ø´Ø© Ø§Ù„Ø¯Ø®ÙˆÙ„ */
   if (appLoader) appLoader.style.display = "none";
   appView.style.display = "none";
   loginView.style.display = "block";
@@ -4869,7 +3978,7 @@ async function loadAllUsersForAdmin() {
   }
 });
 } else {
-  // في حالة لم يعمل Firebase (وضع Offline)
+  // ÙÙŠ Ø­Ø§Ù„Ø© Ù„Ù… ÙŠØ¹Ù…Ù„ Firebase (ÙˆØ¶Ø¹ Offline)
   currentUser = null;
   userRef = null;
   if (appLoader) appLoader.style.display = "none";
@@ -4884,6 +3993,3 @@ async function loadAllUsersForAdmin() {
 }
 })();
     </script>
-</body>
-
-</html>

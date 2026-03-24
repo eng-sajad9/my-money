@@ -1017,32 +1017,82 @@
       <div class="card">
         <div class="card-header">
           <div class="collapse-toggle" id="advancedStatsToggle">
-            <span>إحصائيات متقدمة للشهر</span>
+            <span>📈 إحصائيات متقدمة للشهر</span>
             <span id="advancedStatsIcon" class="collapse-icon">▼</span>
           </div>
         </div>
         <div id="advancedStatsBody" class="collapse-body">
-          <div class="stats-grid">
-            <div class="stats-item">
-              <div class="stats-item-title">متوسط الصرف اليومي</div>
-              <div id="statDailyAvg" class="stats-item-value">0</div>
+
+          <!-- شبكة الإحصائيات الرئيسية -->
+          <div class="adv-stats-grid">
+            <div class="adv-stat-card">
+              <div class="adv-stat-icon">📅</div>
+              <div class="adv-stat-info">
+                <div class="adv-stat-label">متوسط الصرف اليومي</div>
+                <div id="statDailyAvg" class="adv-stat-value">0</div>
+              </div>
             </div>
-            <div class="stats-item">
-              <div class="stats-item-title">المتبقي لكل يوم</div>
-              <div id="statRemainingPerDay" class="stats-item-value">0</div>
+            <div class="adv-stat-card">
+              <div class="adv-stat-icon">🗓️</div>
+              <div class="adv-stat-info">
+                <div class="adv-stat-label">المتبقي لكل يوم</div>
+                <div id="statRemainingPerDay" class="adv-stat-value">0</div>
+              </div>
             </div>
-            <div class="stats-item">
-              <div class="stats-item-title">أكبر مصروف</div>
-              <div id="statMaxExpense" class="stats-item-value">0</div>
+            <div class="adv-stat-card">
+              <div class="adv-stat-icon">🔺</div>
+              <div class="adv-stat-info">
+                <div class="adv-stat-label">أكبر مصروف</div>
+                <div id="statMaxExpense" class="adv-stat-value">0</div>
+              </div>
             </div>
-            <div class="stats-item">
-              <div class="stats-item-title">أكثر تصنيف صرفًا</div>
-              <div id="statTopCategory" class="stats-item-value">لا يوجد</div>
+            <div class="adv-stat-card">
+              <div class="adv-stat-icon">🔻</div>
+              <div class="adv-stat-info">
+                <div class="adv-stat-label">أصغر مصروف</div>
+                <div id="statMinExpense" class="adv-stat-value">0</div>
+              </div>
+            </div>
+            <div class="adv-stat-card">
+              <div class="adv-stat-icon">🧾</div>
+              <div class="adv-stat-info">
+                <div class="adv-stat-label">عدد المصاريف</div>
+                <div id="statCount" class="adv-stat-value">0</div>
+              </div>
+            </div>
+            <div class="adv-stat-card">
+              <div class="adv-stat-icon">📊</div>
+              <div class="adv-stat-info">
+                <div class="adv-stat-label">متوسط مبلغ المصروف</div>
+                <div id="statAvgAmount" class="adv-stat-value">0</div>
+              </div>
+            </div>
+            <div class="adv-stat-card">
+              <div class="adv-stat-icon">🏆</div>
+              <div class="adv-stat-info">
+                <div class="adv-stat-label">أكثر تصنيف صرفاً</div>
+                <div id="statTopCategory" class="adv-stat-value">لا يوجد</div>
+              </div>
+            </div>
+            <div class="adv-stat-card">
+              <div class="adv-stat-icon">⏰</div>
+              <div class="adv-stat-info">
+                <div class="adv-stat-label">الأيام المتبقية في الشهر</div>
+                <div id="statDaysLeft" class="adv-stat-value">—</div>
+              </div>
             </div>
           </div>
+
+          <!-- تنبيه وتير الإنفاق -->
+          <div id="spendingPaceAlert" class="spending-pace-alert" style="display:none;"></div>
+
+          <!-- أبار التصنيفات -->
+          <div class="adv-cats-title">🗂️ توزيع الإنفاق حسب الفئة</div>
           <div class="category-bars" id="categoryBars"></div>
+
         </div>
       </div>
+
 
       <!-- المصاريف -->
       <div class="card">
@@ -1085,12 +1135,19 @@
 
     <!-- تبويب مقارنة الأشهر -->
     <div id="tab-compare" style="display:none;">
-      <div class="card">
-        <div class="card-header">
-          <h3>مقارنة مصاريف الأشهر</h3>
+      <!-- شريط الترتيب والفلترة -->
+      <div class="compare-toolbar">
+        <span class="compare-toolbar-label">📊 ترتيب حسب:</span>
+        <div class="compare-sort-group">
+          <button class="compare-sort-btn active" data-sort="newest">الأحدث</button>
+          <button class="compare-sort-btn" data-sort="oldest">الأقدم</button>
+          <button class="compare-sort-btn" data-sort="highest">الأعلى صرفاً</button>
+          <button class="compare-sort-btn" data-sort="lowest">الأقل صرفاً</button>
+          <button class="compare-sort-btn" data-sort="remaining">الأعلى ادخاراً</button>
         </div>
-        <div id="compareContainer" class="compare-row"></div>
       </div>
+      <!-- حاوية المحتوى (تُملأ بواسطة renderComparison) -->
+      <div id="compareContainer"></div>
     </div>
 
     <!-- تبويب التخطيط والأهداف وتقسيم الراتب -->
@@ -3290,92 +3347,159 @@
       function renderAdvancedStats() {
         const month = getSelectedMonth();
         categoryBars.innerHTML = "";
-        if (!month) {
-          dailyAvgEl.textContent = "0";
-          remainingPerDayEl.textContent = "0";
-          maxExpenseEl.textContent = "0";
-          topCategoryEl.textContent = "لا يوجد";
-          return;
+
+        // مراجع العناصر الجديدة
+        const statMinExpenseEl   = document.getElementById("statMinExpense");
+        const statCountEl        = document.getElementById("statCount");
+        const statAvgAmountEl   = document.getElementById("statAvgAmount");
+        const statDaysLeftEl    = document.getElementById("statDaysLeft");
+        const paceAlert         = document.getElementById("spendingPaceAlert");
+
+        // القيم الافتراضية
+        function resetAll() {
+          dailyAvgEl.textContent        = "—";
+          remainingPerDayEl.textContent = "—";
+          maxExpenseEl.textContent      = "—";
+          topCategoryEl.textContent     = "لا يوجد";
+          if (statMinExpenseEl)  statMinExpenseEl.textContent  = "—";
+          if (statCountEl)       statCountEl.textContent       = "0";
+          if (statAvgAmountEl)   statAvgAmountEl.textContent   = "—";
+          if (statDaysLeftEl)    statDaysLeftEl.textContent    = "—";
+          if (paceAlert) paceAlert.style.display = "none";
         }
+
+        if (!month) { resetAll(); return; }
         const expenses = Array.isArray(month.expenses) ? month.expenses : [];
-        if (expenses.length === 0) {
-          dailyAvgEl.textContent = "0";
-          remainingPerDayEl.textContent = "0";
-          maxExpenseEl.textContent = "0";
-          topCategoryEl.textContent = "لا يوجد";
-          return;
-        }
+        if (expenses.length === 0) { resetAll(); return; }
 
-        const today = new Date();
-        const year = month.year;
-        const monthIndex = month.month - 1;
-        const daysInMonth = new Date(year, monthIndex + 1, 0).getDate();
-        const nowMonth = today.getMonth();
-        const nowYear = today.getFullYear();
+        // ===== حسابات التاريخ =====
+        const today      = new Date();
+        const year       = month.year;
+        const monthIdx   = month.month - 1;
+        const daysInMonth = new Date(year, monthIdx + 1, 0).getDate();
+        const isCurrentMonth = today.getMonth() === monthIdx && today.getFullYear() === year;
+        const daysPassed    = isCurrentMonth ? today.getDate() : daysInMonth;
+        const daysLeft      = isCurrentMonth ? daysInMonth - today.getDate() : 0;
 
-        let daysPassed;
-        if (nowMonth === monthIndex && nowYear === year) {
-          daysPassed = today.getDate();
-        } else {
-          daysPassed = daysInMonth;
-        }
+        // ===== إحصائيات عامة =====
+        const total   = expenses.reduce((s, e) => s + (e.amount || 0), 0);
+        const salary  = month.salary || 0;
+        const remaining = salary - total;
+        const count   = expenses.length;
+        const avgAmount = Math.round(total / count);
+        const dailyAvg  = daysPassed > 0 ? Math.round(total / daysPassed) : total;
+        const remainingPerDay = daysLeft > 0 ? Math.round(remaining / daysLeft) : remaining;
 
-        const totalExpenses = expenses.reduce((sum, e) => sum + (e.amount || 0), 0);
-        const dailyAvg =
-          daysPassed > 0 ? Math.round(totalExpenses / daysPassed) : totalExpenses;
-        dailyAvgEl.textContent = formatNumber(dailyAvg);
+        const maxExp = expenses.reduce((m, e) => e.amount > m.amount ? e : m, expenses[0]);
+        const minExp = expenses.reduce((m, e) => e.amount < m.amount ? e : m, expenses[0]);
 
-        const remaining = (month.salary || 0) - totalExpenses;
-        const daysRemaining =
-          daysInMonth - (nowMonth === monthIndex && nowYear === year ? today.getDate() : daysInMonth);
-        const remainingPerDay =
-          daysRemaining > 0 ? Math.round(remaining / daysRemaining) : remaining;
+        // ===== ملء الإحصائيات =====
+        dailyAvgEl.textContent        = formatNumber(dailyAvg);
+        maxExpenseEl.textContent      = `${formatNumber(maxExp.amount || 0)} · ${maxExp.title || "مصروف"}`;
+
+        // المتبقي لكل يوم — بلون
         remainingPerDayEl.textContent = formatNumber(remainingPerDay);
+        remainingPerDayEl.className   = "adv-stat-value" +
+          (remainingPerDay >= dailyAvg ? " positive" : remainingPerDay > 0 ? " warning" : " negative");
 
-        const maxExpense = expenses.reduce(
-          (max, e) => (e.amount > max.amount ? e : max),
-          expenses[0]
-        );
-        maxExpenseEl.textContent = `${formatNumber(maxExpense.amount || 0)} (${maxExpense.title || "مصروف"})`;
+        if (statMinExpenseEl)
+          statMinExpenseEl.textContent = `${formatNumber(minExp.amount || 0)} · ${minExp.title || "مصروف"}`;
+        if (statCountEl)
+          statCountEl.textContent = count;
+        if (statAvgAmountEl)
+          statAvgAmountEl.textContent = formatNumber(avgAmount);
+        if (statDaysLeftEl)
+          statDaysLeftEl.textContent = isCurrentMonth ? `${daysLeft} يوم` : "—";
 
-        const categoryTotals = {};
-        expenses.forEach((e) => {
+        // ===== أكثر تصنيف صرفاً =====
+        const catTotals = {};
+        expenses.forEach(e => {
           const cat = e.category || "أخرى";
-          categoryTotals[cat] = (categoryTotals[cat] || 0) + (e.amount || 0);
+          catTotals[cat] = (catTotals[cat] || 0) + (e.amount || 0);
         });
+        let topCat = "لا يوجد", topCatTotal = 0;
+        Object.entries(catTotals).forEach(([cat, t]) => {
+          if (t > topCatTotal) { topCatTotal = t; topCat = cat; }
+        });
+        topCategoryEl.textContent = `${topCat} · ${formatNumber(topCatTotal)}`;
 
-        let topCategory = "لا يوجد";
-        let topTotal = 0;
-        Object.entries(categoryTotals).forEach(([cat, total]) => {
-          if (total > topTotal) {
-            topTotal = total;
-            topCategory = cat;
+        // ===== تنبيه وتيرة الإنفاق =====
+        if (paceAlert && salary > 0 && isCurrentMonth) {
+          const spendPct = Math.round((total / salary) * 100);
+          const monthPct = Math.round((daysPassed / daysInMonth) * 100);
+          const diff = spendPct - monthPct;
+          paceAlert.style.display = "flex";
+          paceAlert.className = "spending-pace-alert";
+          if (diff <= 0) {
+            paceAlert.className += " ok";
+            paceAlert.innerHTML = `✅ وتيرة إنفاقك ممتازة! صرفت ${spendPct}% من الراتب وأنت في اليوم ${daysPassed} (${monthPct}% من الشهر).`;
+          } else if (diff <= 15) {
+            paceAlert.className += " warn";
+            paceAlert.innerHTML = `⚠️ إنفاقك أسرع قليلاً من المعدل — صرفت ${spendPct}% وأنت في ${monthPct}% من الشهر. تباطأ قليلاً.`;
+          } else {
+            paceAlert.className += " danger";
+            paceAlert.innerHTML = `🚨 تجاوزت وتيرة الإنفاق! صرفت ${spendPct}% من راتبك وأنت في ${monthPct}% فقط من الشهر. المتبقي: ${formatNumber(remaining)}.`;
           }
-        });
-        topCategoryEl.textContent = `${topCategory} (${formatNumber(topTotal)})`;
+        } else if (paceAlert) {
+          paceAlert.style.display = "none";
+        }
 
-        const maxCatTotal = Math.max(...Object.values(categoryTotals)) || 1;
-        Object.entries(categoryTotals).forEach(([cat, total]) => {
+        // ===== أبار الفئات (محسّنة) =====
+        const PALETTE = ["#2563eb","#4f46e5","#06b6d4","#10b981","#f59e0b","#ef4444","#8b5cf6","#ec4899","#f97316","#14b8a6"];
+        function catColor(cat) {
+          let h = 0;
+          for (let j = 0; j < cat.length; j++) h = (h << 5) - h + cat.charCodeAt(j);
+          return PALETTE[Math.abs(h) % PALETTE.length];
+        }
+
+        const sortedCats = Object.entries(catTotals).sort((a, b) => b[1] - a[1]);
+        const maxCatTotal = sortedCats[0]?.[1] || 1;
+
+        sortedCats.forEach(([cat, catTotal]) => {
+          const pct    = Math.round((catTotal / total) * 100);
+          const barPct = Math.round((catTotal / maxCatTotal) * 100);
+          const color  = catColor(cat);
+
           const item = document.createElement("div");
           item.className = "category-bar";
 
           const top = document.createElement("div");
           top.className = "category-bar-top";
+
           const nameEl = document.createElement("span");
-          nameEl.textContent = cat;
-          const amountEl = document.createElement("span");
-          amountEl.textContent = formatNumber(total);
+          nameEl.style.display = "flex";
+          nameEl.style.alignItems = "center";
+          nameEl.style.gap = "6px";
+          const dot = document.createElement("span");
+          dot.style.cssText = `width:8px;height:8px;border-radius:50%;background:${color};display:inline-block;flex-shrink:0;`;
+          nameEl.appendChild(dot);
+          nameEl.appendChild(document.createTextNode(cat));
+
+          const rightSide = document.createElement("span");
+          rightSide.style.display = "flex";
+          rightSide.style.gap = "8px";
+          rightSide.style.alignItems = "center";
+          const amtEl = document.createElement("span");
+          amtEl.style.fontWeight = "700";
+          amtEl.textContent = formatNumber(catTotal);
+          const pctEl = document.createElement("span");
+          pctEl.style.cssText = "font-size:11px;color:var(--subtext-color);min-width:28px;text-align:left;";
+          pctEl.textContent = pct + "%";
+          rightSide.appendChild(amtEl);
+          rightSide.appendChild(pctEl);
+
           top.appendChild(nameEl);
-          top.appendChild(amountEl);
+          top.appendChild(rightSide);
 
-          const bg = document.createElement("div");
+          const bg   = document.createElement("div");
           bg.className = "category-bar-bg";
-
           const fill = document.createElement("div");
           fill.className = "category-bar-fill";
-          fill.style.width = (total / maxCatTotal) * 100 + "%";
-
+          fill.style.width   = barPct + "%";
+          fill.style.background = color;
+          fill.style.opacity = "0.85";
           bg.appendChild(fill);
+
           item.appendChild(top);
           item.appendChild(bg);
           categoryBars.appendChild(item);
@@ -3566,174 +3690,345 @@
       }
 
       function renderComparison() {
-        // helper: deterministic color palette for categories
-        function getCategoryColor(cat, i) {
-          const palette = [
-            "#2563eb",
-            "#4f46e5",
-            "#06b6d4",
-            "#10b981",
-            "#f59e0b",
-            "#ef4444",
-            "#8b5cf6",
-            "#ec4899",
-            "#0ea5b3",
-            "#f97316",
-          ];
-          if (!cat) return palette[i % palette.length];
-          // simple hash to pick color for category name consistently
+        // ===== لوحة ألوان ثابتة للتصنيفات =====
+        const PALETTE = [
+          "#2563eb","#4f46e5","#06b6d4","#10b981",
+          "#f59e0b","#ef4444","#8b5cf6","#ec4899",
+          "#0ea5e9","#f97316","#14b8a6","#84cc16",
+        ];
+        function getCategoryColor(cat) {
+          if (!cat) return PALETTE[0];
           let h = 0;
           for (let j = 0; j < cat.length; j++) h = (h << 5) - h + cat.charCodeAt(j);
-          const idx = Math.abs(h) % palette.length;
-          return palette[idx];
+          return PALETTE[Math.abs(h) % PALETTE.length];
         }
 
-        compareContainer.innerHTML = "";
+        // ===== تحديد الترتيب الحالي =====
+        const activeSortBtn = document.querySelector('.compare-sort-btn.active');
+        const sortKey = activeSortBtn ? activeSortBtn.dataset.sort : 'newest';
+
+        compareContainer.innerHTML = '';
         if (!Array.isArray(state.months) || state.months.length === 0) {
           compareContainer.innerHTML =
-            '<div class="empty-state">أضف شهراً واحداً على الأقل لعرض المقارنة.</div>';
+            '<div class="empty-state" style="padding:32px;font-size:14px;">📭 أضف شهراً واحداً على الأقل لعرض المقارنة.</div>';
           return;
         }
 
-        const monthsSorted = state.months
-          .slice()
-          .sort((a, b) => b.year - a.year || b.month - a.month);
+        // ===== ترتيب الأشهر =====
+        let monthsSorted = state.months.slice();
+        if (sortKey === 'newest') {
+          monthsSorted.sort((a, b) => b.year - a.year || b.month - a.month);
+        } else if (sortKey === 'oldest') {
+          monthsSorted.sort((a, b) => a.year - b.year || a.month - b.month);
+        } else if (sortKey === 'highest') {
+          monthsSorted.sort((a, b) => {
+            const ta = (a.expenses || []).reduce((s, e) => s + (e.amount || 0), 0);
+            const tb = (b.expenses || []).reduce((s, e) => s + (e.amount || 0), 0);
+            return tb - ta;
+          });
+        } else if (sortKey === 'lowest') {
+          monthsSorted.sort((a, b) => {
+            const ta = (a.expenses || []).reduce((s, e) => s + (e.amount || 0), 0);
+            const tb = (b.expenses || []).reduce((s, e) => s + (e.amount || 0), 0);
+            return ta - tb;
+          });
+        } else if (sortKey === 'remaining') {
+          monthsSorted.sort((a, b) => {
+            const ra = (a.salary || 0) - (a.expenses || []).reduce((s, e) => s + (e.amount || 0), 0);
+            const rb = (b.salary || 0) - (b.expenses || []).reduce((s, e) => s + (e.amount || 0), 0);
+            return rb - ra;
+          });
+        }
 
-        // collect category list across months
+        // ===== جمع بيانات كل شهر =====
         const allCategories = new Set();
-        monthsSorted.forEach((m) => {
-          (m.expenses || []).forEach((e) => allCategories.add(e.category || "أخرى"));
+        monthsSorted.forEach(m => {
+          (m.expenses || []).forEach(e => allCategories.add(e.category || 'أخرى'));
         });
-        const categories = Array.from(allCategories.length ? allCategories : state.categories);
+        const categories = Array.from(allCategories);
 
-        // totals per month and per-category
-        const monthData = monthsSorted.map((m) => {
+        const monthData = monthsSorted.map(m => {
           const expenses = Array.isArray(m.expenses) ? m.expenses : [];
-          const total = expenses.reduce((sum, e) => sum + (e.amount || 0), 0);
+          const total = expenses.reduce((s, e) => s + (e.amount || 0), 0);
+          const salary = m.salary || 0;
+          const remaining = salary - total;
           const catTotals = {};
-          categories.forEach((c) => (catTotals[c] = 0));
-          expenses.forEach((e) => {
-            const cat = e.category || "أخرى";
+          categories.forEach(c => (catTotals[c] = 0));
+          expenses.forEach(e => {
+            const cat = e.category || 'أخرى';
             catTotals[cat] = (catTotals[cat] || 0) + (e.amount || 0);
           });
-          return {
-            id: m.id,
-            label: `${m.name} ${m.year}`,
-            year: m.year,
-            month: m.month,
-            salary: m.salary || 0,
-            total,
-            remaining: (m.salary || 0) - total,
-            catTotals,
-          };
+          const count = expenses.length;
+          const avgExpense = count > 0 ? Math.round(total / count) : 0;
+          const spendPct = salary > 0 ? Math.round((total / salary) * 100) : 0;
+          return { id: m.id, label: `${m.name} ${m.year}`, shortLabel: m.name,
+            year: m.year, month: m.month, salary, total, remaining, catTotals, count, avgExpense, spendPct };
         });
 
-        const maxTotal = Math.max(...monthData.map((d) => d.total), 1);
+        const maxTotal = Math.max(...monthData.map(d => d.total), 1);
+        const minTotal = Math.min(...monthData.map(d => d.total));
+        const bestIdx = monthData.reduce((bi, d, i) => d.remaining > monthData[bi].remaining ? i : bi, 0);
+        const worstIdx = monthData.reduce((wi, d, i) => d.total > monthData[wi].total ? i : wi, 0);
 
-        // build header summary card
-        const grid = document.createElement("div");
-        grid.className = "compare-grid";
+        // ===== (1) بانر الملخص الإجمالي =====
+        const allTotalExpenses = monthData.reduce((s, d) => s + d.total, 0);
+        const allTotalSalaries = monthData.reduce((s, d) => s + d.salary, 0);
+        const allTotalRemaining = monthData.reduce((s, d) => s + d.remaining, 0);
+        const avgMonthlyExpense = monthData.length > 0 ? Math.round(allTotalExpenses / monthData.length) : 0;
 
-        const topCard = document.createElement("div");
-        topCard.className = "compare-card";
-        topCard.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center"><h3>مقارنة الأشهر</h3><div class="compare-meta">` +
-          `<div>أشهر: ${monthData.length}</div>` +
-          `<div>تصنيفات مفحوصة: ${categories.length}</div>` +
-          `</div></div>`;
+        const banner = document.createElement('div');
+        banner.className = 'compare-summary-banner';
+        banner.innerHTML = `
+          <div class="compare-summary-stat">
+            <div class="compare-summary-stat-label">💳 إجمالي الرواتب</div>
+            <div class="compare-summary-stat-value accent">${formatNumber(allTotalSalaries)}</div>
+          </div>
+          <div class="compare-summary-stat">
+            <div class="compare-summary-stat-label">💸 إجمالي الصرف</div>
+            <div class="compare-summary-stat-value danger">${formatNumber(allTotalExpenses)}</div>
+          </div>
+          <div class="compare-summary-stat">
+            <div class="compare-summary-stat-label">💰 إجمالي المتبقي</div>
+            <div class="compare-summary-stat-value ${allTotalRemaining >= 0 ? 'success' : 'danger'}">${formatNumber(allTotalRemaining)}</div>
+          </div>
+          <div class="compare-summary-stat">
+            <div class="compare-summary-stat-label">📈 متوسط الصرف/شهر</div>
+            <div class="compare-summary-stat-value warning">${formatNumber(avgMonthlyExpense)}</div>
+          </div>
+        `;
+        compareContainer.appendChild(banner);
 
-        // legend for categories (show top few)
-        const legend = document.createElement("div");
-        legend.className = "category-legend";
-        categories.slice(0, 8).forEach((c, i) => {
-          const li = document.createElement("div");
-          li.className = "legend-item";
-          const sw = document.createElement("span");
-          sw.className = "legend-swatch";
-          sw.style.background = getCategoryColor(c, i);
-          li.appendChild(sw);
-          const txt = document.createElement("span");
-          txt.textContent = c;
-          li.appendChild(txt);
-          legend.appendChild(li);
+        // ===== (2) الرسم البياني الأعمدة =====
+        const chartSection = document.createElement('div');
+        chartSection.className = 'compare-chart-section';
+        const chartTitle = document.createElement('div');
+        chartTitle.className = 'compare-chart-title';
+        chartTitle.innerHTML = '📊 المصاريف الشهرية';
+        chartSection.appendChild(chartTitle);
+
+        const barsChart = document.createElement('div');
+        barsChart.className = 'compare-bars-chart';
+
+        // نحتاج ترتيباً زمنياً للرسم البياني دائماً
+        const chartData = monthData.slice().sort((a, b) => a.year - b.year || a.month - b.month);
+        chartData.forEach(d => {
+          const col = document.createElement('div');
+          col.className = 'compare-bar-col';
+
+          const barH = maxTotal > 0 ? Math.max(4, Math.round((d.total / maxTotal) * 82)) : 4;
+          const bar = document.createElement('div');
+          bar.className = 'compare-bar-col-bar';
+          bar.style.height = barH + 'px';
+          bar.style.background = d.total === maxTotal
+            ? 'linear-gradient(180deg, #ef4444, #b91c1c)'
+            : d.remaining === Math.max(...monthData.map(x => x.remaining))
+            ? 'linear-gradient(180deg, #10b981, #059669)'
+            : 'linear-gradient(180deg, var(--accent), #4f46e5)';
+          bar.title = `${d.label}: ${formatNumber(d.total)}`;
+
+          const lbl = document.createElement('div');
+          lbl.className = 'compare-bar-col-label';
+          lbl.textContent = d.shortLabel;
+
+          col.appendChild(bar);
+          col.appendChild(lbl);
+          barsChart.appendChild(col);
         });
-        topCard.appendChild(legend);
-        grid.appendChild(topCard);
+        chartSection.appendChild(barsChart);
+        compareContainer.appendChild(chartSection);
 
-        // create a compare card per month with bar and small table of top categories
-        monthData.forEach((d) => {
-          const card = document.createElement("div");
-          card.className = "compare-card";
+        // ===== (3) مفتاح التصنيفات =====
+        if (categories.length > 0) {
+          const legend = document.createElement('div');
+          legend.className = 'category-legend';
+          categories.slice(0, 8).forEach(c => {
+            const li = document.createElement('div');
+            li.className = 'legend-item';
+            const sw = document.createElement('span');
+            sw.className = 'legend-swatch';
+            sw.style.background = getCategoryColor(c);
+            li.appendChild(sw);
+            li.appendChild(document.createTextNode(c));
+            legend.appendChild(li);
+          });
+          compareContainer.appendChild(legend);
+        }
 
-          const row = document.createElement("div");
-          row.className = "compare-row";
+        // ===== (4) شبكة بطاقات الأشهر =====
+        const grid = document.createElement('div');
+        grid.className = 'compare-grid';
 
-          const left = document.createElement("div");
-          left.style.flex = "1";
-          const title = document.createElement("div");
-          title.style.fontWeight = "700";
-          title.textContent = d.label;
-          const meta = document.createElement("div");
-          meta.className = "compare-meta";
-          meta.innerHTML = `الراتب: ${formatNumber(d.salary)} · المصاريف: ${formatNumber(d.total)} · المتبقي: ${formatNumber(d.remaining)}`;
-          left.appendChild(title);
-          left.appendChild(meta);
+        // ترتيب البيانات كمصفوفة زمنية لحساب التغيير
+        const chronoData = monthData.slice().sort((a, b) => a.year - b.year || a.month - b.month);
 
-          const right = document.createElement("div");
-          right.style.width = "140px";
-          right.style.textAlign = "right";
-          right.innerHTML = `<div style="font-weight:700;color:#2563eb">${formatNumber(d.total)}</div>` +
-            `<div style="font-size:12px;color:var(--subtext-color)">المتبقي: ${formatNumber(d.remaining)}</div>`;
+        monthData.forEach((d, idx) => {
+          // إيجاد الشهر السابق زمنياً
+          const chronoIdx = chronoData.findIndex(x => x.id === d.id);
+          const prevD = chronoIdx > 0 ? chronoData[chronoIdx - 1] : null;
+          let trendDir = 'neutral', trendText = 'بلا تغيير';
+          if (prevD && prevD.total > 0) {
+            const diff = d.total - prevD.total;
+            const diffPct = Math.round(Math.abs(diff / prevD.total) * 100);
+            if (Math.abs(diff) < prevD.total * 0.02) {
+              trendText = '— بلا تغيير';
+            } else if (diff > 0) {
+              trendDir = 'up';
+              trendText = `▲ ${diffPct}% مقارنة بـ ${prevD.shortLabel}`;
+            } else {
+              trendDir = 'down';
+              trendText = `▼ ${diffPct}% مقارنة بـ ${prevD.shortLabel}`;
+            }
+          }
 
-          row.appendChild(left);
-          row.appendChild(right);
+          const card = document.createElement('div');
+          card.className = 'compare-card';
 
-          // stacked bar showing category breakdown
-          const stacked = document.createElement("div");
-          stacked.className = "stacked-bar";
-          if (d.total <= 0) {
-            const emptySeg = document.createElement("div");
-            emptySeg.className = "stacked-seg";
-            emptySeg.style.width = "100%";
-            emptySeg.style.background = "linear-gradient(90deg, rgba(0,0,0,0.03), rgba(0,0,0,0.02))";
-            stacked.appendChild(emptySeg);
-          } else {
-            Object.entries(d.catTotals).forEach(([cat, amt], ci) => {
-              const pct = d.total > 0 ? (amt / d.total) * 100 : 0;
-              const seg = document.createElement("div");
-              seg.className = "stacked-seg";
-              seg.style.width = pct > 0 ? pct + "%" : "0%";
-              seg.style.background = getCategoryColor(cat, ci);
+          // شارة أفضل / أسوأ
+          if (idx === bestIdx) {
+            const badge = document.createElement('div');
+            badge.className = 'compare-card-badge best';
+            badge.innerHTML = '✅ الأكثر ادخاراً';
+            card.appendChild(badge);
+          } else if (idx === worstIdx && monthData.length > 1) {
+            const badge = document.createElement('div');
+            badge.className = 'compare-card-badge worst';
+            badge.innerHTML = '⚠️ الأعلى صرفاً';
+            card.appendChild(badge);
+          }
+
+          // رأس البطاقة
+          const header = document.createElement('div');
+          header.className = 'compare-card-header';
+
+          const titleSide = document.createElement('div');
+          const titleEl = document.createElement('div');
+          titleEl.className = 'compare-card-title';
+          titleEl.textContent = d.label;
+          titleSide.appendChild(titleEl);
+
+          if (prevD) {
+            const trend = document.createElement('div');
+            trend.className = `compare-trend ${trendDir}`;
+            trend.textContent = trendText;
+            titleSide.appendChild(trend);
+          }
+
+          const totalSide = document.createElement('div');
+          totalSide.className = 'compare-card-total';
+          totalSide.textContent = formatNumber(d.total);
+
+          header.appendChild(titleSide);
+          header.appendChild(totalSide);
+          card.appendChild(header);
+
+          // إحصائيات 3 خلايا
+          const stats = document.createElement('div');
+          stats.className = 'compare-card-stats';
+          const statsData = [
+            { label: 'الراتب', value: formatNumber(d.salary), cls: '' },
+            { label: 'المتبقي', value: formatNumber(d.remaining), cls: d.remaining >= 0 ? 'positive' : 'negative' },
+            { label: 'نسبة الصرف', value: d.spendPct + '%',
+              cls: d.spendPct > 90 ? 'negative' : d.spendPct > 70 ? '' : 'positive' },
+          ];
+          statsData.forEach(s => {
+            const si = document.createElement('div');
+            si.className = 'compare-stat-item';
+            si.innerHTML = `<div class="compare-stat-label">${s.label}</div><div class="compare-stat-value ${s.cls}">${s.value}</div>`;
+            stats.appendChild(si);
+          });
+          card.appendChild(stats);
+
+          // الشريط المتراكم
+          const stacked = document.createElement('div');
+          stacked.className = 'stacked-bar';
+          if (d.total > 0) {
+            Object.entries(d.catTotals).forEach(([cat, amt]) => {
+              if (amt <= 0) return;
+              const pct = (amt / d.total) * 100;
+              const seg = document.createElement('div');
+              seg.className = 'stacked-seg';
+              seg.style.width = pct + '%';
+              seg.style.background = getCategoryColor(cat);
               seg.title = `${cat}: ${formatNumber(amt)} (${Math.round(pct)}%)`;
               stacked.appendChild(seg);
             });
+          } else {
+            const empty = document.createElement('div');
+            empty.className = 'stacked-seg';
+            empty.style.width = '100%';
+            empty.style.background = 'var(--muted-bg-2)';
+            stacked.appendChild(empty);
           }
-
-          card.appendChild(row);
           card.appendChild(stacked);
 
-          // add small table of top 4 categories
-          const catEntries = Object.entries(d.catTotals).sort((a, b) => b[1] - a[1]);
-          const table = document.createElement("table");
-          table.className = "compare-table";
-          const thead = document.createElement("thead");
-          thead.innerHTML = `<tr><th>التصنيف</th><th>المبلغ</th><th>النسبة</th></tr>`;
-          table.appendChild(thead);
-          const tbody = document.createElement("tbody");
-          const top4 = catEntries.slice(0, 4);
-          top4.forEach(([cat, amt]) => {
-            const tr = document.createElement("tr");
-            const pct = maxTotal > 0 ? Math.round((amt / d.total) * 100) : 0;
-            tr.innerHTML = `<td>${cat}</td><td>${formatNumber(amt)}</td><td>${pct}%</td>`;
-            tbody.appendChild(tr);
-          });
-          table.appendChild(tbody);
-          card.appendChild(table);
+          // أعلى 5 فئات
+          const catEntries = Object.entries(d.catTotals)
+            .filter(([, amt]) => amt > 0)
+            .sort((a, b) => b[1] - a[1])
+            .slice(0, 5);
+
+          if (catEntries.length > 0) {
+            const catRows = document.createElement('div');
+            catRows.className = 'compare-cat-rows';
+            catEntries.forEach(([cat, amt]) => {
+              const pct = d.total > 0 ? Math.round((amt / d.total) * 100) : 0;
+              const row = document.createElement('div');
+              row.className = 'compare-cat-row';
+
+              const dot = document.createElement('div');
+              dot.className = 'compare-cat-dot';
+              dot.style.background = getCategoryColor(cat);
+
+              const name = document.createElement('div');
+              name.className = 'compare-cat-name';
+              name.textContent = cat;
+
+              const miniBarBg = document.createElement('div');
+              miniBarBg.className = 'compare-cat-mini-bar-bg';
+              const miniBar = document.createElement('div');
+              miniBar.className = 'compare-cat-mini-bar';
+              miniBar.style.width = pct + '%';
+              miniBar.style.background = getCategoryColor(cat);
+              miniBarBg.appendChild(miniBar);
+
+              const amtEl = document.createElement('div');
+              amtEl.className = 'compare-cat-amt';
+              amtEl.textContent = formatNumber(amt);
+
+              const pctEl = document.createElement('div');
+              pctEl.className = 'compare-cat-pct';
+              pctEl.textContent = pct + '%';
+
+              row.appendChild(dot);
+              row.appendChild(name);
+              row.appendChild(miniBarBg);
+              row.appendChild(amtEl);
+              row.appendChild(pctEl);
+              catRows.appendChild(row);
+            });
+            card.appendChild(catRows);
+          } else {
+            const noData = document.createElement('div');
+            noData.className = 'empty-state';
+            noData.style.padding = '8px 0 0';
+            noData.textContent = 'لا توجد مصاريف مسجلة.';
+            card.appendChild(noData);
+          }
 
           grid.appendChild(card);
         });
 
         compareContainer.appendChild(grid);
       }
+
+      // ربط أزرار الترتيب
+      document.querySelectorAll('.compare-sort-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.compare-sort-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          renderComparison();
+        });
+      });
 
       /* ======= التصنيفات ======= */
 
@@ -4031,6 +4326,7 @@
 
       function openExpenseModal(expenseId = null) {
         isSavingExpense = false; // إعادة تعيين العلم عند فتح الـ Modal
+        expenseImageRemoved = false; // إعادة تعيين علامة حذف الصورة
         const month = getSelectedMonth();
         if (!month) {
           alert("من فضلك أضف شهرًا أولاً.");
@@ -4076,9 +4372,10 @@
 
       function closeExpenseModal() {
         modalExpense.style.display = "none";
-        // إزالة معاينة الصورة عند الإغلاق
+        // إزالة معاينة الصورة عند الإغلاق وإعادة تعيين العلامة
         imagePreviewContainer.classList.remove("active");
         imagePreviewImg.src = "";
+        expenseImageRemoved = false;
       }
 
       btnAddExpense.addEventListener("click", () => openExpenseModal(null));
@@ -4133,9 +4430,24 @@
         });
       }
 
+      // علامة لتتبع حذف الصورة أثناء التعديل
+      let expenseImageRemoved = false;
+
       expenseImageInput.addEventListener("change", (e) => {
         const file = e.target.files[0];
         if (file && file.type.startsWith("image/")) {
+          // التحقق من الحجم قبل القراءة (حد أقصى 15 MB)
+          const MAX_BYTES = 15 * 1024 * 1024;
+          if (file.size > MAX_BYTES) {
+            showAlertModal(
+              `حجم الصورة (${formatFileSize(file.size)}) كبير جداً.\nالحد الأقصى المسموح 15 MB.\nيرجى اختيار صورة أصغر أو ضغطها أولاً.`,
+              '❌ الصورة كبيرة جداً',
+              '❌'
+            );
+            expenseImageInput.value = '';
+            return;
+          }
+          expenseImageRemoved = false;
           const reader = new FileReader();
           reader.onload = function (event) {
             imagePreviewImg.src = event.target.result;
@@ -4145,7 +4457,7 @@
           };
           reader.readAsDataURL(file);
         } else if (file) {
-          alert("من فضلك اختر ملف صورة صحيح");
+          showAlertModal('من فضلك اختر ملف صورة صحيح (JPG، PNG، WebP...)', 'ملف غير مقبول', '⚠️');
           expenseImageInput.value = "";
           imagePreviewContainer.classList.remove("active");
         }
@@ -4158,18 +4470,26 @@
         imagePreviewImg.src = "";
         imagePreviewFilename.textContent = "";
         imagePreviewSize.textContent = "";
+        // تسجيل أن المستخدم طلب حذف الصورة بشكل صريح
+        expenseImageRemoved = true;
       });
 
       async function deleteExpense(expenseId) {
         const month = getSelectedMonth();
         if (!month || !Array.isArray(month.expenses)) return;
-        if (!confirm("متأكد من حذف هذا المصروف؟")) return;
+        const confirmed = await showConfirmModal(
+          "هل أنت متأكد من حذف هذا المصروف؟ لا يمكن التراجع عن هذا الإجراء.",
+          "🗑️ حذف المصروف",
+          "⚠️"
+        );
+        if (!confirmed) return;
         const idx = month.expenses.findIndex((e) => e.id === expenseId);
         if (idx !== -1) {
           month.expenses.splice(idx, 1);
           await refreshUI();
         }
       }
+
 
       deleteExpenseBtn.addEventListener("click", async () => {
         if (!editingExpenseId) return;
@@ -4249,6 +4569,8 @@
 
         // Proceed with expense save
         const file = expenseImageInput.files[0];
+        // *** التقاط قيمة العلامة قبل إغلاق المودال (closeExpenseModal يُعيد تعيينها) ***
+        const wasImageRemoved = expenseImageRemoved;
 
         // إغلاق الـ Modal فوراً لتجنب النقر المتكرر
         closeExpenseModal();
@@ -4277,10 +4599,12 @@
           reader.readAsDataURL(file);
         } else {
           let imageDataUrl = null;
-          if (editingExpenseId) {
+          if (editingExpenseId && !wasImageRemoved) {
+            // الاحتفاظ بالصورة القديمة فقط إذا لم يطلب المستخدم حذفها
             const existing = month.expenses.find((exp) => exp.id === editingExpenseId);
             imageDataUrl = existing ? existing.imageDataUrl || null : null;
           }
+          // إذا كانت wasImageRemoved = true يبقى imageDataUrl = null (الصورة محذوفة)
           await saveExpenseObject(month, {
             id: editingExpenseId,
             title,
@@ -4293,6 +4617,7 @@
           isSavingExpense = false;
         }
       });
+
 
       async function saveExpenseObject(
         month,

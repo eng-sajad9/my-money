@@ -1075,6 +1075,14 @@
               </div>
             </div>
             <div class="adv-stat-card">
+              <div class="adv-stat-icon">🛡️</div>
+              <div class="adv-stat-info">
+                <div class="adv-stat-label">المصروف اليومي الآمن</div>
+                <div id="statSafeLimit" class="adv-stat-value">0</div>
+                <div id="statSafeLimitMsg" style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 5px; font-weight: 500;"></div>
+              </div>
+            </div>
+            <div class="adv-stat-card">
               <div class="adv-stat-icon">⏰</div>
               <div class="adv-stat-info">
                 <div class="adv-stat-label">الأيام المتبقية في الشهر</div>
@@ -1146,6 +1154,35 @@
           <button class="compare-sort-btn" data-sort="remaining">الأعلى ادخاراً</button>
         </div>
       </div>
+      
+      <!-- مقارنة الفئات شهر بشهر -->
+      <div class="card" style="margin-bottom: 1.5rem;">
+        <h3 style="margin-bottom: 1rem; color: var(--text-primary); font-size: 1.1rem; display: flex; align-items: center; gap: 8px;">
+          <span>📊</span> مقارنة الفئات السريعة 
+        </h3>
+        <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 1rem;">قارن الاستهلاك للفئة المحددة بين الشهر المحدد حالياً والشهر الذي يسبقه.</p>
+        
+        <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+          <select id="quickCompareCategory" class="form-input" style="max-width: 200px;">
+          </select>
+          <button id="btnQuickCompare" class="btn btn-primary" style="padding: 0.4rem 1rem;">مقارنة سريعـة</button>
+        </div>
+
+        <div id="quickCompareResult" style="margin-top: 1rem; padding: 1rem; background: var(--bg-color); border-radius: 8px; display: none; align-items: center; gap: 15px; flex-wrap: wrap;">
+          <div style="flex: 1; min-width: 110px;">
+            <div style="font-size: 0.8rem; color: var(--text-secondary);" id="labelPrevMonth">الشهر الماضي</div>
+            <div id="quickComparePrevVal" style="font-size: 1.2rem; font-weight: 600; color: var(--text-primary);">0</div>
+          </div>
+          <div style="flex: 1; min-width: 110px;">
+            <div style="font-size: 0.8rem; color: var(--text-secondary);" id="labelCurrMonth">الشهر الحالي</div>
+            <div id="quickCompareCurrVal" style="font-size: 1.2rem; font-weight: 600; color: var(--text-primary);">0</div>
+          </div>
+          <div id="quickCompareBadge" style="padding: 6px 12px; border-radius: 20px; font-weight: 600; font-size: 0.9rem;">
+            --
+          </div>
+        </div>
+      </div>
+
       <!-- حاوية المحتوى (تُملأ بواسطة renderComparison) -->
       <div id="compareContainer"></div>
     </div>
@@ -1158,7 +1195,26 @@
           <h3>الأهداف وتقسيم الراتب</h3>
           <div style="display:flex; gap:6px; align-items:center; flex-wrap:wrap;">
             <button id="btnAddGoal" class="btn btn-primary btn-sm">+ هدف</button>
+            <button id="btnAutoSplitBudget" class="btn btn-outline btn-sm" style="color: #f59e0b; border-color: #f59e0b;">✨ تقسيم ذكي (50/30/20)</button>
             <button id="btnAddBucket" class="btn btn-primary btn-sm">+ حافظة</button>
+          </div>
+        </div>
+
+        <!-- ميزانية 50/30/20 الذكية -->
+        <div style="margin-bottom: 24px;">
+          <h4 style="font-size: 16px; font-weight: 600; margin-bottom: 12px; color: var(--text-color); display: flex; justify-content: space-between;">
+            <span>📊 ميزانية 50/30/20 الذكية</span>
+            <span id="budgetRuleTotalTxt" style="font-size: 13px; font-weight: normal; color: var(--text-secondary);">--</span>
+          </h4>
+          <div style="display: flex; height: 18px; border-radius: 12px; overflow: hidden; background: var(--bg-color); border: 1px solid var(--border-color);">
+            <div id="barNeeds" style="height: 100%; width: 0%; background: #3b82f6; transition: width 0.3s ease;"></div>
+            <div id="barWants" style="height: 100%; width: 0%; background: #a855f7; transition: width 0.3s ease;"></div>
+            <div id="barSavings" style="height: 100%; width: 0%; background: #10b981; transition: width 0.3s ease;"></div>
+          </div>
+          <div style="display: flex; justify-content: space-between; margin-top: 8px; font-size: 11px;">
+            <div id="labelNeeds" style="color: var(--text-secondary);">🔵 إحتياجات (50%): 0</div>
+            <div id="labelWants" style="color: var(--text-secondary);">🟣 رغبات (30%): 0</div>
+            <div id="labelSavings" style="color: #10b981; font-weight: 600;">🟢 إدخار (20%): 0</div>
           </div>
         </div>
 
@@ -1667,6 +1723,44 @@
     <div id="modalImage" class="modal-backdrop">
       <div class="modal image-modal">
         <img id="imageModalView" src="" alt="صورة المصروف" />
+      </div>
+    </div>
+
+    <!-- مودال ترحيل الرصيد (تقفيل الشهر) -->
+    <div id="rolloverModal" class="modal-backdrop" style="display: none; z-index: 10000; align-items: center; justify-content: center;">
+      <div class="modal" style="max-width: 450px;">
+        <div class="modal-header">
+          <h3 style="color: #10b981;">🎉 تقفيل الشهر بنجاح!</h3>
+        </div>
+        <div class="modal-body">
+          <p style="margin-bottom: 10px; color: var(--text-secondary); line-height: 1.5;">
+            لديك فائض في ميزانية الشهر الماضي، فلنستفد من هذا المبلغ للوصول لأهدافك بشكل أسرع بحسب استراتيجية الوعي المالي.
+          </p>
+          <div style="background: var(--bg-gray); padding: 15px; border-radius: 8px; text-align: center; margin-bottom: 20px;">
+            <div style="font-size: 13px; color: var(--text-secondary);">المبلغ المتبقي للترحيل</div>
+            <div id="rolloverTotalAmount" style="font-size: 24px; font-weight: 700; color: #10b981;">0</div>
+          </div>
+          
+          <div id="rolloverGoalsSection" style="display:none;">
+            <p style="font-size: 14px; font-weight: 600; margin-bottom: 15px;">هل ترغب بتوزيع هذا الفائض على أهدافك؟</p>
+            <div id="rolloverSlidersContainer" style="max-height: 250px; overflow-y: auto; padding-right: 5px;"></div>
+            <div style="display: flex; justify-content: space-between; margin-top: 15px; font-size: 13px;">
+              <span style="color: var(--text-secondary);">المتبقي للتوزيع:</span>
+              <span id="rolloverRemainingToDistribute" style="font-weight: 600;">0</span>
+            </div>
+            <div class="modal-footer" style="margin-top: 20px;">
+              <button id="btnSkipRolloverGoals" class="btn btn-outline">تجاوز</button>
+              <button id="btnSaveRolloverGoals" class="btn btn-primary" disabled>توزيع وحفظ</button>
+            </div>
+          </div>
+
+          <div id="rolloverNoGoalsSection" style="display:none; display: flex; flex-direction: column; gap: 10px;">
+            <button id="btnRolloverNextMonth" class="btn btn-primary">🔄 ترحيله لراتب الشهر الحالي</button>
+            <button id="btnRolloverVault" class="btn btn-primary" style="background: #a855f7;">🏦 إيداع في القاصة (ملاحظاتي)</button>
+            <button id="btnRolloverCreateGoal" class="btn btn-outline">🎯 إنشاء هدف لادخاره</button>
+            <button id="btnCancelRollover" class="btn btn-outline" style="margin-top: 10px; border: none;">إلغاء</button>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -2440,6 +2534,7 @@
       // Goals & buckets UI elements
       const btnAddGoal = document.getElementById("btnAddGoal");
       const btnAddBucket = document.getElementById("btnAddBucket");
+      const btnAutoSplitBudget = document.getElementById("btnAutoSplitBudget");
       const showGoalsTab = document.getElementById('showGoalsTab');
       const showBucketsTab = document.getElementById('showBucketsTab');
       const goalsContainer = document.getElementById("goalsContainer");
@@ -3504,6 +3599,58 @@
           item.appendChild(bg);
           categoryBars.appendChild(item);
         });
+
+        // === حساب المصروف اليومي الآمن ===
+        const safeLimitEl = document.getElementById("statSafeLimit");
+        const safeLimitMsgEl = document.getElementById("statSafeLimitMsg");
+        
+        if (safeLimitEl && safeLimitMsgEl) {
+          if (isCurrentMonth) {
+            const tDate = new Date();
+            const todayStr = tDate.getFullYear() + "-" + 
+                             String(tDate.getMonth() + 1).padStart(2, '0') + "-" + 
+                             String(tDate.getDate()).padStart(2, '0');
+
+            let spentToday = 0;
+            let spentBeforeToday = 0;
+
+            expenses.forEach(e => {
+              if (e.date === todayStr) {
+                spentToday += (e.amount || 0);
+              } else {
+                spentBeforeToday += (e.amount || 0);
+              }
+            });
+
+            const monthSalary = month.salary || 0;
+            const remainingBeforeToday = monthSalary - spentBeforeToday;
+            const daysLeftIncludedToday = daysInMonth - today.getDate() + 1;
+            
+            let safeLimit = 0;
+            if (daysLeftIncludedToday > 0 && remainingBeforeToday > 0) {
+              safeLimit = Math.floor(remainingBeforeToday / daysLeftIncludedToday);
+            }
+
+            safeLimitEl.textContent = formatNumber(safeLimit);
+
+            if (spentToday === 0) {
+              safeLimitMsgEl.textContent = "لم تصرف شيئاً اليوم! 👏";
+              safeLimitMsgEl.style.color = "#10b981"; 
+            } else if (spentToday <= safeLimit) {
+              const saved = safeLimit - spentToday;
+              safeLimitMsgEl.textContent = `وفرت ${formatNumber(saved)} للغد! 📈`;
+              safeLimitMsgEl.style.color = "#10b981"; 
+            } else {
+              const exceeded = spentToday - safeLimit;
+              safeLimitMsgEl.textContent = `تجاوزت الحد بـ ${formatNumber(exceeded)} ⚠️`;
+              safeLimitMsgEl.style.color = "#ef4444"; 
+            }
+          } else {
+            safeLimitEl.textContent = "N/A";
+            safeLimitMsgEl.textContent = "يُحسب للشهر الحالي فقط";
+            safeLimitMsgEl.style.color = "var(--text-secondary)";
+          }
+        }
       }
 
       function applyFilters(expenses) {
@@ -4314,8 +4461,16 @@
       });
 
       monthSelect.addEventListener("change", async (e) => {
-        state.selectedMonthId = e.target.value || null;
+        const oldMonthId = state.selectedMonthId;
+        const newMonthId = e.target.value || null;
+        state.selectedMonthId = newMonthId;
+        
         await refreshUI();
+        
+        // Trigger Rollover Check
+        if (oldMonthId && newMonthId && oldMonthId !== newMonthId) {
+           checkRollover(oldMonthId, newMonthId);
+        }
       });
 
       modalMonth.addEventListener("click", (e) => {
@@ -4564,6 +4719,14 @@
           if (!confirmed) {
             isSavingExpense = false;
             return;
+          }
+          // Mark overflow if limitCheck suggests it
+          if (limitCheck.markOverflow) {
+              state.categoryLimits[category].hasExceeded = true;
+          }
+          if (limitCheck.markGroupOverflow) {
+              const b = state.savingsBuckets.find(x => x.id === limitCheck.markGroupOverflow);
+              if (b) b.hasExceeded = true;
           }
         }
 
@@ -4886,41 +5049,85 @@
 
       // Category limits check - with overflow tracking
       function checkCategoryLimit(cat, additionalAmount) {
+        const month = getSelectedMonth();
+        if (!month) return { allowed: true };
+        const expenses = Array.isArray(month.expenses) ? month.expenses : [];
+        const salary = month.salary || 0;
+
+        // 1. Group Limit Enforcement (The "Ceiling")
+        let groupKey = null;
+        if (CATEGORY_GROUPS.NEEDS.includes(cat)) groupKey = 'NEEDS';
+        else if (CATEGORY_GROUPS.WANTS.includes(cat)) groupKey = 'WANTS';
+        else if (CATEGORY_GROUPS.SAVINGS.includes(cat)) groupKey = 'SAVINGS';
+        else groupKey = 'WANTS'; // Default fallback
+
+        const buckets = Array.isArray(state.savingsBuckets) ? state.savingsBuckets : [];
+        const groupBucket = buckets.find(b => b.groupKey === groupKey);
+
+        if (groupBucket) {
+            // Find all categories in this group
+            const groupCats = (groupKey === 'NEEDS') ? CATEGORY_GROUPS.NEEDS : 
+                             (groupKey === 'WANTS') ? CATEGORY_GROUPS.WANTS : 
+                             CATEGORY_GROUPS.SAVINGS;
+            
+            // Calculate total spent in this group
+            const groupTotalSpent = expenses.reduce((s, e) => {
+                const eCat = e.category || "أخرى";
+                // If it's a "Wants" fallback, we should also count other categories not in NEEDS/SAVINGS
+                const isInGroup = groupCats.includes(eCat) || 
+                                 (groupKey === 'WANTS' && !CATEGORY_GROUPS.NEEDS.includes(eCat) && !CATEGORY_GROUPS.SAVINGS.includes(eCat));
+                return s + (isInGroup ? (e.amount || 0) : 0);
+            }, 0);
+
+            const wouldGroup = groupTotalSpent + (additionalAmount || 0);
+            const bucketLimit = groupBucket.amount || 0;
+
+            if (wouldGroup > bucketLimit) {
+                const groupNameAr = groupKey === 'NEEDS' ? "الاحتياجات" : groupKey === 'WANTS' ? "الرغبات" : "الادخار";
+                const hasOverflowedGroup = groupBucket.hasExceeded === true;
+
+                if (hasOverflowedGroup) {
+                    return { 
+                        allowed: false, 
+                        message: `❌ ميزانية المجموعة "${groupNameAr}" نفدت تماماً! (الحد: ${formatNumber(bucketLimit)}). لا يمكنك إضافة المزيد.` 
+                    };
+                }
+
+                // Soft limit for group
+                return { 
+                    allowed: true, 
+                    message: `⚠️ تنبيه: ستتجاوز ميزانية مجموعة "${groupNameAr}" المخصصة في الحافظات. المتبقي كان: ${formatNumber(bucketLimit - groupTotalSpent)}. هل تود الاستمرار رغم التجاوز؟`, 
+                    markGroupOverflow: groupBucket.id 
+                };
+            }
+        }
+
+        // 2. Individual Category Limit Enforcement
         if (!state.categoryLimits) return { allowed: true };
         const obj = state.categoryLimits[cat];
         if (!obj || !obj.limit) return { allowed: true };
-        const month = getSelectedMonth();
-        const total = (month.expenses || []).reduce((s, e) => s + ((e.category === cat) ? (e.amount || 0) : 0), 0);
+
+        const total = expenses.reduce((s, e) => s + ((e.category === cat) ? (e.amount || 0) : 0), 0);
         const would = total + (additionalAmount || 0);
 
-        // Check if we've already exceeded once in this month
         const hasOverflowed = obj.hasExceeded === true;
-        console.log(`[DEBUG] Checking limit for ${cat}: would=${would}, limit=${obj.limit}, hasOverflowed=${hasOverflowed}`);
-
-        // Allow equal to limit (not just less than)
+        
         if (would <= obj.limit) {
-          // Still within limit
           if (would >= Math.round(obj.limit * 0.8)) {
             return { allowed: true, message: `⚠️ اقتربت من حد الفئة "${cat}" (${formatNumber(would)} / ${formatNumber(obj.limit)})` };
           }
           return { allowed: true };
         }
 
-        // Over limit: allow only once if not hard limit
         if (would > obj.limit) {
           if (hasOverflowed) {
-            // Already exceeded once, block further additions
             const msg = `❌ لا يمكن إضافة مصاريف إضافية. تجاوزت حد الفئة "${cat}" (${formatNumber(obj.limit)}) بالفعل.`;
             return { allowed: false, message: msg };
           }
-
           if (obj.hard) {
-            // Hard limit, no overflow allowed
             const msg = `⛔ سيتم تجاوز حد الفئة "${cat}" (${formatNumber(obj.limit)}) — بعد الإضافة: ${formatNumber(would)}. هذا الحد لا يمكن تجاوزه.`;
             return { allowed: false, message: msg };
           }
-
-          // Soft limit, allow one overflow
           const msg = `⚠️ سيتم تجاوز حد الفئة "${cat}" (${formatNumber(obj.limit)}) — بعد الإضافة: ${formatNumber(would)}.\n\nهذا التجاوز مسموح لمرة واحدة فقط.`;
           return { allowed: true, message: msg, markOverflow: true };
         }
@@ -5297,6 +5504,53 @@
       }
 
       if (btnAddBucket) btnAddBucket.addEventListener('click', () => openBucketModal(null));
+
+      if (btnAutoSplitBudget) {
+        btnAutoSplitBudget.addEventListener('click', async () => {
+          const month = getSelectedMonth();
+          if (!month) {
+            alert("يرجى اختيار شهر أولاً.");
+            return;
+          }
+          const salary = month.salary || 0;
+          if (salary <= 0) {
+            alert("يرجى تحديد راتب لهذا الشهر لاستخدام التقسيم التلقائي.");
+            return;
+          }
+
+          const confirmSplit = await showConfirmModal(
+            "سيتم الآن إعادة تقسيم ميزانيتك بناءً على قاعدة 50/30/20. سيؤدي هذا إلى استبدال الحافظات الحالية. هل أنت متأكد؟",
+            "تأكيد التقسيم التلقائي",
+            "✨"
+          );
+          if (!confirmSplit) return;
+
+          state.savingsBuckets = [
+            {
+              id: "auto-needs-" + Date.now(),
+              name: "الاحتياجات (Needs)",
+              amount: Math.round(salary * 0.50),
+              groupKey: "NEEDS"
+            },
+            {
+              id: "auto-wants-" + Date.now(),
+              name: "الرغبات (Wants)",
+              amount: Math.round(salary * 0.30),
+              groupKey: "WANTS"
+            },
+            {
+              id: "auto-savings-" + Date.now(),
+              name: "الأهداف/المدخرات (Savings)",
+              amount: Math.round(salary * 0.20),
+              groupKey: "SAVINGS"
+            }
+          ];
+
+          await saveState();
+          refreshUI();
+          if (typeof showToast === 'function') showToast("تم تقسيم الميزانية بنجاح!", "success", 2000);
+        });
+      }
       if (btnSaveBucket) btnSaveBucket.addEventListener('click', saveBucket);
       if (btnCancelBucket) btnCancelBucket.addEventListener('click', closeBucketModal);
       if (btnCloseBucket) btnCloseBucket.addEventListener('click', closeBucketModal);
@@ -5901,6 +6155,261 @@
         });
       }
 
+      // ==========================================
+      // FEATURE 1: 50/30/20 Smart Allocation Rule
+      // ==========================================
+      const CATEGORY_GROUPS = {
+        NEEDS: ["أكل", "مواصلات", "فواتير", "إيجار", "صحة", "تعليم", "عائلة"],
+        WANTS: ["تسوق", "ترفيه", "هدايا", "كافيهات", "سفر", "مطاعم"],
+        SAVINGS: ["إدخار", "استثمار", "طوارئ"]
+      };
+
+      function renderBudgetRule() {
+        const month = getSelectedMonth();
+        const barNeeds = document.getElementById("barNeeds");
+        if (!month || !barNeeds) return;
+        
+        const salary = month.salary || 0;
+        let needsTotal = 0, wantsTotal = 0, savingsTotal = 0;
+        
+        const expenses = Array.isArray(month.expenses) ? month.expenses : [];
+        expenses.forEach(e => {
+            const cat = e.category || "أخرى";
+            if (CATEGORY_GROUPS.NEEDS.includes(cat)) {
+                needsTotal += e.amount || 0;
+            } else if (CATEGORY_GROUPS.WANTS.includes(cat)) {
+                wantsTotal += e.amount || 0;
+            } else if (CATEGORY_GROUPS.SAVINGS.includes(cat)) {
+                savingsTotal += e.amount || 0;
+            } else {
+                wantsTotal += e.amount || 0; 
+            }
+        });
+
+        const totalSpent = needsTotal + wantsTotal + savingsTotal;
+        const unspent = salary - totalSpent; 
+        
+        const effectiveSavings = savingsTotal + (unspent > 0 ? unspent : 0);
+
+        const needsPct = salary > 0 ? Math.round((needsTotal / salary) * 100) : 0;
+        const wantsPct = salary > 0 ? Math.round((wantsTotal / salary) * 100) : 0;
+        const savPct   = salary > 0 ? Math.round((effectiveSavings / salary) * 100) : 0;
+
+        document.getElementById("barNeeds").style.width = `${Math.min(needsPct, 100)}%`;
+        document.getElementById("barWants").style.width = `${Math.min(wantsPct, 100)}%`;
+        document.getElementById("barSavings").style.width = `${Math.min(savPct, 100)}%`;
+
+        document.getElementById("labelNeeds").textContent = `🔵 إحتياجات (50%): ${needsPct}%`;
+        document.getElementById("labelWants").textContent = `🟣 رغبات (30%): ${wantsPct}%`;
+        document.getElementById("labelSavings").textContent = `🟢 إدخار (20%): ${savPct}%`;
+
+        document.getElementById("barNeeds").style.background = needsPct > 50 ? "#ef4444" : "#3b82f6";
+        document.getElementById("barWants").style.background = wantsPct > 30 ? "#ef4444" : "#a855f7";
+        document.getElementById("barSavings").style.background = savPct < 20 ? "#f59e0b" : "#10b981";
+
+        const targetTxt = document.getElementById("budgetRuleTotalTxt");
+        if(targetTxt) targetTxt.textContent = `متبقي للادخار: ${formatNumber(unspent > 0 ? unspent : 0)}`;
+      }
+
+      // ==========================================
+      // FEATURE 2: Month-End Rollover Logic
+      // ==========================================
+      let activeRolloverMonthId = null;
+      let activeRolloverAmount = 0;
+      let activeRolloverDistribution = {};
+
+      function checkRollover(oldMonthId, newMonthId) {
+        const sortedMonths = state.months.slice().sort((a,b) => a.year - b.year || a.month - b.month);
+        const oldMonth = sortedMonths.find(m => m.id === oldMonthId);
+        const newMonth = sortedMonths.find(m => m.id === newMonthId);
+        
+        if (!oldMonth || !newMonth) return;
+
+        const oldIndex = sortedMonths.findIndex(m => m.id === oldMonthId);
+        const newIndex = sortedMonths.findIndex(m => m.id === newMonthId);
+
+        if (newIndex > oldIndex && !oldMonth.rolloverProcessed) {
+           const expensesTotal = (oldMonth.expenses || []).reduce((sum, e) => sum + (e.amount || 0), 0);
+           const remaining = (oldMonth.salary || 0) - expensesTotal;
+
+           if (remaining > 0) {
+               showRolloverModal(oldMonth, remaining, newMonth);
+           }
+        }
+      }
+
+      function showRolloverModal(oldMonth, remaining, newMonth) {
+        const modal = document.getElementById("rolloverModal");
+        if (!modal) return;
+        
+        activeRolloverMonthId = oldMonth.id;
+        activeRolloverAmount = remaining;
+        activeRolloverDistribution = {};
+        
+        document.getElementById("rolloverTotalAmount").textContent = formatNumber(remaining);
+        document.getElementById("rolloverRemainingToDistribute").textContent = formatNumber(remaining);
+
+        const goals = Array.isArray(state.goals) ? state.goals : [];
+        const btnSave = document.getElementById("btnSaveRolloverGoals");
+
+        if (goals.length > 0) {
+            document.getElementById("rolloverGoalsSection").style.display = "block";
+            document.getElementById("rolloverNoGoalsSection").style.display = "none";
+            
+            const cont = document.getElementById("rolloverSlidersContainer");
+            cont.innerHTML = "";
+            let remainingToDistribute = remaining;
+
+            goals.forEach(g => {
+                const row = document.createElement("div");
+                row.style.marginBottom = "15px";
+                const label = document.createElement("div");
+                label.style.display = "flex";
+                label.style.justifyContent = "space-between";
+                label.style.fontSize = "13px";
+                label.style.marginBottom = "5px";
+                
+                const titleSpan = document.createElement("span");
+                titleSpan.textContent = g.title + ` (متبقي: ${formatNumber(g.target - g.current)})`;
+                
+                const valSpan = document.createElement("span");
+                valSpan.textContent = "0";
+                valSpan.style.fontWeight = "bold";
+                valSpan.style.color = "#10b981";
+
+                label.appendChild(titleSpan);
+                label.appendChild(valSpan);
+
+                const slider = document.createElement("input");
+                slider.type = "range";
+                slider.min = "0";
+                slider.max = remaining;
+                slider.value = "0";
+                slider.className = "form-input";
+                slider.style.padding = "0";
+
+                slider.addEventListener("input", (e) => {
+                    const newVal = parseInt(e.target.value) || 0;
+                    const oldVal = activeRolloverDistribution[g.id] || 0;
+                    let diff = newVal - oldVal;
+
+                    if (remainingToDistribute - diff < 0) {
+                        e.target.value = oldVal + remainingToDistribute;
+                    }
+
+                    const finalVal = parseInt(e.target.value) || 0;
+                    activeRolloverDistribution[g.id] = finalVal;
+                    valSpan.textContent = formatNumber(finalVal);
+
+                    remainingToDistribute = remaining - Object.values(activeRolloverDistribution).reduce((a,b)=>a+b, 0);
+                    document.getElementById("rolloverRemainingToDistribute").textContent = formatNumber(remainingToDistribute);
+                    
+                    btnSave.disabled = (Object.values(activeRolloverDistribution).reduce((a,b)=>a+b,0) === 0);
+                });
+
+                row.appendChild(label);
+                row.appendChild(slider);
+                cont.appendChild(row);
+            });
+        } else {
+            document.getElementById("rolloverGoalsSection").style.display = "none";
+            document.getElementById("rolloverNoGoalsSection").style.display = "flex";
+        }
+
+        modal.style.display = "flex";
+
+        if (!modal.dataset.bound) {
+            document.getElementById("btnCancelRollover")?.addEventListener("click", () => {
+                modal.style.display = "none";
+            });
+
+            document.getElementById("btnSkipRolloverGoals")?.addEventListener("click", () => {
+                document.getElementById("rolloverGoalsSection").style.display = "none";
+                document.getElementById("rolloverNoGoalsSection").style.display = "flex";
+            });
+
+            document.getElementById("btnRolloverNextMonth")?.addEventListener("click", async () => {
+                const nM = state.months.find(m => m.id === state.selectedMonthId);
+                const oM = state.months.find(m => m.id === activeRolloverMonthId);
+                if(nM && oM) {
+                   nM.salary = (nM.salary || 0) + activeRolloverAmount;
+                   markOldMonthProcessed(oM);
+                   await saveState();
+                   refreshUI({forceAnimate: true});
+                }
+                modal.style.display = "none";
+            });
+
+            document.getElementById("btnRolloverVault")?.addEventListener("click", async () => {
+                const oM = state.months.find(m => m.id === activeRolloverMonthId);
+                privateState.totalBalance = (privateState.totalBalance || 0) + activeRolloverAmount;
+                if(oM) markOldMonthProcessed(oM);
+                await savePrivateState();
+                await saveState();
+                modal.style.display = "none";
+                if(typeof showToast === 'function') showToast("إيداع ناجح في القاصة", "success", 2000);
+            });
+
+            document.getElementById("btnRolloverCreateGoal")?.addEventListener("click", () => {
+                modal.style.display = "none";
+                const btnAddGoal = document.getElementById("btnAddGoal");
+                if (btnAddGoal) btnAddGoal.click();
+            });
+
+            btnSave?.addEventListener("click", async () => {
+                const oM = state.months.find(m => m.id === activeRolloverMonthId);
+                let distributedSome = false;
+                Object.entries(activeRolloverDistribution).forEach(([gId, amt]) => {
+                    if (amt > 0) {
+                        const g = state.goals.find(xg => xg.id == gId);
+                        if(g) {
+                            g.current = (g.current || 0) + amt;
+                            distributedSome = true;
+                        }
+                    }
+                });
+
+                if (distributedSome && oM) {
+                    const exactSum = Object.values(activeRolloverDistribution).reduce((s, a) => s + a, 0);
+                    
+                    // Deduct as an expense in old month
+                    oM.expenses = oM.expenses || [];
+                    oM.expenses.push({
+                        id: Date.now(),
+                        title: "تحويل للأهداف (تقفيل الشهر) 🔄",
+                        amount: exactSum,
+                        category: "أخرى",
+                        date: new Date().toISOString().split('T')[0],
+                        note: "تم توزيعه أوتوماتيكياً بواسطة تقفيل الشهر الذكي",
+                        imageDataUrl: null
+                    });
+                    oM.rolloverProcessed = true; 
+                    
+                    await saveState();
+                    refreshUI({forceAnimate: true});
+                    if(typeof showToast === 'function') showToast("تم تحديث الأهداف وخصم المبلغ من الشهر السابق بنجاح", "success", 2000);
+                }
+                modal.style.display = "none";
+            });
+
+            modal.dataset.bound = "true";
+        }
+      }
+
+      function markOldMonthProcessed(oMonth) {
+          oMonth.expenses = oMonth.expenses || [];
+          oMonth.expenses.push({
+             id: Date.now(),
+             title: "ترحيل رصيد للإيداع 🔄",
+             amount: activeRolloverAmount,
+             category: "أخرى",
+             date: new Date().toISOString().split('T')[0],
+             note: "تمت تصفيته وتحويله تلقائياً لراتب الشهر الجديد أو القاصة",
+             imageDataUrl: null
+          });
+          oMonth.rolloverProcessed = true;
+      }
+
       let _hasRunRefresh = false; // track whether we already animated once
 
       async function refreshUI(options = {}) {
@@ -5926,6 +6435,7 @@
         renderCategoryOptions();
         renderCategoryList();
         renderGoals();
+        renderBudgetRule();
         renderSavingsBuckets();
 
         if (!noAnim) {
@@ -5940,6 +6450,95 @@
 
         await saveState();
         _hasRunRefresh = true; // subsequent calls default to no animation
+      }
+      // === منطق مقارنة الفئات السريعة ===
+      const quickCompareCategory = document.getElementById("quickCompareCategory");
+      const btnQuickCompare = document.getElementById("btnQuickCompare");
+      const quickCompareResult = document.getElementById("quickCompareResult");
+
+      const compareTabBtnNode = document.querySelector('.tab-btn[data-tab="compare"]');
+      if (compareTabBtnNode && quickCompareCategory) {
+          compareTabBtnNode.addEventListener("click", () => {
+              quickCompareCategory.innerHTML = "";
+              state.categories.forEach(cat => {
+                  const opt = document.createElement("option");
+                  opt.value = cat;
+                  opt.textContent = cat;
+                  quickCompareCategory.appendChild(opt);
+              });
+              quickCompareResult.style.display = "none";
+          });
+      }
+
+      if (btnQuickCompare) {
+        btnQuickCompare.addEventListener("click", () => {
+          const category = quickCompareCategory.value;
+          if (!category) return;
+          
+          const sortedMonths = state.months.slice().sort((a,b) => a.year - b.year || a.month - b.month);
+          if (sortedMonths.length < 1) return;
+
+          const currMonth = getSelectedMonth() || sortedMonths[sortedMonths.length - 1];
+          const currIdx = sortedMonths.findIndex(m => m.id === currMonth.id);
+          
+          let prevMonth = null;
+          if (currIdx > 0) {
+             prevMonth = sortedMonths[currIdx - 1];
+          }
+
+          let currAmount = 0;
+          let prevAmount = 0;
+
+          if (currMonth && Array.isArray(currMonth.expenses)) {
+             document.getElementById("labelCurrMonth").textContent = currMonth.name + " " + currMonth.year;
+             currMonth.expenses.forEach(e => {
+               if (e.category === category) currAmount += (e.amount || 0);
+             });
+          }
+
+          if (prevMonth && Array.isArray(prevMonth.expenses)) {
+             document.getElementById("labelPrevMonth").textContent = prevMonth.name + " " + prevMonth.year;
+             prevMonth.expenses.forEach(e => {
+               if (e.category === category) prevAmount += (e.amount || 0);
+             });
+          } else {
+             document.getElementById("labelPrevMonth").textContent = "بدون سجل سابق";
+          }
+
+          document.getElementById("quickComparePrevVal").textContent = formatNumber(prevAmount);
+          document.getElementById("quickCompareCurrVal").textContent = formatNumber(currAmount);
+          
+          const badge = document.getElementById("quickCompareBadge");
+
+          if (prevAmount === 0 && currAmount > 0) {
+            badge.textContent = "↑ صعود 100%";
+            badge.style.backgroundColor = "rgba(239, 68, 68, 0.1)";
+            badge.style.color = "#ef4444";
+          } else if (prevAmount === 0 && currAmount === 0) {
+            badge.textContent = "استقرار 0%";
+            badge.style.backgroundColor = "var(--bg-color)";
+            badge.style.color = "var(--text-secondary)";
+          } else {
+             const diff = currAmount - prevAmount;
+             const pct = Math.round((diff / prevAmount) * 100);
+             
+             if (diff > 0) {
+               badge.textContent = `↑ زيادة ${pct}%`;
+               badge.style.backgroundColor = "rgba(239, 68, 68, 0.1)";
+               badge.style.color = "#ef4444";
+             } else if (diff < 0) {
+               badge.textContent = `↓ توفير ${Math.abs(pct)}%`;
+               badge.style.backgroundColor = "rgba(16, 185, 129, 0.1)";
+               badge.style.color = "#10b981";
+             } else {
+               badge.textContent = "== مستقر";
+               badge.style.backgroundColor = "var(--bg-color)";
+               badge.style.color = "var(--text-secondary)";
+             }
+          }
+          
+          quickCompareResult.style.display = "flex";
+        });
       }
 
       (function init() {

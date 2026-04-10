@@ -6,7 +6,7 @@
   <link rel="manifest" href="/my-money" />
   <title>نظام إدارة المصاريف</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="theme-color" content="#3498db" />
+  <meta name="theme-color" content="#4f46e5" />
   <meta name="description" content="تطبيق لإدارة ومتابعة المصاريف اليومية" />
 
   <!-- Web App Manifest للتطبيق -->
@@ -18,6 +18,11 @@
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="apple-mobile-web-app-title" content="المصاريف" />
+
+  <!-- Typography: Inter + Noto Sans Arabic -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet" />
 
   <link rel="stylesheet" href="style.css">
   <style>
@@ -181,60 +186,15 @@
     }
 
     /* ===== الخط الأساسي للهاتف ===== */
-    @media (max-width: 600px) {
-      body {
-        font-size: 16px;
-      }
-
-      * {
-        -webkit-tap-highlight-color: transparent;
-      }
+    html, body {
+      overflow-x: hidden;
+      width: 100%;
     }
 
-    /* ===== تحسين حجم Touch Targets ===== */
+    /* Touch targets already set at base level (44px) */
+
+    /* ===== شاشة تسجيل الدخول - Mobile First (already default) ===== */
     @media (max-width: 768px) {
-
-      .btn,
-      .tab-btn,
-      .month-select,
-      .form-input,
-      .form-select {
-        min-height: 44px;
-      }
-
-      .btn-sm {
-        min-height: 38px;
-        padding: 8px 14px;
-      }
-
-      .form-input,
-      .form-select,
-      .form-textarea {
-        font-size: 16px;
-        /* منع zoom على iOS */
-      }
-
-      .form-input-sm,
-      .form-select-sm {
-        font-size: 15px;
-        min-height: 40px;
-      }
-
-      /* تكبير أزرار التعديل والحذف في بطاقات المصاريف */
-      .expense-actions .btn {
-        min-height: 36px;
-        padding: 6px 12px;
-        font-size: 13px;
-      }
-    }
-
-    /* ===== شاشة تسجيل الدخول - Mobile First ===== */
-    @media (max-width: 768px) {
-      body {
-        padding: 0;
-        align-items: flex-start;
-      }
-
       .login-container {
         max-width: 100%;
         min-height: 100vh;
@@ -250,48 +210,19 @@
       .login-body {
         flex: 1;
       }
-
-      .login-header {
-        margin-bottom: 24px;
-      }
-
-      .login-icon {
-        width: 52px;
-        height: 52px;
-        font-size: 28px;
-      }
-
-      .login-title h1 {
-        font-size: 24px;
-      }
-
-      .login-tab-btn {
-        min-height: 44px;
-        font-size: 14px;
-      }
-
-      .app-container {
-        max-width: 100%;
-        border-radius: 0;
-        min-height: 100vh;
-        min-height: 100dvh;
-        box-shadow: none;
-        border: none;
-        padding: 12px 12px 80px;
-        /* مسافة للـ bottom nav */
-      }
-
+    }
+    /* ===== Mobile-only: modals, header, tabs ===== */
+    @media (max-width: 768px) {
       /* المودالات كاملة الشاشة على الهاتف */
       .modal-backdrop {
         align-items: flex-end;
         z-index: 1000 !important;
-        /* تغطية الشريط السفلي */
       }
 
       .modal {
         max-width: 100%;
         width: 100%;
-        border-radius: 24px 24px 0 0;
+        border-radius: 20px 20px 0 0;
         max-height: 92vh;
         max-height: 92dvh;
         padding: 20px 16px calc(20px + env(safe-area-inset-bottom, 0px));
@@ -315,6 +246,7 @@
       .modal-footer .btn {
         min-height: 46px;
         font-size: 14px;
+        width: 100%;
       }
 
       .modal-footer {
@@ -322,11 +254,7 @@
         gap: 8px;
       }
 
-      .modal-footer .btn {
-        width: 100%;
-      }
-
-      /* الـ header - تصغير على الهاتف */
+      /* الـ header */
       header h2 {
         font-size: 17px;
       }
@@ -339,15 +267,24 @@
         display: none;
       }
 
-      /* يُخفى - نستبدله بـ Bottom Nav */
-      /* التبويبات على الهاتف */
+      /* التبويبات مخفية - يحل محلها Bottom Nav */
+      .tabs {
+        display: none !important;
+      }
+
       .tab-btn {
         font-size: 11px;
         padding: 8px 4px;
       }
 
-      .tabs {
-        margin: 8px 0 10px;
+      /* month row */
+      .month-row {
+        flex-wrap: wrap;
+        gap: 6px;
+      }
+
+      header {
+        margin-bottom: 4px;
       }
 
       /* بطاقات الملخص */
@@ -355,34 +292,8 @@
         font-size: 15px;
       }
 
-      .summary-label {
-        font-size: 11px;
-      }
-
-      /* الكارتات */
-      .card {
-        padding: 10px;
-        border-radius: 12px;
-      }
-
       .card-header h3 {
         font-size: 14px;
-      }
-
-      /* ===== إخفاء التبويبات العلوية على الهاتف (Bottom Nav يحل محلها) ===== */
-      .tabs {
-        display: none !important;
-      }
-
-      /* إخفاء اختيار الشهر المكرر للتبويبات غير النشطة */
-      .month-row {
-        flex-wrap: wrap;
-        gap: 6px;
-      }
-
-      /* تحسين الهيدر على الهاتف - التخلص من المسافة الزائدة */
-      header {
-        margin-bottom: 4px;
       }
     }
 
@@ -393,10 +304,10 @@
       bottom: 0;
       left: 0;
       right: 0;
-      height: 62px;
+      height: 66px;
       background: var(--card-bg);
       border-top: 1px solid var(--border-color);
-      box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.08);
+      box-shadow: 0 -2px 12px rgba(0, 0, 0, 0.06);
       z-index: 200;
       padding-bottom: env(safe-area-inset-bottom, 0px);
       align-items: center;
@@ -415,17 +326,19 @@
       align-items: center;
       justify-content: center;
       flex: 1;
-      gap: 3px;
-      padding: 6px 4px;
+      gap: 2px;
+      padding: 8px 4px;
       border: none;
       background: transparent;
       cursor: pointer;
       color: var(--subtext-color);
       font-size: 10px;
       font-weight: 600;
-      transition: color 0.2s;
+      transition: color var(--transition-fast);
       -webkit-tap-highlight-color: transparent;
       position: relative;
+      min-height: 50px;
+      touch-action: manipulation;
     }
 
     .mobile-nav-item .nav-icon {
@@ -460,8 +373,8 @@
 
     /* زر إضافة مصروف في المنتصف */
     .mobile-nav-fab {
-      width: 50px;
-      height: 50px;
+      width: 52px;
+      height: 52px;
       border-radius: 50%;
       background: var(--accent);
       color: white;
@@ -471,16 +384,17 @@
       align-items: center;
       justify-content: center;
       cursor: pointer;
-      box-shadow: 0 4px 20px rgba(37, 99, 235, 0.45);
-      transition: transform 0.2s, box-shadow 0.2s;
-      margin-top: -18px;
+      box-shadow: 0 4px 16px rgba(79, 70, 229, 0.4);
+      transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+      margin-top: -20px;
       flex-shrink: 0;
       -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
     }
 
     .mobile-nav-fab:active {
       transform: scale(0.92);
-      box-shadow: 0 2px 10px rgba(37, 99, 235, 0.4);
+      box-shadow: 0 2px 8px rgba(79, 70, 229, 0.35);
     }
 
     /* ===== زر الإعدادات (يظهر في الـ Header بدلاً من الأزرار الكثيرة على الهاتف) ===== */
@@ -689,6 +603,62 @@
     }
 
     /* ===== تحسين مودال الإعدادات Desktop ===== */
+    /* ===== Tablet Enhancement (768px+) ===== */
+    @media (min-width: 768px) {
+      body {
+        padding: 10px;
+        align-items: center;
+      }
+
+      .app-container {
+        max-width: 560px;
+        border-radius: var(--radius-lg);
+        box-shadow: var(--shadow-lg);
+        border: 1px solid var(--border-color);
+        padding: 20px;
+        min-height: auto;
+      }
+
+      .card {
+        border-radius: var(--radius-md);
+        padding: 16px;
+        box-shadow: var(--shadow-sm);
+      }
+
+      .btn {
+        font-size: 13px;
+        padding: 8px 16px;
+        min-height: 36px;
+      }
+
+      .btn-sm {
+        min-height: 32px;
+        padding: 6px 12px;
+      }
+
+      .form-input,
+      .form-textarea,
+      .form-select {
+        font-size: 14px;
+        padding: 10px 12px;
+        min-height: 38px;
+      }
+
+      .month-select {
+        font-size: 13px;
+        min-height: 38px;
+      }
+
+      .login-container {
+        max-width: 420px;
+        border-radius: var(--radius-lg);
+        box-shadow: var(--shadow-lg);
+        border: 1px solid var(--border-color);
+        min-height: auto;
+      }
+    }
+
+    /* ===== Desktop Enhancement (769px+) ===== */
     @media (min-width: 769px) {
 
       /* يُظهر header actions على الـ desktop */
@@ -707,11 +677,6 @@
         display: none !important;
       }
 
-      /* padding طبيعي */
-      .app-container {
-        padding: 16px !important;
-      }
-
       /* التبويبات ظاهرة على الديسكتوب */
       .tabs {
         display: flex !important;
@@ -724,6 +689,7 @@
 
       .modal-footer .btn {
         width: auto !important;
+        min-height: 36px;
       }
 
       /* الـ modal يعود لوضع المنتصف على الديسكتوب */
@@ -732,7 +698,7 @@
       }
 
       .modal {
-        border-radius: 18px !important;
+        border-radius: var(--radius-lg) !important;
         max-width: 520px !important;
         width: calc(100% - 32px) !important;
       }
@@ -740,6 +706,13 @@
       /* إلغاء الشريط العلوي للمودال */
       .modal::before {
         display: none !important;
+      }
+    }
+
+    /* ===== Wide Desktop (1024px+) ===== */
+    @media (min-width: 1024px) {
+      .app-container {
+        max-width: 600px;
       }
     }
 
@@ -937,10 +910,10 @@
         <span id="userEmailLabel" class="user-label"></span>
         <!-- حالة الشبكة والمزامنة -->
         <div id="networkStatus" class="network-status" title="حالة الاتصال"></div>
-        <button id="btnChangePasswordQuick" class="btn btn-outline btn-sm">🔐 تغيير كلمة السر</button>
-        <button id="btnToggleTheme" class="btn btn-outline btn-sm">🌙 الوضع الداكن</button>
-        <button id="btnAdminPanel" class="btn btn-outline btn-sm" style="display:none;">🛡️ لوحة التحكم</button>
-        <button id="btnLogout" class="btn btn-outline btn-sm">🚪 تسجيل خروج</button>
+        <button id="btnChangePasswordQuick" class="btn btn-outline btn-sm">تغيير كلمة السر</button>
+        <button id="btnToggleTheme" class="btn btn-outline btn-sm">الوضع الداكن</button>
+        <button id="btnAdminPanel" class="btn btn-outline btn-sm" style="display:none;">لوحة التحكم</button>
+        <button id="btnLogout" class="btn btn-outline btn-sm">تسجيل خروج</button>
       </div>
     </header>
 
@@ -955,10 +928,10 @@
           <button id="btnMobileSettings" class="btn btn-outline btn-sm" style="min-height:36px;" aria-haspopup="true"
             aria-expanded="false">⚙️</button>
           <div id="settingsMenu" role="menu">
-            <button class="settings-menu-item" id="menuToggleThemeMob">🌙 الوضع الداكن</button>
-            <button class="settings-menu-item" id="menuChangePasswordMob">🔐 تغيير كلمة السر</button>
-            <button class="settings-menu-item" id="menuAdminMob" style="display:none;">🛡️ لوحة التحكم</button>
-            <button class="settings-menu-item danger" id="menuLogoutMob">🚪 تسجيل الخروج</button>
+            <button class="settings-menu-item" id="menuToggleThemeMob">الوضع الداكن</button>
+            <button class="settings-menu-item" id="menuChangePasswordMob">تغيير كلمة السر</button>
+            <button class="settings-menu-item" id="menuAdminMob" style="display:none;">لوحة التحكم</button>
+            <button class="settings-menu-item danger" id="menuLogoutMob">تسجيل الخروج</button>
           </div>
         </div>
       </div>
@@ -1130,12 +1103,10 @@
         <div class="card-header">
           <h3>التصنيفات</h3>
         </div>
-        <div class="form-group" style="margin-bottom:6px;">
-          <div style="display:flex; gap:6px;">
-            <input id="newCategoryInput" type="text" class="form-input form-input-sm"
-              placeholder="إضافة تصنيف جديد (مثال: قهوة)" />
-            <button id="btnAddCategory" class="btn btn-outline btn-sm">+ إضافة</button>
-          </div>
+        <div class="category-add-row">
+          <input id="newCategoryInput" type="text" class="form-input form-input-sm"
+            placeholder="تصنيف جديد" />
+          <button id="btnAddCategory" class="btn btn-outline btn-sm">إضافة</button>
         </div>
         <div id="categoryList"></div>
       </div>
@@ -1190,55 +1161,50 @@
     <!-- تبويب التخطيط والأهداف وتقسيم الراتب -->
     <div id="tab-planning" style="display:none;">
       <div id="goalsBucketsCard" class="card">
-        <div class="card-header"
-          style="display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:12px;">
+        <div class="card-header">
           <h3>الأهداف وتقسيم الراتب</h3>
-          <div style="display:flex; gap:6px; align-items:center; flex-wrap:wrap;">
+          <div class="card-header-actions">
             <button id="btnAddGoal" class="btn btn-primary btn-sm">+ هدف</button>
-            <button id="btnAutoSplitBudget" class="btn btn-outline btn-sm" style="color: #f59e0b; border-color: #f59e0b;">✨ تقسيم ذكي (50/30/20)</button>
+            <button id="btnAutoSplitBudget" class="btn btn-outline btn-sm btn-warning-outline">تقسيم ذكي (50/30/20)</button>
             <button id="btnAddBucket" class="btn btn-primary btn-sm">+ حافظة</button>
           </div>
         </div>
 
-        <!-- ميزانية 50/30/20 الذكية -->
-        <div style="margin-bottom: 24px;">
-          <h4 style="font-size: 16px; font-weight: 600; margin-bottom: 12px; color: var(--text-color); display: flex; justify-content: space-between;">
-            <span>📊 ميزانية 50/30/20 الذكية</span>
-            <span id="budgetRuleTotalTxt" style="font-size: 13px; font-weight: normal; color: var(--text-secondary);">--</span>
+        <div class="planning-section">
+          <h4 class="section-title">ميزانية 50/30/20 الذكية
+            <span id="budgetRuleTotalTxt" class="section-title-meta">--</span>
           </h4>
-          <div style="display: flex; height: 18px; border-radius: 12px; overflow: hidden; background: var(--bg-color); border: 1px solid var(--border-color);">
-            <div id="barNeeds" style="height: 100%; width: 0%; background: #3b82f6; transition: width 0.3s ease;"></div>
-            <div id="barWants" style="height: 100%; width: 0%; background: #a855f7; transition: width 0.3s ease;"></div>
-            <div id="barSavings" style="height: 100%; width: 0%; background: #10b981; transition: width 0.3s ease;"></div>
+          <div class="budget-rule-bar">
+            <div id="barNeeds" class="budget-rule-segment" style="width: 0%; background: #4f46e5;"></div>
+            <div id="barWants" class="budget-rule-segment" style="width: 0%; background: #a855f7;"></div>
+            <div id="barSavings" class="budget-rule-segment" style="width: 0%; background: #059669;"></div>
           </div>
-          <div style="display: flex; justify-content: space-between; margin-top: 8px; font-size: 11px;">
-            <div id="labelNeeds" style="color: var(--text-secondary);">🔵 إحتياجات (50%): 0</div>
-            <div id="labelWants" style="color: var(--text-secondary);">🟣 رغبات (30%): 0</div>
-            <div id="labelSavings" style="color: #10b981; font-weight: 600;">🟢 إدخار (20%): 0</div>
+          <div class="budget-rule-labels">
+            <div id="labelNeeds" class="budget-rule-label">احتياجات (50%): 0</div>
+            <div id="labelWants" class="budget-rule-label">رغبات (30%): 0</div>
+            <div id="labelSavings" class="budget-rule-label budget-rule-label--savings">إدخار (20%): 0</div>
           </div>
         </div>
 
         <!-- Goals Section -->
-        <div style="margin-bottom: 24px;">
-          <h4 style="font-size: 16px; font-weight: 600; margin-bottom: 12px; color: var(--text-color);">🎯 الأهداف</h4>
+        <div class="planning-section">
+          <h4 class="section-title">الأهداف</h4>
           <div id="goalsContainer" class="goals-container">
             <div class="empty-state" id="goalsEmpty">لا توجد أهداف حتى الآن.</div>
           </div>
         </div>
 
         <!-- Buckets Section -->
-        <div style="border-top: 1px solid var(--border-color); padding-top: 20px;">
-          <h4 style="font-size: 16px; font-weight: 600; margin-bottom: 12px; color: var(--text-color);">💼 تقسيم الراتب
-          </h4>
+        <div class="planning-section planning-section--bordered">
+          <h4 class="section-title">تقسيم الراتب</h4>
           <div id="bucketsContainer" class="buckets-container">
             <div class="empty-state" id="bucketsEmpty">لا توجد حافظات حتى الآن.</div>
           </div>
-          <div class="card-footer" style="display:flex; gap:8px; align-items:center; margin-top: 16px;">
-            <div style="flex:1"><strong>المجموع المخصص:</strong> <span id="bucketsTotalPercent">0</span></div>
+          <div class="card-footer">
+            <div class="card-footer-info"><strong>المجموع المخصص:</strong> <span id="bucketsTotalPercent">0</span></div>
             <button id="btnPreviewSplit" class="btn btn-outline btn-sm">معاينة</button>
             <button id="btnApplySplit" class="btn btn-primary btn-sm">تطبيق</button>
-            <button id="btnClearAllBuckets" class="btn btn-danger btn-sm" title="مسح جميع تقسيمات الراتب">🗑️ مسح
-              الكل</button>
+            <button id="btnClearAllBuckets" class="btn btn-danger btn-sm" title="مسح جميع تقسيمات الراتب">مسح الكل</button>
           </div>
         </div>
       </div>
@@ -1709,7 +1675,7 @@
         </div>
         <div class="modal-footer" style="justify-content: space-between;">
           <button id="deleteExpenseBtn" class="btn btn-outline btn-sm" style="display:none;">
-            🗑️ حذف المصروف
+            حذف المصروف
           </button>
           <div style="display:flex; gap:6px;">
             <button class="btn btn-outline" id="btnCancelExpense">إلغاء</button>
@@ -2227,18 +2193,23 @@
       async function saveStateRemote() {
         if (!firebaseEnabled || !currentUser || !userRef) return;
         try {
+          // Signal the onValue listener to ignore the echo from our own write
+          _ignoreNextRemoteUpdate = true;
           await set(userRef, state);
           // تسجيل وقت آخر مزامنة ناجحة
           try { localStorage.setItem(LAST_SYNC_KEY, Date.now().toString()); } catch (e) { /* ignore */ }
           return true;
         } catch (e) {
+          _ignoreNextRemoteUpdate = false; // reset flag on failure
           console.warn("Failed to sync with Firebase:", e);
           if (e && e.name === 'QuotaExceededError') {
             stripImagesFromState();
             try {
+              _ignoreNextRemoteUpdate = true;
               await set(userRef, state);
               return true;
             } catch (e2) {
+              _ignoreNextRemoteUpdate = false;
               console.error('Still failed remote after stripping images', e2);
             }
           }
@@ -2250,6 +2221,8 @@
       // are pulled in immediately (fixes issue with laptop not showing
       // changes made on phone).
       let remoteListenerUnsubscribe = null;
+      let _ignoreNextRemoteUpdate = false; // suppress onValue echo after our own save
+      let _remoteUpdateTimer = null; // debounce rapid onValue callbacks
 
       function startRemoteListener() {
         if (!firebaseEnabled || !userRef) return;
@@ -2259,15 +2232,25 @@
         }
         remoteListenerUnsubscribe = onValue(userRef, (snap) => {
           if (!snap.exists()) return;
-          const remoteData = normalizeState(snap.val());
-          const remoteJson = JSON.stringify(remoteData);
-          const localJson = JSON.stringify(state);
-          if (remoteJson !== localJson) {
-            state = remoteData;
-            saveStateLocal();
-            refreshUI();
-            console.log("✅ تم تحديث الحالة من جهاز آخر");
+          // If we just saved to Firebase ourselves, skip this callback
+          if (_ignoreNextRemoteUpdate) {
+            _ignoreNextRemoteUpdate = false;
+            return;
           }
+          // Debounce: wait a bit before applying to avoid rapid-fire re-renders
+          if (_remoteUpdateTimer) clearTimeout(_remoteUpdateTimer);
+          _remoteUpdateTimer = setTimeout(() => {
+            _remoteUpdateTimer = null;
+            const remoteData = normalizeState(snap.val());
+            const remoteJson = JSON.stringify(remoteData);
+            const localJson = JSON.stringify(state);
+            if (remoteJson !== localJson) {
+              state = remoteData;
+              saveStateLocal();
+              refreshUI({ noAnimate: true });
+              console.log("✅ تم تحديث الحالة من جهاز آخر");
+            }
+          }, 500);
         });
       }
 
@@ -6411,45 +6394,76 @@
       }
 
       let _hasRunRefresh = false; // track whether we already animated once
+      let _refreshInProgress = false; // re-entrancy guard
+      let _refreshQueued = null; // store pending options if a call comes while busy
 
       async function refreshUI(options = {}) {
-        // options.noAnimate = true will skip any fade transitions
-        const noAnim = options.noAnimate || (_hasRunRefresh && !options.forceAnimate);
-        state = normalizeState(state);
-
-        if (!noAnim) {
-          // apply fade-out to the main app view so existing data hides smoothly
-          if (appView) {
-            appView.classList.remove("fade-in");
-            appView.classList.add("fade-out");
-            // wait for animation to finish (match CSS duration ~280ms)
-            await new Promise((r) => setTimeout(r, 300));
-          }
+        // Re-entrancy guard: if refreshUI is already running, queue the latest call
+        if (_refreshInProgress) {
+          _refreshQueued = options;
+          return;
         }
+        _refreshInProgress = true;
 
-        refreshMonthSelect();
-        renderSummary();
-        renderAdvancedStats();
-        renderExpenses();
-        renderComparison();
-        renderCategoryOptions();
-        renderCategoryList();
-        renderGoals();
-        renderBudgetRule();
-        renderSavingsBuckets();
+        try {
+          // options.noAnimate = true will skip any fade transitions
+          const noAnim = options.noAnimate || (_hasRunRefresh && !options.forceAnimate);
+          state = normalizeState(state);
 
-        if (!noAnim) {
-          // reveal updated UI with a subtle fade-in
+          if (!noAnim) {
+            // apply fade-out to the main app view so existing data hides smoothly
+            if (appView) {
+              appView.classList.remove("fade-in");
+              appView.classList.add("fade-out");
+              // wait for animation to finish (match CSS duration ~280ms)
+              await new Promise((r) => setTimeout(r, 300));
+            }
+          }
+
+          // Always ensure fade-out is removed before rendering (safety net)
           if (appView) {
             appView.classList.remove("fade-out");
-            appView.classList.add("fade-in");
-            // remove the class after animation to keep DOM clean
-            setTimeout(() => appView && appView.classList.remove("fade-in"), 350);
+          }
+
+          refreshMonthSelect();
+          renderSummary();
+          renderAdvancedStats();
+          renderExpenses();
+          renderComparison();
+          renderCategoryOptions();
+          renderCategoryList();
+          renderGoals();
+          renderBudgetRule();
+          renderSavingsBuckets();
+
+          if (!noAnim) {
+            // reveal updated UI with a subtle fade-in
+            if (appView) {
+              appView.classList.add("fade-in");
+              // remove the class after animation to keep DOM clean
+              setTimeout(() => appView && appView.classList.remove("fade-in"), 350);
+            }
+          }
+
+          await saveState();
+          _hasRunRefresh = true; // subsequent calls default to no animation
+        } catch (err) {
+          console.error('refreshUI error:', err);
+          // Safety: make sure the UI is visible even if something went wrong
+          if (appView) {
+            appView.classList.remove("fade-out");
+            appView.style.opacity = '';
+            appView.style.transform = '';
+          }
+        } finally {
+          _refreshInProgress = false;
+          // If another call was queued while we were busy, run it now
+          if (_refreshQueued !== null) {
+            const queuedOptions = _refreshQueued;
+            _refreshQueued = null;
+            refreshUI(queuedOptions);
           }
         }
-
-        await saveState();
-        _hasRunRefresh = true; // subsequent calls default to no animation
       }
       // === منطق مقارنة الفئات السريعة ===
       const quickCompareCategory = document.getElementById("quickCompareCategory");

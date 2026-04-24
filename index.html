@@ -2163,6 +2163,83 @@
         return s;
       }
 
+      /**
+       * حساب عدد المصاريف الإجمالي في حالة معينة
+       */
+      function countTotalExpenses(stateObj) {
+        if (!stateObj || !Array.isArray(stateObj.months)) return 0;
+        return stateObj.months.reduce((sum, m) => {
+          return sum + (Array.isArray(m.expenses) ? m.expenses.length : 0);
+        }, 0);
+      }
+
+      /**
+       * دمج ذكي بين حالتين: يحتفظ بالنسخة الأكبر لكل شهر
+       * ويدمج الأشهر الفريدة من كل مصدر
+       */
+      function mergeStates(localState, remoteState) {
+        // نبدأ بنسخة عميقة من البيانات البعيدة
+        const merged = JSON.parse(JSON.stringify(remoteState));
+        if (!Array.isArray(localState.months)) return merged;
+        if (!Array.isArray(merged.months)) merged.months = [];
+
+        localState.months.forEach(localMonth => {
+          const idx = merged.months.findIndex(m => m.id === localMonth.id);
+          if (idx === -1) {
+            // الشهر موجود فقط محلياً - أضفه
+            merged.months.push(JSON.parse(JSON.stringify(localMonth)));
+          } else {
+            // الشهر موجود في الاثنين - احتفظ بالنسخة الأكبر
+            const localCount = Array.isArray(localMonth.expenses) ? localMonth.expenses.length : 0;
+            const remoteCount = Array.isArray(merged.months[idx].expenses) ? merged.months[idx].expenses.length : 0;
+            if (localCount > remoteCount) {
+              // المحلي أكبر - استخدمه
+              merged.months[idx] = JSON.parse(JSON.stringify(localMonth));
+            }
+            // وإلا احتفظ بالبعيد (الأكبر أو المتساوي)
+          }
+        });
+
+        // دمج الأهداف والحافظات والتصنيفات (احتفظ بالأكثر)
+        if (Array.isArray(localState.goals) && localState.goals.length > (merged.goals || []).length) {
+          merged.goals = JSON.parse(JSON.stringify(localState.goals));
+        }
+        if (Array.isArray(localState.savingsBuckets) && localState.savingsBuckets.length > (merged.savingsBuckets || []).length) {
+          merged.savingsBuckets = JSON.parse(JSON.stringify(localState.savingsBuckets));
+        }
+        if (Array.isArray(localState.categories) && localState.categories.length > (merged.categories || []).length) {
+          merged.categories = JSON.parse(JSON.stringify(localState.categories));
+        }
+
+        // الاحتفاظ بالشهر المحدد
+        if (localState.selectedMonthId && !remoteState.selectedMonthId) {
+          merged.selectedMonthId = localState.selectedMonthId;
+        }
+
+        return merged;
+      }
+
+      /**
+       * نسخة احتياطية في Firebase قبل أي كتابة فوق
+       */
+      async function backupToFirebase(label = 'auto') {
+        if (!firebaseEnabled || !currentUser || !db) return;
+        try {
+          const snap = await get(userRef);
+          if (snap.exists()) {
+            const backupRef = ref(db, 'users/' + currentUser.uid + '/backup_' + label);
+            await set(backupRef, {
+              data: snap.val(),
+              backedUpAt: Date.now(),
+              reason: label
+            });
+            console.log('[Backup] ✅ نسخة احتياطية محفوظة:', label);
+          }
+        } catch (e) {
+          console.warn('[Backup] فشل حفظ النسخة الاحتياطية:', e);
+        }
+      }
+
       function getSelectedMonth() {
         return state.months.find((m) => m.id === state.selectedMonthId) || null;
       }
@@ -2245,10 +2322,19 @@
             const remoteJson = JSON.stringify(remoteData);
             const localJson = JSON.stringify(state);
             if (remoteJson !== localJson) {
-              state = remoteData;
+              // دمج ذكي: لا نكتب بيانات أقل فوق بيانات أكثر
+              const remoteCount = countTotalExpenses(remoteData);
+              const localCount = countTotalExpenses(state);
+              if (remoteCount >= localCount) {
+                // البيانات البعيدة أكبر أو متساوية: استخدمها
+                state = remoteData;
+              } else {
+                // البيانات المحلية أكبر: دمج ذكي
+                state = normalizeState(mergeStates(state, remoteData));
+              }
               saveStateLocal();
               refreshUI({ noAnimate: true });
-              console.log("✅ تم تحديث الحالة من جهاز آخر");
+              console.log(`✅ تم تحديث الحالة (محلي: ${localCount}, بعيد: ${remoteCount})`);
             }
           }, 500);
         });
@@ -2348,9 +2434,6 @@
       async function loadStateRemoteIfExists() {
         if (!firebaseEnabled || !userRef) return;
         try {
-          // If there is a local state saved for this storage key, treat localStorage
-          // as authoritative: do NOT overwrite it with remote data. Instead push
-          // the local copy to Firebase so remote matches the local version.
           const localKey = getStorageKey();
           let localRaw = null;
           try {
@@ -2360,34 +2443,70 @@
           }
 
           const snap = await get(userRef);
+          const hasLocal = !!localRaw;
+          const hasRemote = snap.exists();
 
-          if (localRaw) {
-            // Local data exists: prefer it. Ensure remote is updated to match local.
+          if (hasLocal && hasRemote) {
+            // ─── كلا المصدرين موجودان: دمج ذكي ───
             try {
-              const localData = JSON.parse(localRaw);
-              // normalize then set to remote
-              const normalized = normalizeState(localData);
-              await set(userRef, normalized);
-              // update last sync timestamp locally
+              const localData = normalizeState(JSON.parse(localRaw));
+              const remoteData = normalizeState(snap.val());
+              const localCount = countTotalExpenses(localData);
+              const remoteCount = countTotalExpenses(remoteData);
+
+              console.log(`[Sync] مصاريف محلية: ${localCount}, مصاريف بعيدة: ${remoteCount}`);
+
+              // دمج ذكي: يأخذ الأفضل من كل شهر
+              const merged = mergeStates(localData, remoteData);
+              const mergedCount = countTotalExpenses(merged);
+              state = normalizeState(merged);
+
+              // إذا كانت النتيجة المدمجة مختلفة عن Firebase، حدّثها
+              if (mergedCount !== remoteCount) {
+                // نسخة احتياطية قبل الكتابة
+                await backupToFirebase('before_merge');
+                _ignoreNextRemoteUpdate = true;
+                await set(userRef, state);
+                console.log(`[Sync] ✅ تم دمج البيانات وتحديث Firebase (${mergedCount} مصروف)`);
+                showToast('✅ تم دمج البيانات بنجاح', 'success');
+              } else {
+                console.log('[Sync] ✅ البيانات متطابقة');
+                showToast('✅ البيانات محدّثة', 'success');
+              }
+
+              // تحديث النسخة المحلية
+              saveStateLocal();
               try { localStorage.setItem(LAST_SYNC_KEY, Date.now().toString()); } catch (e) { }
-              // keep in-memory state in sync with local
-              state = normalizeState(normalized);
-              // notify user that local data was pushed (e.g. after reload)
-              showToast('تم مزامنة البيانات المحلية', 'success');
             } catch (e) {
-              console.warn("Failed to parse local state while syncing to Firebase:", e);
+              console.warn('فشل دمج البيانات:', e);
+              // في حالة الخطأ، استخدم Firebase كمصدر آمن
+              state = normalizeState(snap.val());
+              saveStateLocal();
             }
-          } else {
-            // No local data: if remote exists, load it; otherwise write current (empty) state
-            if (snap.exists()) {
-              const remoteState = normalizeState(snap.val());
-              state = remoteState;
-            } else {
+          } else if (hasLocal && !hasRemote) {
+            // ─── فقط بيانات محلية: ارفعها لـ Firebase ───
+            try {
+              const localData = normalizeState(JSON.parse(localRaw));
+              state = localData;
+              _ignoreNextRemoteUpdate = true;
               await set(userRef, state);
+              try { localStorage.setItem(LAST_SYNC_KEY, Date.now().toString()); } catch (e) { }
+              showToast('تم رفع البيانات المحلية', 'success');
+            } catch (e) {
+              console.warn('فشل رفع البيانات المحلية:', e);
             }
+          } else if (!hasLocal && hasRemote) {
+            // ─── فقط بيانات بعيدة: اجلبها محلياً ───
+            state = normalizeState(snap.val());
+            saveStateLocal();
+            showToast('✅ تم تحميل البيانات من السحابة', 'success');
+          } else {
+            // ─── لا يوجد بيانات: احفظ الحالة الافتراضية ───
+            _ignoreNextRemoteUpdate = true;
+            await set(userRef, state);
           }
         } catch (e) {
-          console.warn("Failed to load/sync from Firebase:", e);
+          console.warn('خطأ في تحميل/مزامنة البيانات:', e);
         }
       }
 
@@ -6695,10 +6814,10 @@
                   // اختيار الشهر الحالي تلقائياً
                   selectCurrentMonth();
 
-                  // if we brought in guest data or made local changes, ensure remote copy is updated
-                  if (isOnline) {
-                    await saveState();
-                  }
+                  // ملاحظة: لا نستدعي saveState() هنا لأن loadStateRemoteIfExists()
+                  // تتولى المزامنة والدمج الذكي بالفعل. استدعاء saveState()
+                  // كان يسبب كتابة فوق بيانات Firebase بشكل غير آمن.
+
                   // listener should also be active after initial sync
                   startRemoteListener();
 

@@ -801,6 +801,33 @@
       </div>
     </div>
   </div>
+
+  <!-- Telegram Progress Modal -->
+  <div id="tgProgressOverlay" class="tg-progress-overlay" style="display:none;">
+    <div class="tg-progress-card">
+      <div class="tg-progress-icon">
+        <div class="tg-spinner"></div>
+        <div class="tg-icon-center">📲</div>
+      </div>
+      <h3 class="tg-progress-title">جارِ تحضير النسخة الاحتياطية</h3>
+      <div id="tgProgressLabel" class="tg-progress-label">يرجى الانتظار بينما نقوم برفع البيانات...</div>
+      
+      <div class="tg-stats-container" id="tgStatsContainer" style="display:none;">
+        <div class="tg-stat-item">
+          <span class="tg-stat-label">المصاريف</span>
+          <span class="tg-stat-value" id="tgStatExpenses">0</span>
+        </div>
+        <div class="tg-stat-item">
+          <span class="tg-stat-label">الإجمالي</span>
+          <span class="tg-stat-value" id="tgStatTotal">0</span>
+        </div>
+      </div>
+
+      <div class="tg-progress-bar-container">
+        <div id="tgProgressBar" class="tg-progress-bar-fill"></div>
+      </div>
+    </div>
+  </div>
   <!-- لودر تحميل (يظهر أثناء التحقق من حالة الدخول) -->
   <div id="appLoader" class="app-loader" style="display:none">🔄 جاري التحقق من حالة الدخول...</div>
 
@@ -910,6 +937,10 @@
         <span id="userEmailLabel" class="user-label"></span>
         <!-- حالة الشبكة والمزامنة -->
         <div id="networkStatus" class="network-status" title="حالة الاتصال"></div>
+        <div id="syncIndicator" class="sync-indicator synced" title="حالة المزامنة" onclick="showSyncDetails()">
+          <span class="sync-dot"></span>
+          <span class="sync-label">مزامن</span>
+        </div>
         <button id="btnChangePasswordQuick" class="btn btn-outline btn-sm">تغيير كلمة السر</button>
         <button id="btnToggleTheme" class="btn btn-outline btn-sm">الوضع الداكن</button>
         <button id="btnAdminPanel" class="btn btn-outline btn-sm" style="display:none;">لوحة التحكم</button>
@@ -921,6 +952,10 @@
     <div id="mobileHeaderBar">
       <div style="display:flex; align-items:center; gap:8px;">
         <div id="networkStatusMobile" class="network-status" title="حالة الاتصال"></div>
+        <div id="syncIndicatorMobile" class="sync-indicator synced" title="حالة المزامنة" onclick="showSyncDetails()">
+          <span class="sync-dot"></span>
+          <span class="sync-label">مُزامَن</span>
+        </div>
         <span id="userEmailLabelMobile" class="user-label" style="font-size:11px;"></span>
       </div>
       <div class="mobile-header-right">
@@ -931,6 +966,7 @@
             <button class="settings-menu-item" id="menuToggleThemeMob">الوضع الداكن</button>
             <button class="settings-menu-item" id="menuChangePasswordMob">تغيير كلمة السر</button>
             <button class="settings-menu-item" id="menuAdminMob" style="display:none;">لوحة التحكم</button>
+            <button class="settings-menu-item" id="menuTelegramBackup">📲 نسخة احتياطية (تلغرام)</button>
             <button class="settings-menu-item danger" id="menuLogoutMob">تسجيل الخروج</button>
           </div>
         </div>
@@ -2404,20 +2440,377 @@
 
       async function saveState() {
         saveStateLocal();
+        updateSyncIndicator('syncing');
 
         if (!isOnline) {
-          // إذا كنا دون اتصال، أضف للقائمة
           queueForSync("save", state);
+          updateSyncIndicator('unsynced');
           return;
         }
 
-        // إذا كان هناك اتصال، حاول المزامنة مباشرة
         const success = await saveStateRemote();
         if (!success) {
-          // إذا فشلت المزامنة، أضف للقائمة
           queueForSync("save", state);
+          updateSyncIndicator('unsynced');
+        } else {
+          updateSyncIndicator('synced');
         }
       }
+
+      // ═══════════════════════════════════════════════
+      // ☁️ مؤشر حالة المزامنة
+      // ═══════════════════════════════════════════════
+      function updateSyncIndicator(status) {
+        // status: 'synced' | 'syncing' | 'unsynced'
+        const labels = {
+          synced: 'مُزامَن ',
+          syncing: 'جارِ المزامنة...',
+          unsynced: '⚠️ غير مرفوع'
+        };
+        ['syncIndicator', 'syncIndicatorMobile'].forEach(id => {
+          const el = document.getElementById(id);
+          if (!el) return;
+          el.className = 'sync-indicator ' + status;
+          const lbl = el.querySelector('.sync-label');
+          if (lbl) lbl.textContent = labels[status] || '';
+          el.title = labels[status] || '';
+        });
+      }
+
+      async function showSyncDetails() {
+        const localCount = countTotalExpenses(state);
+        let remoteCount = '—';
+        let lastSync = '—';
+        try {
+          const ts = localStorage.getItem(LAST_SYNC_KEY);
+          if (ts) {
+            const d = new Date(parseInt(ts));
+            lastSync = d.toLocaleString('ar-IQ');
+          }
+        } catch(e) {}
+        try {
+          if (firebaseEnabled && userRef) {
+            const snap = await get(userRef);
+            if (snap.exists()) {
+              remoteCount = countTotalExpenses(normalizeState(snap.val()));
+            }
+          }
+        } catch(e) {}
+        const match = localCount === remoteCount;
+        const msg = `📱 مصاريف محلية: ${localCount}\n` +
+          `☁️ مصاريف Firebase: ${remoteCount}\n` +
+          `⏰ آخر مزامنة: ${lastSync}\n\n` +
+          (match ? '✅ جميع البيانات مرفوعة بأمان' : '⚠️ يوجد اختلاف بين المحلي والسحابة');
+        showAlertModal(msg, 'حالة المزامنة', match ? '✅' : '⚠️');
+      }
+
+      // ═══════════════════════════════════════════════
+      // 📲 نسخ احتياطي عبر Telegram
+      // ═══════════════════════════════════════════════
+      const TG_BOT_TOKEN = '8749801438:AAFnq9XG5aZq7VgIyL1LMcg38lmTOf3MouY';
+      const TG_CHAT_ID = '651561282';
+      const TG_BACKUP_INTERVAL_KEY = 'tg_last_backup';
+
+      function formatExpensesForTelegram(monthData) {
+        if (!monthData) return 'لا يوجد بيانات';
+        const expenses = Array.isArray(monthData.expenses) ? monthData.expenses : [];
+        const salary = monthData.salary || 0;
+        const totalExp = expenses.reduce((s, e) => s + (e.amount || 0), 0);
+        const remaining = salary - totalExp;
+        
+        let percentSpent = 0;
+        if (salary > 0) {
+          percentSpent = ((totalExp / salary) * 100).toFixed(1);
+        }
+
+        // إيجاد أعلى مصروف
+        let highestExp = null;
+        if (expenses.length > 0) {
+          highestExp = expenses.reduce((max, e) => (e.amount || 0) > (max.amount || 0) ? e : max, expenses[0]);
+        }
+
+        // تحليل التصنيفات
+        const catMap = {};
+        expenses.forEach(e => {
+          const c = e.category || 'أخرى';
+          catMap[c] = (catMap[c] || 0) + (e.amount || 0);
+        });
+        const categories = Object.entries(catMap).sort((a, b) => b[1] - a[1]);
+
+        let msg = `📊 *تقرير شهر ${monthData.name || ''} ${monthData.year || ''}*\n`;
+        msg += `━━━━━━━━━━━━━━━━━━━\n\n`;
+        
+        msg += `💳 *الملخص المالي:*\n`;
+        msg += `• الراتب الكلي: *${salary.toLocaleString()}*\n`;
+        msg += `• الإجمالي المصروف: *${totalExp.toLocaleString()}*\n`;
+        msg += `• المتبقي بالحفظ: *${remaining.toLocaleString()}*\n`;
+        msg += `• نسبة الصرف: *${percentSpent}%* 📉\n\n`;
+        
+        if (expenses.length > 0) {
+          msg += `📈 *رؤى وإحصائيات:*\n`;
+          msg += `• إجمالي العمليات: *${expenses.length}* عملية\n`;
+          if (highestExp) {
+            msg += `• أعلى مصروف: *${highestExp.title || 'غير محدد'}* (${(highestExp.amount || 0).toLocaleString()})\n`;
+          }
+          
+          if (categories.length > 0) {
+            msg += `\n📑 *المصاريف حسب التصنيف:*\n`;
+            categories.forEach(cat => {
+              const catPercent = totalExp > 0 ? ((cat[1] / totalExp) * 100).toFixed(1) : 0;
+              msg += `🔸 ${cat[0]}: *${cat[1].toLocaleString()}* (${catPercent}%)\n`;
+            });
+          }
+
+          msg += `\n━━━━━━━━━━━━━━━━━━━\n`;
+          msg += `📋 *سجل العمليات التفصيلي:*\n\n`;
+          expenses
+            .slice()
+            .sort((a, b) => (a.date || '').localeCompare(b.date || ''))
+            .forEach((e, i) => {
+              const d = e.date ? e.date.split('-').reverse().join('/') : '—';
+              msg += `*${i + 1}.* ${e.title || '—'}\n`;
+              msg += `   └ المبلغ: *${(e.amount || 0).toLocaleString()}* | 🏷️ ${e.category || '—'}\n`;
+              if (e.date) {
+                msg += `   └ التاريخ: ${d}\n`;
+              }
+              msg += `\n`;
+            });
+        } else {
+          msg += `_لا توجد أي عمليات مالية مسجلة لهذا الشهر_\n\n`;
+        }
+
+        msg += `━━━━━━━━━━━━━━━━━━━\n`;
+        msg += `🤖 _تم توليد التقرير آلياً بواسطة تطبيق مصاريف_`;
+        return msg;
+      }
+
+      async function sendTelegramBackup(silent = false) {
+        try {
+          const months = Array.isArray(state.months) ? state.months : [];
+          if (months.length === 0) {
+            if (!silent) showAlertModal('لا يوجد أشهر لإرسالها', 'نسخة احتياطية', '⚠️');
+            return;
+          }
+
+          // إذا كان إرسال تلقائي — أرسل الشهر الحالي فقط
+          if (silent) {
+            const currentMonth = getSelectedMonth() || months[months.length - 1];
+            await _sendMonthToTelegram(currentMonth);
+            return;
+          }
+
+          // عرض مودال اختيار الشهر
+          showTelegramBackupModal();
+        } catch (e) {
+          console.warn('[Telegram] Error:', e);
+          if (!silent) showAlertModal('خطأ في إرسال النسخة الاحتياطية', 'خطأ', '❌');
+        }
+      }
+
+      function showTelegramBackupModal() {
+        const months = state.months || [];
+        const selected = getSelectedMonth();
+        let optionsHtml = '';
+        months.forEach(m => {
+          const isCurrent = selected && m.id === selected.id;
+          const expCount = Array.isArray(m.expenses) ? m.expenses.length : 0;
+          optionsHtml += `<button class="tg-month-btn${isCurrent ? ' current' : ''}" onclick="_handleTgBackup('${m.id}')" style="
+            display:flex; justify-content:space-between; align-items:center;
+            width:100%; padding:10px 14px; margin:4px 0; border:1px solid var(--border-color);
+            border-radius:10px; background:${isCurrent ? 'rgba(37,99,235,0.08)' : 'var(--muted-bg)'};
+            cursor:pointer; font-family:inherit; font-size:13px; color:var(--text-color);
+          ">
+            <span>📅 ${m.name || ''} ${m.year || ''} ${isCurrent ? '(الحالي)' : ''}</span>
+            <span style="color:var(--subtext-color); font-size:12px;">${expCount} مصروف</span>
+          </button>`;
+        });
+
+        const modal = document.getElementById('alertModal');
+        const titleEl = document.getElementById('alertTitle');
+        const msgEl = document.getElementById('alertMessage');
+        const iconEl = document.getElementById('alertIcon');
+        const confirmBtn = document.getElementById('alertBtnConfirm');
+        const cancelBtn = document.getElementById('alertBtnCancel');
+
+        iconEl.textContent = '📲';
+        titleEl.textContent = 'نسخة احتياطية — Telegram';
+        msgEl.innerHTML = `
+          <div style="text-align:center;margin-bottom:10px;font-size:13px;color:var(--subtext-color)">اختر الشهر الذي تريد إرساله:</div>
+          <div style="max-height:220px;overflow-y:auto;">${optionsHtml}</div>
+          <button onclick="_handleTgBackup('all')" style="
+            display:flex; justify-content:center; align-items:center; gap:6px;
+            width:100%; padding:10px 14px; margin:8px 0 0; border:none;
+            border-radius:10px; background:linear-gradient(135deg,#6366f1,#818cf8);
+            cursor:pointer; font-family:inherit; font-size:13px; color:#fff; font-weight:600;
+          ">📦 إرسال كل الأشهر</button>
+        `;
+        cancelBtn.style.display = 'block';
+        cancelBtn.textContent = 'إلغاء';
+        confirmBtn.style.display = 'none';
+
+        const handleCancel = () => {
+          modal.style.display = 'none';
+          cancelBtn.removeEventListener('click', handleCancel);
+          confirmBtn.style.display = '';
+        };
+        cancelBtn.addEventListener('click', handleCancel);
+        modal.addEventListener('click', (e) => {
+          if (e.target === modal) handleCancel();
+        });
+        modal.style.display = 'flex';
+      }
+
+
+      async function _handleTgBackup(monthId) {
+        // إغلاق المودال السابق
+        const modal = document.getElementById('alertModal');
+        modal.style.display = 'none';
+        document.getElementById('alertBtnConfirm').style.display = '';
+
+        const progressOverlay = document.getElementById('tgProgressOverlay');
+        const progressLabel = document.getElementById('tgProgressLabel');
+        const progressBar = document.getElementById('tgProgressBar');
+        const statsContainer = document.getElementById('tgStatsContainer');
+        const statExpenses = document.getElementById('tgStatExpenses');
+        const statTotal = document.getElementById('tgStatTotal');
+        
+        // تجهيز بيانات شاشة التحميل
+        let totalCount = 0;
+        let totalAmount = 0;
+        
+        if (monthId === 'all') {
+          state.months.forEach(m => {
+            const exp = Array.isArray(m.expenses) ? m.expenses : [];
+            totalCount += exp.length;
+            totalAmount += exp.reduce((s, e) => s + (e.amount || 0), 0);
+          });
+          progressLabel.innerText = `جارِ تحضير كل الأشهر... (${state.months.length} شهر)`;
+        } else {
+          const month = state.months.find(m => m.id === monthId);
+          if (month) {
+            const exp = Array.isArray(month.expenses) ? month.expenses : [];
+            totalCount = exp.length;
+            totalAmount = exp.reduce((s, e) => s + (e.amount || 0), 0);
+            progressLabel.innerText = `جارِ تصدير: ${month.name} ${month.year}`;
+          }
+        }
+
+        statExpenses.innerText = totalCount;
+        statTotal.innerText = totalAmount.toLocaleString();
+        statsContainer.style.display = 'flex';
+        progressBar.style.width = '10%';
+        progressOverlay.style.display = 'flex';
+        // صغير جداً لإعطاء شعور الانميشن
+        setTimeout(() => progressOverlay.classList.add('show'), 10);
+
+        try {
+          if (monthId === 'all') {
+            let successCount = 0;
+            for (let i = 0; i < state.months.length; i++) {
+              const m = state.months[i];
+              progressBar.style.width = `${10 + (i / state.months.length) * 80}%`;
+              progressLabel.innerText = `جارِ رفع: ${m.name} ${m.year} (${i+1}/${state.months.length})`;
+              
+              const ok = await _sendMonthToTelegram(m);
+              if (ok) successCount++;
+              await new Promise(r => setTimeout(r, 600)); // limit
+            }
+            progressBar.style.width = '100%';
+            await new Promise(r => setTimeout(r, 400));
+            
+            _hideTgProgress(progressOverlay);
+            showAlertModal(`تم إرسال ${successCount} من ${state.months.length} شهر بنجاح`, '✅ تم الإرسال', '📦');
+          } else {
+            const month = state.months.find(m => m.id === monthId);
+            if (!month) {
+              _hideTgProgress(progressOverlay);
+              showAlertModal('لم يتم العثور على الشهر', 'خطأ', '⚠️'); 
+              return;
+            }
+            
+            // Simulation progress for single month
+            progressBar.style.width = '40%';
+            progressLabel.innerText = 'يتم الآن الرفع إلى Telegram...';
+            
+            // Promise race or simple await
+            const ok = await _sendMonthToTelegram(month);
+            
+            progressBar.style.width = '100%';
+            await new Promise(r => setTimeout(r, 400));
+            _hideTgProgress(progressOverlay);
+            
+            if (ok) {
+              showAlertModal(`تم إرسال نسخة ${month.name} ${month.year} بنجاح \nتحقق من بوت التلغرام 📲`, '✅ تم الإرسال', '✅');
+            } else {
+              showAlertModal('فشل إرسال النسخة الاحتياطية. تأكد من الاتصال بالإنترنت.', '⚠️ فشل', '❌');
+            }
+          }
+          try { localStorage.setItem(TG_BACKUP_INTERVAL_KEY, Date.now().toString()); } catch(e) {}
+        } catch(e) {
+          console.warn('[Telegram]', e);
+          _hideTgProgress(progressOverlay);
+          showAlertModal('حدث خطأ أثناء الإرسال', 'خطأ', '❌');
+        }
+      }
+
+      function _hideTgProgress(el) {
+        el.classList.remove('show');
+        setTimeout(() => el.style.display = 'none', 300);
+      }
+
+      async function _sendMonthToTelegram(monthData) {
+        try {
+          const msg = formatExpensesForTelegram(monthData);
+          const url = `https://api.telegram.org/bot${TG_BOT_TOKEN}/sendMessage`;
+          const resp = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              chat_id: TG_CHAT_ID,
+              text: msg,
+              parse_mode: 'Markdown'
+            })
+          });
+          if (resp.ok) {
+            console.log(`[Telegram] ✅ Sent: ${monthData.name} ${monthData.year}`);
+            return true;
+          }
+          const err = await resp.text();
+          console.warn('[Telegram] Failed:', err);
+          return false;
+        } catch(e) {
+          console.warn('[Telegram] Error:', e);
+          return false;
+        }
+      }
+
+      // تعريف الدوال على window للوصول من onclick في HTML (لأن script type=module الدوال مش عالمية)
+      window._handleTgBackup = _handleTgBackup;
+      window.showSyncDetails = showSyncDetails;
+      window.sendTelegramBackup = sendTelegramBackup;
+
+      // جدولة النسخ الاحتياطي التلقائي (أسبوعي)
+      function scheduleTelegramBackup() {
+        const WEEK_MS = 7 * 24 * 60 * 60 * 1000;
+        try {
+          const last = parseInt(localStorage.getItem(TG_BACKUP_INTERVAL_KEY) || '0');
+          const now = Date.now();
+          if (now - last >= WEEK_MS) {
+            // مر أسبوع منذ آخر نسخة — أرسل نسخة جديدة
+            setTimeout(() => { sendTelegramBackup(true); }, 5000);
+          }
+        } catch(e) {}
+        // تحقق كل ساعة
+        setInterval(() => {
+          try {
+            const last = parseInt(localStorage.getItem(TG_BACKUP_INTERVAL_KEY) || '0');
+            if (Date.now() - last >= WEEK_MS) {
+              sendTelegramBackup(true);
+            }
+          } catch(e) {}
+        }, 60 * 60 * 1000);
+      }
+
 
       function loadStateLocal() {
         const key = getStorageKey();
@@ -6821,6 +7214,12 @@
                   // listener should also be active after initial sync
                   startRemoteListener();
 
+                  // جدولة النسخ الاحتياطي التلقائي عبر Telegram (أسبوعي)
+                  scheduleTelegramBackup();
+
+                  // تحديث مؤشر المزامنة
+                  updateSyncIndicator(isOnline ? 'synced' : 'unsynced');
+
                   /* تحميل القسم المحمي */
                   loadPrivateState();
 
@@ -7073,6 +7472,22 @@
           });
         }
         syncAdminBtn(); // تشغيل فوراً
+
+        // ربط زر النسخة الاحتياطية عبر Telegram
+        const menuTelegramBackup = document.getElementById('menuTelegramBackup');
+        if (menuTelegramBackup) {
+          menuTelegramBackup.addEventListener('click', () => {
+            if (settingsMenu) settingsMenu.classList.remove('open');
+            // تأخير بسيط ليسمح للقائمة بالإغلاق أولاً
+            setTimeout(() => {
+              if (typeof window.sendTelegramBackup === 'function') {
+                window.sendTelegramBackup(false);
+              } else {
+                alert('ميزة النسخ الاحتياطي في طور التحميل. حاول مرة أخرى.');
+              }
+            }, 300);
+          });
+        }
 
         // ===== مزامنة زر الإدارة في الهيدر الرئيسي =====
         const btnAdminPanel = document.getElementById('btnAdminPanel');

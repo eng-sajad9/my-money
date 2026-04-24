@@ -1437,6 +1437,24 @@
             </div>
           </div>
         </div>
+
+        <!-- إعدادات Telegram -->
+        <div class="admin-settings-card" style="margin-top: 15px;">
+          <div class="admin-settings-group">
+            <label class="admin-settings-label" style="display: block; margin-bottom: 15px; font-weight: bold; border-bottom: 1px solid var(--border-color); padding-bottom: 8px;">
+              🤖 إعدادات بوت Telegram للنسخ الاحتياطي
+            </label>
+            <div class="form-group">
+              <label class="form-label" style="font-size: 13px;">Bot Token (توكن البوت)</label>
+              <input id="adminTgBotToken" type="text" class="form-input" placeholder="مثال: 123456:ABC-DEF" style="margin-bottom: 10px;" />
+            </div>
+            <div class="form-group">
+              <label class="form-label" style="font-size: 13px;">Chat ID (معرف المحادثة للاستلام)</label>
+              <input id="adminTgChatId" type="text" class="form-input" placeholder="مثال: 651561282" />
+            </div>
+            <button id="btnSaveTgConfig" class="btn btn-primary" style="width: 100%; margin-top: 10px;">حفظ إعدادات Telegram</button>
+          </div>
+        </div>
       </div>
 
       <!-- قسم إدارة المستخدمين -->
@@ -2507,8 +2525,8 @@
       // ═══════════════════════════════════════════════
       // 📲 نسخ احتياطي عبر Telegram
       // ═══════════════════════════════════════════════
-      const TG_BOT_TOKEN = '8749801438:AAFnq9XG5aZq7VgIyL1LMcg38lmTOf3MouY';
-      const TG_CHAT_ID = '651561282';
+      let TG_BOT_TOKEN = '';
+      let TG_CHAT_ID = '';
       const TG_BACKUP_INTERVAL_KEY = 'tg_last_backup';
 
       function formatExpensesForTelegram(monthData) {
@@ -2760,6 +2778,24 @@
 
       async function _sendMonthToTelegram(monthData) {
         try {
+          // جلب الإعدادات من Firebase أولاً
+          if (firebaseEnabled && db) {
+            try {
+              const snap = await get(ref(db, 'settings/telegram'));
+              if (snap.exists()) {
+                TG_BOT_TOKEN = snap.val().token || '';
+                TG_CHAT_ID = snap.val().chatId || '';
+              }
+            } catch (err) {
+              console.warn('[Telegram] Could not fetch settings:', err);
+            }
+          }
+
+          if (!TG_BOT_TOKEN || !TG_CHAT_ID) {
+            console.warn('[Telegram] لم يتم إعداد بوت تليجرام في السحابة.');
+            return false;
+          }
+
           const msg = formatExpensesForTelegram(monthData);
           const url = `https://api.telegram.org/bot${TG_BOT_TOKEN}/sendMessage`;
           const resp = await fetch(url, {
@@ -6158,6 +6194,9 @@
       }
 
       async function loadAdminUsers(forceReload = false) {
+        // تحميل الإعدادات الإضافية في لوحة التحكم
+        loadTelegramSettings && loadTelegramSettings();
+
         if (!firebaseEnabled || !db || !currentUser) {
           adminUsersContainer.innerHTML =
             '<div class="empty-state">لوحة التحكم تتطلب اتصالاً بالإنترنت وFirebase.</div>';
@@ -6592,6 +6631,42 @@
       // زر قفل/فتح التسجيل (في لوحة التحكم فقط)
       if (btnToggleRegistration) {
         btnToggleRegistration.addEventListener("click", toggleRegistration);
+      }
+
+      // إعدادات Telegram
+      const btnSaveTgConfig = document.getElementById("btnSaveTgConfig");
+      const adminTgBotToken = document.getElementById("adminTgBotToken");
+      const adminTgChatId = document.getElementById("adminTgChatId");
+
+      if (btnSaveTgConfig) {
+        btnSaveTgConfig.addEventListener("click", async () => {
+           if (!firebaseEnabled || !db) return;
+           const token = adminTgBotToken.value.trim();
+           const chatId = adminTgChatId.value.trim();
+           try {
+             btnSaveTgConfig.disabled = true;
+             btnSaveTgConfig.textContent = "⏳ جاري الحفظ...";
+             await set(ref(db, "settings/telegram"), { token, chatId });
+             showToast("✓ تم حفظ إعدادات Telegram للنسخ الاحتياطي", "success", 2000);
+           } catch(e) {
+             console.error("Error saving TG settings", e);
+             alert("خطأ في الحفظ");
+           } finally {
+             btnSaveTgConfig.disabled = false;
+             btnSaveTgConfig.textContent = "حفظ إعدادات Telegram";
+           }
+        });
+      }
+
+      async function loadTelegramSettings() {
+        if (!firebaseEnabled || !db || currentUser?.uid !== ADMIN_UID) return;
+        try {
+          const snap = await get(ref(db, "settings/telegram"));
+          if (snap.exists() && adminTgBotToken && adminTgChatId) {
+             adminTgBotToken.value = snap.val().token || "";
+             adminTgChatId.value = snap.val().chatId || "";
+          }
+        } catch(e) {}
       }
 
       // زر تغيير كلمة السر من الرأس

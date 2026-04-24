@@ -1,8 +1,8 @@
-const CACHE_NAME = 'mony-app-v1';
+const CACHE_NAME = 'mony-app-v2';
 const ASSETS_TO_CACHE = [
   '/',
-  '/new.html',
-  '/style.css'
+  '/index.html',
+  '/style.css?v=2.0'
 ];
 
 self.addEventListener('install', (e) => {
@@ -13,7 +13,15 @@ self.addEventListener('install', (e) => {
 });
 
 self.addEventListener('activate', (e) => {
-  e.waitUntil(self.clients.claim());
+  e.waitUntil(
+    caches.keys().then((keyList) => {
+      return Promise.all(keyList.map((key) => {
+        if (key !== CACHE_NAME) {
+          return caches.delete(key);
+        }
+      }));
+    }).then(() => self.clients.claim())
+  );
 });
 
 self.addEventListener('fetch', (e) => {
@@ -35,9 +43,8 @@ self.addEventListener('sync', (event) => {
           client.postMessage({ type: 'sync-now' });
         }
       } else {
-        // open the app so it can sync (PWA/home-screen users will get a window)
         try {
-          await self.clients.openWindow('/new.html');
+          await self.clients.openWindow('/');
         } catch (e) {
           console.warn('Failed to open window for sync', e);
         }

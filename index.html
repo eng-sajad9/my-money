@@ -22,7 +22,9 @@
   <!-- Typography: Inter + Noto Sans Arabic -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+Arabic:wght@400;500;600;700&display=swap"
+    rel="stylesheet" />
 
   <link rel="stylesheet" href="style.css?v=2.0">
   <style>
@@ -186,7 +188,8 @@
     }
 
     /* ===== الخط الأساسي للهاتف ===== */
-    html, body {
+    html,
+    body {
       overflow-x: hidden;
       width: 100%;
     }
@@ -211,8 +214,10 @@
         flex: 1;
       }
     }
+
     /* ===== Mobile-only: modals, header, tabs ===== */
     @media (max-width: 768px) {
+
       /* المودالات كاملة الشاشة على الهاتف */
       .modal-backdrop {
         align-items: flex-end;
@@ -811,7 +816,7 @@
       </div>
       <h3 class="tg-progress-title">جارِ تحضير النسخة الاحتياطية</h3>
       <div id="tgProgressLabel" class="tg-progress-label">يرجى الانتظار بينما نقوم برفع البيانات...</div>
-      
+
       <div class="tg-stats-container" id="tgStatsContainer" style="display:none;">
         <div class="tg-stat-item">
           <span class="tg-stat-label">المصاريف</span>
@@ -1110,6 +1115,31 @@
         </div>
       </div>
 
+      <!-- بطاقة التحليل الذكي للشهر -->
+      <div class="card ai-analysis-card" id="monthlyAICard">
+        <div class="ai-analysis-header">
+          <div class="ai-analysis-header-left">
+            <div class="ai-analysis-icon-wrap">
+              <span class="ai-analysis-icon">🧠</span>
+            </div>
+            <div>
+              <div class="ai-analysis-title">تحليل الذكاء الاصطناعي</div>
+              <div class="ai-analysis-subtitle">تحليل دقيق مبني على بياناتك الفعلية</div>
+            </div>
+          </div>
+          <div class="ai-analysis-header-right">
+            <button id="btnAnalyzeMonth" class="ai-analyze-btn">
+              <span class="ai-btn-icon">🔍</span>
+              <span class="ai-btn-text">حلل شهري</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- منطقة النتائج -->
+        <div id="monthlyAIResult" class="ai-result-area" style="display:none;">
+          <!-- skeleton & content injected by JS -->
+        </div>
+      </div>
 
       <!-- المصاريف -->
       <div class="card">
@@ -1140,8 +1170,7 @@
           <h3>التصنيفات</h3>
         </div>
         <div class="category-add-row">
-          <input id="newCategoryInput" type="text" class="form-input form-input-sm"
-            placeholder="تصنيف جديد" />
+          <input id="newCategoryInput" type="text" class="form-input form-input-sm" placeholder="تصنيف جديد" />
           <button id="btnAddCategory" class="btn btn-outline btn-sm">إضافة</button>
         </div>
         <div id="categoryList"></div>
@@ -1161,33 +1190,61 @@
           <button class="compare-sort-btn" data-sort="remaining">الأعلى ادخاراً</button>
         </div>
       </div>
-      
+
       <!-- مقارنة الفئات شهر بشهر -->
       <div class="card" style="margin-bottom: 1.5rem;">
-        <h3 style="margin-bottom: 1rem; color: var(--text-primary); font-size: 1.1rem; display: flex; align-items: center; gap: 8px;">
-          <span>📊</span> مقارنة الفئات السريعة 
+        <h3
+          style="margin-bottom: 1rem; color: var(--text-primary); font-size: 1.1rem; display: flex; align-items: center; gap: 8px;">
+          <span>📊</span> مقارنة الفئات السريعة
         </h3>
-        <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 1rem;">قارن الاستهلاك للفئة المحددة بين الشهر المحدد حالياً والشهر الذي يسبقه.</p>
-        
+        <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 1rem;">قارن الاستهلاك للفئة المحددة
+          بين الشهر المحدد حالياً والشهر الذي يسبقه.</p>
+
         <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
           <select id="quickCompareCategory" class="form-input" style="max-width: 200px;">
           </select>
           <button id="btnQuickCompare" class="btn btn-primary" style="padding: 0.4rem 1rem;">مقارنة سريعـة</button>
         </div>
 
-        <div id="quickCompareResult" style="margin-top: 1rem; padding: 1rem; background: var(--bg-color); border-radius: 8px; display: none; align-items: center; gap: 15px; flex-wrap: wrap;">
+        <div id="quickCompareResult"
+          style="margin-top: 1rem; padding: 1rem; background: var(--bg-color); border-radius: 8px; display: none; align-items: center; gap: 15px; flex-wrap: wrap;">
           <div style="flex: 1; min-width: 110px;">
             <div style="font-size: 0.8rem; color: var(--text-secondary);" id="labelPrevMonth">الشهر الماضي</div>
-            <div id="quickComparePrevVal" style="font-size: 1.2rem; font-weight: 600; color: var(--text-primary);">0</div>
+            <div id="quickComparePrevVal" style="font-size: 1.2rem; font-weight: 600; color: var(--text-primary);">0
+            </div>
           </div>
           <div style="flex: 1; min-width: 110px;">
             <div style="font-size: 0.8rem; color: var(--text-secondary);" id="labelCurrMonth">الشهر الحالي</div>
-            <div id="quickCompareCurrVal" style="font-size: 1.2rem; font-weight: 600; color: var(--text-primary);">0</div>
+            <div id="quickCompareCurrVal" style="font-size: 1.2rem; font-weight: 600; color: var(--text-primary);">0
+            </div>
           </div>
-          <div id="quickCompareBadge" style="padding: 6px 12px; border-radius: 20px; font-weight: 600; font-size: 0.9rem;">
+          <div id="quickCompareBadge"
+            style="padding: 6px 12px; border-radius: 20px; font-weight: 600; font-size: 0.9rem;">
             --
           </div>
         </div>
+      </div>
+
+      <!-- بطاقة التحليل الذكي المقارن -->
+      <div class="card ai-analysis-card ai-compare-card" id="compareAICard">
+        <div class="ai-analysis-header">
+          <div class="ai-analysis-header-left">
+            <div class="ai-analysis-icon-wrap ai-compare-icon-wrap">
+              <span class="ai-analysis-icon">📊</span>
+            </div>
+            <div>
+              <div class="ai-analysis-title">تحليل الاشهر الذكي</div>
+              <div class="ai-analysis-subtitle">يحلل الـ AI أنماط إنفاقك عبر كل الأشهر</div>
+            </div>
+          </div>
+          <div class="ai-analysis-header-right">
+            <button id="btnAnalyzeAllMonths" class="ai-analyze-btn ai-analyze-btn--compare">
+              <span class="ai-btn-icon">🔍</span>
+              <span class="ai-btn-text">حلل الاشهر</span>
+            </button>
+          </div>
+        </div>
+        <div id="compareAIResult" class="ai-result-area" style="display:none;"></div>
       </div>
 
       <!-- حاوية المحتوى (تُملأ بواسطة renderComparison) -->
@@ -1201,7 +1258,8 @@
           <h3>الأهداف وتقسيم الراتب</h3>
           <div class="card-header-actions">
             <button id="btnAddGoal" class="btn btn-primary btn-sm">+ هدف</button>
-            <button id="btnAutoSplitBudget" class="btn btn-outline btn-sm btn-warning-outline">تقسيم ذكي (50/30/20)</button>
+            <button id="btnAutoSplitBudget" class="btn btn-outline btn-sm btn-warning-outline">تقسيم ذكي
+              (50/30/20)</button>
             <button id="btnAddBucket" class="btn btn-primary btn-sm">+ حافظة</button>
           </div>
         </div>
@@ -1240,7 +1298,8 @@
             <div class="card-footer-info"><strong>المجموع المخصص:</strong> <span id="bucketsTotalPercent">0</span></div>
             <button id="btnPreviewSplit" class="btn btn-outline btn-sm">معاينة</button>
             <button id="btnApplySplit" class="btn btn-primary btn-sm">تطبيق</button>
-            <button id="btnClearAllBuckets" class="btn btn-danger btn-sm" title="مسح جميع تقسيمات الراتب">مسح الكل</button>
+            <button id="btnClearAllBuckets" class="btn btn-danger btn-sm" title="مسح جميع تقسيمات الراتب">مسح
+              الكل</button>
           </div>
         </div>
       </div>
@@ -1441,18 +1500,21 @@
         <!-- إعدادات Telegram -->
         <div class="admin-settings-card" style="margin-top: 15px;">
           <div class="admin-settings-group">
-            <label class="admin-settings-label" style="display: block; margin-bottom: 15px; font-weight: bold; border-bottom: 1px solid var(--border-color); padding-bottom: 8px;">
+            <label class="admin-settings-label"
+              style="display: block; margin-bottom: 15px; font-weight: bold; border-bottom: 1px solid var(--border-color); padding-bottom: 8px;">
               🤖 إعدادات بوت Telegram للنسخ الاحتياطي
             </label>
             <div class="form-group">
               <label class="form-label" style="font-size: 13px;">Bot Token (توكن البوت)</label>
-              <input id="adminTgBotToken" type="text" class="form-input" placeholder="مثال: 123456:ABC-DEF" style="margin-bottom: 10px;" />
+              <input id="adminTgBotToken" type="text" class="form-input" placeholder="مثال: 123456:ABC-DEF"
+                style="margin-bottom: 10px;" />
             </div>
             <div class="form-group">
               <label class="form-label" style="font-size: 13px;">Chat ID (معرف المحادثة للاستلام)</label>
               <input id="adminTgChatId" type="text" class="form-input" placeholder="مثال: 651561282" />
             </div>
-            <button id="btnSaveTgConfig" class="btn btn-primary" style="width: 100%; margin-top: 10px;">حفظ إعدادات Telegram</button>
+            <button id="btnSaveTgConfig" class="btn btn-primary" style="width: 100%; margin-top: 10px;">حفظ إعدادات
+              Telegram</button>
           </div>
         </div>
       </div>
@@ -1494,10 +1556,6 @@
       <button class="mobile-nav-item" data-tab="private" id="mbnPrivate">
         <span class="nav-icon">🔐</span>
         <span>ملاحظاتي</span>
-      </button>
-      <button class="mobile-nav-item" data-tab="admin" id="mbnAdmin" style="display:none;">
-        <span class="nav-icon">🛡️</span>
-        <span>الإدارة</span>
       </button>
     </nav>
     <!-- مودال إدارة الشهر -->
@@ -1747,20 +1805,23 @@
     </div>
 
     <!-- مودال ترحيل الرصيد (تقفيل الشهر) -->
-    <div id="rolloverModal" class="modal-backdrop" style="display: none; z-index: 10000; align-items: center; justify-content: center;">
+    <div id="rolloverModal" class="modal-backdrop"
+      style="display: none; z-index: 10000; align-items: center; justify-content: center;">
       <div class="modal" style="max-width: 450px;">
         <div class="modal-header">
           <h3 style="color: #10b981;">🎉 تقفيل الشهر بنجاح!</h3>
         </div>
         <div class="modal-body">
           <p style="margin-bottom: 10px; color: var(--text-secondary); line-height: 1.5;">
-            لديك فائض في ميزانية الشهر الماضي، فلنستفد من هذا المبلغ للوصول لأهدافك بشكل أسرع بحسب استراتيجية الوعي المالي.
+            لديك فائض في ميزانية الشهر الماضي، فلنستفد من هذا المبلغ للوصول لأهدافك بشكل أسرع بحسب استراتيجية الوعي
+            المالي.
           </p>
-          <div style="background: var(--bg-gray); padding: 15px; border-radius: 8px; text-align: center; margin-bottom: 20px;">
+          <div
+            style="background: var(--bg-gray); padding: 15px; border-radius: 8px; text-align: center; margin-bottom: 20px;">
             <div style="font-size: 13px; color: var(--text-secondary);">المبلغ المتبقي للترحيل</div>
             <div id="rolloverTotalAmount" style="font-size: 24px; font-weight: 700; color: #10b981;">0</div>
           </div>
-          
+
           <div id="rolloverGoalsSection" style="display:none;">
             <p style="font-size: 14px; font-weight: 600; margin-bottom: 15px;">هل ترغب بتوزيع هذا الفائض على أهدافك؟</p>
             <div id="rolloverSlidersContainer" style="max-height: 250px; overflow-y: auto; padding-right: 5px;"></div>
@@ -1776,38 +1837,40 @@
 
           <div id="rolloverNoGoalsSection" style="display:none; display: flex; flex-direction: column; gap: 10px;">
             <button id="btnRolloverNextMonth" class="btn btn-primary">🔄 ترحيله لراتب الشهر الحالي</button>
-            <button id="btnRolloverVault" class="btn btn-primary" style="background: #a855f7;">🏦 إيداع في القاصة (ملاحظاتي)</button>
+            <button id="btnRolloverVault" class="btn btn-primary" style="background: #a855f7;">🏦 إيداع في القاصة
+              (ملاحظاتي)</button>
             <button id="btnRolloverCreateGoal" class="btn btn-outline">🎯 إنشاء هدف لادخاره</button>
-            <button id="btnCancelRollover" class="btn btn-outline" style="margin-top: 10px; border: none;">إلغاء</button>
+            <button id="btnCancelRollover" class="btn btn-outline"
+              style="margin-top: 10px; border: none;">إلغاء</button>
           </div>
         </div>
       </div>
     </div>
 
+    <!-- AI Chat Removed — AI is now integrated into stats and comparison sections -->
+
     <!-- مودال تغيير كلمة السر -->
-    <div id="modalPassword" class="modal-backdrop" style="display:none;">
+    <div id="changePasswordModal" class="modal-backdrop"
+      style="display: none; z-index: 10001; align-items: center; justify-content: center;">
       <div class="modal" style="max-width: 400px;">
         <div class="modal-header">
-          <h3>🔐 تغيير كلمة السر</h3>
-          <button id="btnClosePassword" class="btn btn-outline btn-sm">✕</button>
+          <h3>تغيير كلمة السر</h3>
+          <button class="btn btn-outline btn-sm"
+            onclick="document.getElementById('changePasswordModal').style.display='none'">✕</button>
         </div>
-        <div class="form-group">
-          <label class="form-label">كلمة السر الحالية</label>
-          <input id="modalCurrentPassword" type="password" class="form-input" placeholder="كلمة السر الحالية" />
+        <div class="modal-body">
+          <div class="form-group">
+            <label class="form-label">كلمة السر الجديدة</label>
+            <input id="modalNewPassword" type="password" class="form-input"
+              placeholder="كلمة السر الجديدة (6 أحرف على الأقل)" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">تأكيد كلمة السر الجديدة</label>
+            <input id="modalConfirmPassword" type="password" class="form-input" placeholder="تأكيد كلمة السر الجديدة" />
+          </div>
+          <div id="modalPasswordMessage" style="font-size: 13px; margin-bottom: 12px; min-height: 18px;"></div>
+          <button id="btnModalChangePassword" class="btn btn-primary" style="width: 100%;">✓ تحديث كلمة السر</button>
         </div>
-        <div class="form-group">
-          <label class="form-label">كلمة السر الجديدة</label>
-          <input id="modalNewPassword" type="password" class="form-input"
-            placeholder="كلمة السر الجديدة (6 أحرف على الأقل)" />
-        </div>
-        <div class="form-group">
-          <label class="form-label">تأكيد كلمة السر الجديدة</label>
-          <input id="modalConfirmPassword" type="password" class="form-input" placeholder="تأكيد كلمة السر الجديدة" />
-        </div>
-        <div id="modalPasswordMessage" style="font-size: 13px; margin-bottom: 12px; min-height: 18px;"></div>
-        <button id="btnModalChangePassword" class="btn btn-primary" style="width: 100%;">
-          ✓ تحديث كلمة السر
-        </button>
       </div>
     </div>
 
@@ -2475,6 +2538,8 @@
         }
       }
 
+
+
       // ═══════════════════════════════════════════════
       // ☁️ مؤشر حالة المزامنة
       // ═══════════════════════════════════════════════
@@ -2505,7 +2570,7 @@
             const d = new Date(parseInt(ts));
             lastSync = d.toLocaleString('ar-IQ');
           }
-        } catch(e) {}
+        } catch (e) { }
         try {
           if (firebaseEnabled && userRef) {
             const snap = await get(userRef);
@@ -2513,7 +2578,7 @@
               remoteCount = countTotalExpenses(normalizeState(snap.val()));
             }
           }
-        } catch(e) {}
+        } catch (e) { }
         const match = localCount === remoteCount;
         const msg = `📱 مصاريف محلية: ${localCount}\n` +
           `☁️ مصاريف Firebase: ${remoteCount}\n` +
@@ -2535,7 +2600,7 @@
         const salary = monthData.salary || 0;
         const totalExp = expenses.reduce((s, e) => s + (e.amount || 0), 0);
         const remaining = salary - totalExp;
-        
+
         let percentSpent = 0;
         if (salary > 0) {
           percentSpent = ((totalExp / salary) * 100).toFixed(1);
@@ -2557,20 +2622,20 @@
 
         let msg = `📊 *تقرير شهر ${monthData.name || ''} ${monthData.year || ''}*\n`;
         msg += `━━━━━━━━━━━━━━━━━━━\n\n`;
-        
+
         msg += `💳 *الملخص المالي:*\n`;
         msg += `• الراتب الكلي: *${salary.toLocaleString()}*\n`;
         msg += `• الإجمالي المصروف: *${totalExp.toLocaleString()}*\n`;
         msg += `• المتبقي بالحفظ: *${remaining.toLocaleString()}*\n`;
         msg += `• نسبة الصرف: *${percentSpent}%* 📉\n\n`;
-        
+
         if (expenses.length > 0) {
           msg += `📈 *رؤى وإحصائيات:*\n`;
           msg += `• إجمالي العمليات: *${expenses.length}* عملية\n`;
           if (highestExp) {
             msg += `• أعلى مصروف: *${highestExp.title || 'غير محدد'}* (${(highestExp.amount || 0).toLocaleString()})\n`;
           }
-          
+
           if (categories.length > 0) {
             msg += `\n📑 *المصاريف حسب التصنيف:*\n`;
             categories.forEach(cat => {
@@ -2654,6 +2719,10 @@
         titleEl.textContent = 'نسخة احتياطية — Telegram';
         msgEl.innerHTML = `
           <div style="text-align:center;margin-bottom:10px;font-size:13px;color:var(--subtext-color)">اختر الشهر الذي تريد إرساله:</div>
+          <div style="flex-shrink:0; display:flex; align-items:center; justify-content:center; gap:8px; margin-bottom:12px; background:var(--muted-bg); padding:10px; border-radius:10px;">
+            <input type="checkbox" id="tgIncludeAiCb" checked style="width:16px;height:16px;accent-color:var(--ai-primary); cursor:pointer;">
+            <label for="tgIncludeAiCb" style="font-size:13px;color:var(--text-color);cursor:pointer;font-weight:600;">🤖 تضمين التحليل الذكي للشهر (AI)</label>
+          </div>
           <div style="max-height:220px;overflow-y:auto;">${optionsHtml}</div>
           <button onclick="_handleTgBackup('all')" style="
             display:flex; justify-content:center; align-items:center; gap:6px;
@@ -2680,6 +2749,9 @@
 
 
       async function _handleTgBackup(monthId) {
+        const aiCheckbox = document.getElementById('tgIncludeAiCb');
+        const includeAI = monthId !== 'all' && aiCheckbox && aiCheckbox.checked;
+
         // إغلاق المودال السابق
         const modal = document.getElementById('alertModal');
         modal.style.display = 'none';
@@ -2691,11 +2763,11 @@
         const statsContainer = document.getElementById('tgStatsContainer');
         const statExpenses = document.getElementById('tgStatExpenses');
         const statTotal = document.getElementById('tgStatTotal');
-        
+
         // تجهيز بيانات شاشة التحميل
         let totalCount = 0;
         let totalAmount = 0;
-        
+
         if (monthId === 'all') {
           state.months.forEach(m => {
             const exp = Array.isArray(m.expenses) ? m.expenses : [];
@@ -2727,44 +2799,44 @@
             for (let i = 0; i < state.months.length; i++) {
               const m = state.months[i];
               progressBar.style.width = `${10 + (i / state.months.length) * 80}%`;
-              progressLabel.innerText = `جارِ رفع: ${m.name} ${m.year} (${i+1}/${state.months.length})`;
-              
+              progressLabel.innerText = `جارِ رفع: ${m.name} ${m.year} (${i + 1}/${state.months.length})`;
+
               const ok = await _sendMonthToTelegram(m);
               if (ok) successCount++;
               await new Promise(r => setTimeout(r, 600)); // limit
             }
             progressBar.style.width = '100%';
             await new Promise(r => setTimeout(r, 400));
-            
+
             _hideTgProgress(progressOverlay);
             showAlertModal(`تم إرسال ${successCount} من ${state.months.length} شهر بنجاح`, '✅ تم الإرسال', '📦');
           } else {
             const month = state.months.find(m => m.id === monthId);
             if (!month) {
               _hideTgProgress(progressOverlay);
-              showAlertModal('لم يتم العثور على الشهر', 'خطأ', '⚠️'); 
+              showAlertModal('لم يتم العثور على الشهر', 'خطأ', '⚠️');
               return;
             }
-            
+
             // Simulation progress for single month
             progressBar.style.width = '40%';
             progressLabel.innerText = 'يتم الآن الرفع إلى Telegram...';
-            
+
             // Promise race or simple await
-            const ok = await _sendMonthToTelegram(month);
-            
+            const ok = await _sendMonthToTelegram(month, includeAI);
+
             progressBar.style.width = '100%';
             await new Promise(r => setTimeout(r, 400));
             _hideTgProgress(progressOverlay);
-            
+
             if (ok) {
               showAlertModal(`تم إرسال نسخة ${month.name} ${month.year} بنجاح \nتحقق من بوت التلغرام 📲`, '✅ تم الإرسال', '✅');
             } else {
               showAlertModal('فشل إرسال النسخة الاحتياطية. تأكد من الاتصال بالإنترنت.', '⚠️ فشل', '❌');
             }
           }
-          try { localStorage.setItem(TG_BACKUP_INTERVAL_KEY, Date.now().toString()); } catch(e) {}
-        } catch(e) {
+          try { localStorage.setItem(TG_BACKUP_INTERVAL_KEY, Date.now().toString()); } catch (e) { }
+        } catch (e) {
           console.warn('[Telegram]', e);
           _hideTgProgress(progressOverlay);
           showAlertModal('حدث خطأ أثناء الإرسال', 'خطأ', '❌');
@@ -2776,7 +2848,87 @@
         setTimeout(() => el.style.display = 'none', 300);
       }
 
-      async function _sendMonthToTelegram(monthData) {
+      function formatAITelegram(aiData, monthName, year) {
+        let msg = `🤖 *تقرير الذكاء الاصطناعي - ${monthName} ${year}*\n`;
+        msg += `━━━━━━━━━━━━━━━\n\n`;
+
+        if (aiData.score) {
+          msg += `*التقييم العام:* ${aiData.score.label} (${aiData.score.value}/100)\n\n`;
+        }
+
+        if (aiData.financial_pulse) {
+          msg += `🫀 *النبض المالي:*\n`;
+          msg += `• الميزانية: ${aiData.financial_pulse.budget_status}\n`;
+          msg += `• الصرف: ${aiData.financial_pulse.burn_rate}\n`;
+          if (aiData.financial_pulse.main_leak && aiData.financial_pulse.main_leak !== 'null') {
+            msg += `• التسريب: ${aiData.financial_pulse.main_leak}\n`;
+          }
+          msg += `\n`;
+        }
+
+        if (aiData.trend_analysis) {
+          msg += `📈 *اتجاه الصرف:* ${aiData.trend_analysis.trend} (${aiData.trend_analysis.consistency})\n\n`;
+        }
+
+        if (aiData.summary) {
+          msg += `📝 *الملخص:*\n${aiData.summary}\n\n`;
+        }
+
+        if (aiData.key_driver) {
+          msg += `🔑 *المحرك الأساسي:* ${aiData.key_driver.category} (${aiData.key_driver.change})\n`;
+          msg += `💡 السبب: ${aiData.key_driver.reason}\n\n`;
+        }
+
+        if (aiData.behavioral_patterns && aiData.behavioral_patterns.length > 0) {
+          msg += `🧠 *الأنماط السلوكية:*\n`;
+          aiData.behavioral_patterns.forEach(bp => msg += `• ${bp}\n`);
+          msg += `\n`;
+        }
+
+        if (aiData.category_analysis && aiData.category_analysis.length > 0) {
+          msg += `📊 *تحليل الفئات:*\n`;
+          aiData.category_analysis.forEach(ct => {
+            msg += `• *${ct.category}* (${ct.status}): ${ct.insight}\n`;
+          });
+          msg += `\n`;
+        }
+
+        if (aiData.insights && aiData.insights.length > 0) {
+          msg += `🔍 *ملاحظات دقيقة:*\n`;
+          aiData.insights.forEach(ins => {
+            const imp = ins.impact === 'Positive' ? '🟢' : (ins.impact === 'Negative' ? '🔴' : '⚪');
+            msg += `${imp} *${ins.title}:* ${ins.detail}\n\n`;
+          });
+        }
+
+        if (aiData.top_saving_opportunities && aiData.top_saving_opportunities.length > 0) {
+          msg += `💰 *فرص التوفير:*\n`;
+          aiData.top_saving_opportunities.forEach((tip, idx) => {
+            let tipText = tip;
+            if (typeof tip === 'object' && tip !== null) tipText = tip.detail || tip.title || Object.values(tip)[0] || JSON.stringify(tip);
+            msg += `${idx + 1}. ${tipText}\n`;
+          });
+          msg += `\n`;
+        }
+
+        if (aiData.forward_strategy) {
+          msg += `🎯 *خطة الشهر القادم:*\n`;
+          msg += `• التركيز: ${aiData.forward_strategy.next_month_focus}\n`;
+          msg += `• تحذير: ${aiData.forward_strategy.risk_warning}\n`;
+          msg += `• خطوة للتحسين: ${aiData.forward_strategy.optimization_move}\n`;
+        }
+
+        msg += `\n*بواسطة المساعد الذكي* 🌟`;
+
+        // الاقتطاع إذا تجاوزت الرسالة حدود التلجرام
+        if (msg.length > 4000) {
+          msg = msg.substring(0, 3950) + "\n\n... [تم اختصار النص لتجاوز حد تلجرام]";
+        }
+
+        return msg;
+      }
+
+      async function _sendMonthToTelegram(monthData, includeAI = false) {
         try {
           // جلب الإعدادات من Firebase أولاً
           if (firebaseEnabled && db) {
@@ -2798,6 +2950,11 @@
 
           const msg = formatExpensesForTelegram(monthData);
           const url = `https://api.telegram.org/bot${TG_BOT_TOKEN}/sendMessage`;
+
+          // إعداد مهلة زمنية (Timeout) للطلب لضمان عدم تعليق التطبيق
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 6000); // 6 ثوانٍ كحد أقصى
+
           const resp = await fetch(url, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -2805,16 +2962,45 @@
               chat_id: TG_CHAT_ID,
               text: msg,
               parse_mode: 'Markdown'
-            })
+            }),
+            signal: controller.signal
           });
+          clearTimeout(timeoutId);
+
           if (resp.ok) {
             console.log(`[Telegram] ✅ Sent: ${monthData.name} ${monthData.year}`);
+
+            // إذا أردنا إرسال تحليل الذكاء وتوفرت شروط ذلك
+            if (includeAI && typeof aiAnalyzer !== 'undefined') {
+              const progressLabel = document.getElementById('tgProgressLabel');
+              if (progressLabel) progressLabel.innerText = 'يتم الان اعداد تقرير الـ AI...';
+
+              try {
+                // نطلب التحليل الخاص بالشهر (ممكن يأخذ عدة ثوانٍ)
+                const aiData = await aiAnalyzer.analyzeMonth(monthData, state.months);
+                const aiMsg = formatAITelegram(aiData, monthData.name, monthData.year);
+
+                await fetch(url, {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    chat_id: TG_CHAT_ID,
+                    text: aiMsg,
+                    parse_mode: 'Markdown'
+                  })
+                });
+                console.log(`[Telegram] ✅ Sent AI Report for: ${monthData.name} ${monthData.year}`);
+              } catch (aiErr) {
+                console.error('[Telegram] AI Error during backup:', aiErr);
+              }
+            }
+
             return true;
           }
           const err = await resp.text();
           console.warn('[Telegram] Failed:', err);
           return false;
-        } catch(e) {
+        } catch (e) {
           console.warn('[Telegram] Error:', e);
           return false;
         }
@@ -2835,7 +3021,7 @@
             // مر أسبوع منذ آخر نسخة — أرسل نسخة جديدة
             setTimeout(() => { sendTelegramBackup(true); }, 5000);
           }
-        } catch(e) {}
+        } catch (e) { }
         // تحقق كل ساعة
         setInterval(() => {
           try {
@@ -2843,7 +3029,7 @@
             if (Date.now() - last >= WEEK_MS) {
               sendTelegramBackup(true);
             }
-          } catch(e) {}
+          } catch (e) { }
         }, 60 * 60 * 1000);
       }
 
@@ -3975,22 +4161,22 @@
         categoryBars.innerHTML = "";
 
         // مراجع العناصر الجديدة
-        const statMinExpenseEl   = document.getElementById("statMinExpense");
-        const statCountEl        = document.getElementById("statCount");
-        const statAvgAmountEl   = document.getElementById("statAvgAmount");
-        const statDaysLeftEl    = document.getElementById("statDaysLeft");
-        const paceAlert         = document.getElementById("spendingPaceAlert");
+        const statMinExpenseEl = document.getElementById("statMinExpense");
+        const statCountEl = document.getElementById("statCount");
+        const statAvgAmountEl = document.getElementById("statAvgAmount");
+        const statDaysLeftEl = document.getElementById("statDaysLeft");
+        const paceAlert = document.getElementById("spendingPaceAlert");
 
         // القيم الافتراضية
         function resetAll() {
-          dailyAvgEl.textContent        = "—";
+          dailyAvgEl.textContent = "—";
           remainingPerDayEl.textContent = "—";
-          maxExpenseEl.textContent      = "—";
-          topCategoryEl.textContent     = "لا يوجد";
-          if (statMinExpenseEl)  statMinExpenseEl.textContent  = "—";
-          if (statCountEl)       statCountEl.textContent       = "0";
-          if (statAvgAmountEl)   statAvgAmountEl.textContent   = "—";
-          if (statDaysLeftEl)    statDaysLeftEl.textContent    = "—";
+          maxExpenseEl.textContent = "—";
+          topCategoryEl.textContent = "لا يوجد";
+          if (statMinExpenseEl) statMinExpenseEl.textContent = "—";
+          if (statCountEl) statCountEl.textContent = "0";
+          if (statAvgAmountEl) statAvgAmountEl.textContent = "—";
+          if (statDaysLeftEl) statDaysLeftEl.textContent = "—";
           if (paceAlert) paceAlert.style.display = "none";
         }
 
@@ -3999,33 +4185,33 @@
         if (expenses.length === 0) { resetAll(); return; }
 
         // ===== حسابات التاريخ =====
-        const today      = new Date();
-        const year       = month.year;
-        const monthIdx   = month.month - 1;
+        const today = new Date();
+        const year = month.year;
+        const monthIdx = month.month - 1;
         const daysInMonth = new Date(year, monthIdx + 1, 0).getDate();
         const isCurrentMonth = today.getMonth() === monthIdx && today.getFullYear() === year;
-        const daysPassed    = isCurrentMonth ? today.getDate() : daysInMonth;
-        const daysLeft      = isCurrentMonth ? daysInMonth - today.getDate() : 0;
+        const daysPassed = isCurrentMonth ? today.getDate() : daysInMonth;
+        const daysLeft = isCurrentMonth ? daysInMonth - today.getDate() : 0;
 
         // ===== إحصائيات عامة =====
-        const total   = expenses.reduce((s, e) => s + (e.amount || 0), 0);
-        const salary  = month.salary || 0;
+        const total = expenses.reduce((s, e) => s + (e.amount || 0), 0);
+        const salary = month.salary || 0;
         const remaining = salary - total;
-        const count   = expenses.length;
+        const count = expenses.length;
         const avgAmount = Math.round(total / count);
-        const dailyAvg  = daysPassed > 0 ? Math.round(total / daysPassed) : total;
+        const dailyAvg = daysPassed > 0 ? Math.round(total / daysPassed) : total;
         const remainingPerDay = daysLeft > 0 ? Math.round(remaining / daysLeft) : remaining;
 
         const maxExp = expenses.reduce((m, e) => e.amount > m.amount ? e : m, expenses[0]);
         const minExp = expenses.reduce((m, e) => e.amount < m.amount ? e : m, expenses[0]);
 
         // ===== ملء الإحصائيات =====
-        dailyAvgEl.textContent        = formatNumber(dailyAvg);
-        maxExpenseEl.textContent      = `${formatNumber(maxExp.amount || 0)} · ${maxExp.title || "مصروف"}`;
+        dailyAvgEl.textContent = formatNumber(dailyAvg);
+        maxExpenseEl.textContent = `${formatNumber(maxExp.amount || 0)} · ${maxExp.title || "مصروف"}`;
 
         // المتبقي لكل يوم — بلون
         remainingPerDayEl.textContent = formatNumber(remainingPerDay);
-        remainingPerDayEl.className   = "adv-stat-value" +
+        remainingPerDayEl.className = "adv-stat-value" +
           (remainingPerDay >= dailyAvg ? " positive" : remainingPerDay > 0 ? " warning" : " negative");
 
         if (statMinExpenseEl)
@@ -4071,7 +4257,7 @@
         }
 
         // ===== أبار الفئات (محسّنة) =====
-        const PALETTE = ["#2563eb","#4f46e5","#06b6d4","#10b981","#f59e0b","#ef4444","#8b5cf6","#ec4899","#f97316","#14b8a6"];
+        const PALETTE = ["#2563eb", "#4f46e5", "#06b6d4", "#10b981", "#f59e0b", "#ef4444", "#8b5cf6", "#ec4899", "#f97316", "#14b8a6"];
         function catColor(cat) {
           let h = 0;
           for (let j = 0; j < cat.length; j++) h = (h << 5) - h + cat.charCodeAt(j);
@@ -4082,9 +4268,9 @@
         const maxCatTotal = sortedCats[0]?.[1] || 1;
 
         sortedCats.forEach(([cat, catTotal]) => {
-          const pct    = Math.round((catTotal / total) * 100);
+          const pct = Math.round((catTotal / total) * 100);
           const barPct = Math.round((catTotal / maxCatTotal) * 100);
-          const color  = catColor(cat);
+          const color = catColor(cat);
 
           const item = document.createElement("div");
           item.className = "category-bar";
@@ -4117,11 +4303,11 @@
           top.appendChild(nameEl);
           top.appendChild(rightSide);
 
-          const bg   = document.createElement("div");
+          const bg = document.createElement("div");
           bg.className = "category-bar-bg";
           const fill = document.createElement("div");
           fill.className = "category-bar-fill";
-          fill.style.width   = barPct + "%";
+          fill.style.width = barPct + "%";
           fill.style.background = color;
           fill.style.opacity = "0.85";
           bg.appendChild(fill);
@@ -4134,13 +4320,13 @@
         // === حساب المصروف اليومي الآمن ===
         const safeLimitEl = document.getElementById("statSafeLimit");
         const safeLimitMsgEl = document.getElementById("statSafeLimitMsg");
-        
+
         if (safeLimitEl && safeLimitMsgEl) {
           if (isCurrentMonth) {
             const tDate = new Date();
-            const todayStr = tDate.getFullYear() + "-" + 
-                             String(tDate.getMonth() + 1).padStart(2, '0') + "-" + 
-                             String(tDate.getDate()).padStart(2, '0');
+            const todayStr = tDate.getFullYear() + "-" +
+              String(tDate.getMonth() + 1).padStart(2, '0') + "-" +
+              String(tDate.getDate()).padStart(2, '0');
 
             let spentToday = 0;
             let spentBeforeToday = 0;
@@ -4156,7 +4342,7 @@
             const monthSalary = month.salary || 0;
             const remainingBeforeToday = monthSalary - spentBeforeToday;
             const daysLeftIncludedToday = daysInMonth - today.getDate() + 1;
-            
+
             let safeLimit = 0;
             if (daysLeftIncludedToday > 0 && remainingBeforeToday > 0) {
               safeLimit = Math.floor(remainingBeforeToday / daysLeftIncludedToday);
@@ -4166,15 +4352,15 @@
 
             if (spentToday === 0) {
               safeLimitMsgEl.textContent = "لم تصرف شيئاً اليوم! 👏";
-              safeLimitMsgEl.style.color = "#10b981"; 
+              safeLimitMsgEl.style.color = "#10b981";
             } else if (spentToday <= safeLimit) {
               const saved = safeLimit - spentToday;
               safeLimitMsgEl.textContent = `وفرت ${formatNumber(saved)} للغد! 📈`;
-              safeLimitMsgEl.style.color = "#10b981"; 
+              safeLimitMsgEl.style.color = "#10b981";
             } else {
               const exceeded = spentToday - safeLimit;
               safeLimitMsgEl.textContent = `تجاوزت الحد بـ ${formatNumber(exceeded)} ⚠️`;
-              safeLimitMsgEl.style.color = "#ef4444"; 
+              safeLimitMsgEl.style.color = "#ef4444";
             }
           } else {
             safeLimitEl.textContent = "N/A";
@@ -4370,9 +4556,9 @@
       function renderComparison() {
         // ===== لوحة ألوان ثابتة للتصنيفات =====
         const PALETTE = [
-          "#2563eb","#4f46e5","#06b6d4","#10b981",
-          "#f59e0b","#ef4444","#8b5cf6","#ec4899",
-          "#0ea5e9","#f97316","#14b8a6","#84cc16",
+          "#2563eb", "#4f46e5", "#06b6d4", "#10b981",
+          "#f59e0b", "#ef4444", "#8b5cf6", "#ec4899",
+          "#0ea5e9", "#f97316", "#14b8a6", "#84cc16",
         ];
         function getCategoryColor(cat) {
           if (!cat) return PALETTE[0];
@@ -4439,8 +4625,10 @@
           const count = expenses.length;
           const avgExpense = count > 0 ? Math.round(total / count) : 0;
           const spendPct = salary > 0 ? Math.round((total / salary) * 100) : 0;
-          return { id: m.id, label: `${m.name} ${m.year}`, shortLabel: m.name,
-            year: m.year, month: m.month, salary, total, remaining, catTotals, count, avgExpense, spendPct };
+          return {
+            id: m.id, label: `${m.name} ${m.year}`, shortLabel: m.name,
+            year: m.year, month: m.month, salary, total, remaining, catTotals, count, avgExpense, spendPct
+          };
         });
 
         const maxTotal = Math.max(...monthData.map(d => d.total), 1);
@@ -4500,8 +4688,8 @@
           bar.style.background = d.total === maxTotal
             ? 'linear-gradient(180deg, #ef4444, #b91c1c)'
             : d.remaining === Math.max(...monthData.map(x => x.remaining))
-            ? 'linear-gradient(180deg, #10b981, #059669)'
-            : 'linear-gradient(180deg, var(--accent), #4f46e5)';
+              ? 'linear-gradient(180deg, #10b981, #059669)'
+              : 'linear-gradient(180deg, var(--accent), #4f46e5)';
           bar.title = `${d.label}: ${formatNumber(d.total)}`;
 
           const lbl = document.createElement('div');
@@ -4605,8 +4793,10 @@
           const statsData = [
             { label: 'الراتب', value: formatNumber(d.salary), cls: '' },
             { label: 'المتبقي', value: formatNumber(d.remaining), cls: d.remaining >= 0 ? 'positive' : 'negative' },
-            { label: 'نسبة الصرف', value: d.spendPct + '%',
-              cls: d.spendPct > 90 ? 'negative' : d.spendPct > 70 ? '' : 'positive' },
+            {
+              label: 'نسبة الصرف', value: d.spendPct + '%',
+              cls: d.spendPct > 90 ? 'negative' : d.spendPct > 70 ? '' : 'positive'
+            },
           ];
           statsData.forEach(s => {
             const si = document.createElement('div');
@@ -4995,12 +5185,12 @@
         const oldMonthId = state.selectedMonthId;
         const newMonthId = e.target.value || null;
         state.selectedMonthId = newMonthId;
-        
+
         await refreshUI();
-        
+
         // Trigger Rollover Check
         if (oldMonthId && newMonthId && oldMonthId !== newMonthId) {
-           checkRollover(oldMonthId, newMonthId);
+          checkRollover(oldMonthId, newMonthId);
         }
       });
 
@@ -5253,11 +5443,11 @@
           }
           // Mark overflow if limitCheck suggests it
           if (limitCheck.markOverflow) {
-              state.categoryLimits[category].hasExceeded = true;
+            state.categoryLimits[category].hasExceeded = true;
           }
           if (limitCheck.markGroupOverflow) {
-              const b = state.savingsBuckets.find(x => x.id === limitCheck.markGroupOverflow);
-              if (b) b.hasExceeded = true;
+            const b = state.savingsBuckets.find(x => x.id === limitCheck.markGroupOverflow);
+            if (b) b.hasExceeded = true;
           }
         }
 
@@ -5340,6 +5530,12 @@
         }
         editingExpenseId = null;
         await refreshUI();
+
+        try {
+          if (typeof sendTelegramBackup === 'function') {
+            sendTelegramBackup(true);
+          }
+        } catch (e) { console.warn('Silent TG backup failed:', e); }
       }
 
       // ====== Goals feature ======
@@ -5596,41 +5792,41 @@
         const groupBucket = buckets.find(b => b.groupKey === groupKey);
 
         if (groupBucket) {
-            // Find all categories in this group
-            const groupCats = (groupKey === 'NEEDS') ? CATEGORY_GROUPS.NEEDS : 
-                             (groupKey === 'WANTS') ? CATEGORY_GROUPS.WANTS : 
-                             CATEGORY_GROUPS.SAVINGS;
-            
-            // Calculate total spent in this group
-            const groupTotalSpent = expenses.reduce((s, e) => {
-                const eCat = e.category || "أخرى";
-                // If it's a "Wants" fallback, we should also count other categories not in NEEDS/SAVINGS
-                const isInGroup = groupCats.includes(eCat) || 
-                                 (groupKey === 'WANTS' && !CATEGORY_GROUPS.NEEDS.includes(eCat) && !CATEGORY_GROUPS.SAVINGS.includes(eCat));
-                return s + (isInGroup ? (e.amount || 0) : 0);
-            }, 0);
+          // Find all categories in this group
+          const groupCats = (groupKey === 'NEEDS') ? CATEGORY_GROUPS.NEEDS :
+            (groupKey === 'WANTS') ? CATEGORY_GROUPS.WANTS :
+              CATEGORY_GROUPS.SAVINGS;
 
-            const wouldGroup = groupTotalSpent + (additionalAmount || 0);
-            const bucketLimit = groupBucket.amount || 0;
+          // Calculate total spent in this group
+          const groupTotalSpent = expenses.reduce((s, e) => {
+            const eCat = e.category || "أخرى";
+            // If it's a "Wants" fallback, we should also count other categories not in NEEDS/SAVINGS
+            const isInGroup = groupCats.includes(eCat) ||
+              (groupKey === 'WANTS' && !CATEGORY_GROUPS.NEEDS.includes(eCat) && !CATEGORY_GROUPS.SAVINGS.includes(eCat));
+            return s + (isInGroup ? (e.amount || 0) : 0);
+          }, 0);
 
-            if (wouldGroup > bucketLimit) {
-                const groupNameAr = groupKey === 'NEEDS' ? "الاحتياجات" : groupKey === 'WANTS' ? "الرغبات" : "الادخار";
-                const hasOverflowedGroup = groupBucket.hasExceeded === true;
+          const wouldGroup = groupTotalSpent + (additionalAmount || 0);
+          const bucketLimit = groupBucket.amount || 0;
 
-                if (hasOverflowedGroup) {
-                    return { 
-                        allowed: false, 
-                        message: `❌ ميزانية المجموعة "${groupNameAr}" نفدت تماماً! (الحد: ${formatNumber(bucketLimit)}). لا يمكنك إضافة المزيد.` 
-                    };
-                }
+          if (wouldGroup > bucketLimit) {
+            const groupNameAr = groupKey === 'NEEDS' ? "الاحتياجات" : groupKey === 'WANTS' ? "الرغبات" : "الادخار";
+            const hasOverflowedGroup = groupBucket.hasExceeded === true;
 
-                // Soft limit for group
-                return { 
-                    allowed: true, 
-                    message: `⚠️ تنبيه: ستتجاوز ميزانية مجموعة "${groupNameAr}" المخصصة في الحافظات. المتبقي كان: ${formatNumber(bucketLimit - groupTotalSpent)}. هل تود الاستمرار رغم التجاوز؟`, 
-                    markGroupOverflow: groupBucket.id 
-                };
+            if (hasOverflowedGroup) {
+              return {
+                allowed: false,
+                message: `❌ ميزانية المجموعة "${groupNameAr}" نفدت تماماً! (الحد: ${formatNumber(bucketLimit)}). لا يمكنك إضافة المزيد.`
+              };
             }
+
+            // Soft limit for group
+            return {
+              allowed: true,
+              message: `⚠️ تنبيه: ستتجاوز ميزانية مجموعة "${groupNameAr}" المخصصة في الحافظات. المتبقي كان: ${formatNumber(bucketLimit - groupTotalSpent)}. هل تود الاستمرار رغم التجاوز؟`,
+              markGroupOverflow: groupBucket.id
+            };
+          }
         }
 
         // 2. Individual Category Limit Enforcement
@@ -5642,7 +5838,7 @@
         const would = total + (additionalAmount || 0);
 
         const hasOverflowed = obj.hasExceeded === true;
-        
+
         if (would <= obj.limit) {
           if (would >= Math.round(obj.limit * 0.8)) {
             return { allowed: true, message: `⚠️ اقتربت من حد الفئة "${cat}" (${formatNumber(would)} / ${formatNumber(obj.limit)})` };
@@ -6640,21 +6836,21 @@
 
       if (btnSaveTgConfig) {
         btnSaveTgConfig.addEventListener("click", async () => {
-           if (!firebaseEnabled || !db) return;
-           const token = adminTgBotToken.value.trim();
-           const chatId = adminTgChatId.value.trim();
-           try {
-             btnSaveTgConfig.disabled = true;
-             btnSaveTgConfig.textContent = "⏳ جاري الحفظ...";
-             await set(ref(db, "settings/telegram"), { token, chatId });
-             showToast("✓ تم حفظ إعدادات Telegram للنسخ الاحتياطي", "success", 2000);
-           } catch(e) {
-             console.error("Error saving TG settings", e);
-             alert("خطأ في الحفظ");
-           } finally {
-             btnSaveTgConfig.disabled = false;
-             btnSaveTgConfig.textContent = "حفظ إعدادات Telegram";
-           }
+          if (!firebaseEnabled || !db) return;
+          const token = adminTgBotToken.value.trim();
+          const chatId = adminTgChatId.value.trim();
+          try {
+            btnSaveTgConfig.disabled = true;
+            btnSaveTgConfig.textContent = "⏳ جاري الحفظ...";
+            await set(ref(db, "settings/telegram"), { token, chatId });
+            showToast("✓ تم حفظ إعدادات Telegram للنسخ الاحتياطي", "success", 2000);
+          } catch (e) {
+            console.error("Error saving TG settings", e);
+            alert("خطأ في الحفظ");
+          } finally {
+            btnSaveTgConfig.disabled = false;
+            btnSaveTgConfig.textContent = "حفظ إعدادات Telegram";
+          }
         });
       }
 
@@ -6663,10 +6859,10 @@
         try {
           const snap = await get(ref(db, "settings/telegram"));
           if (snap.exists() && adminTgBotToken && adminTgChatId) {
-             adminTgBotToken.value = snap.val().token || "";
-             adminTgChatId.value = snap.val().chatId || "";
+            adminTgBotToken.value = snap.val().token || "";
+            adminTgChatId.value = snap.val().chatId || "";
           }
-        } catch(e) {}
+        } catch (e) { }
       }
 
       // زر تغيير كلمة السر من الرأس
@@ -6738,32 +6934,32 @@
         const month = getSelectedMonth();
         const barNeeds = document.getElementById("barNeeds");
         if (!month || !barNeeds) return;
-        
+
         const salary = month.salary || 0;
         let needsTotal = 0, wantsTotal = 0, savingsTotal = 0;
-        
+
         const expenses = Array.isArray(month.expenses) ? month.expenses : [];
         expenses.forEach(e => {
-            const cat = e.category || "أخرى";
-            if (CATEGORY_GROUPS.NEEDS.includes(cat)) {
-                needsTotal += e.amount || 0;
-            } else if (CATEGORY_GROUPS.WANTS.includes(cat)) {
-                wantsTotal += e.amount || 0;
-            } else if (CATEGORY_GROUPS.SAVINGS.includes(cat)) {
-                savingsTotal += e.amount || 0;
-            } else {
-                wantsTotal += e.amount || 0; 
-            }
+          const cat = e.category || "أخرى";
+          if (CATEGORY_GROUPS.NEEDS.includes(cat)) {
+            needsTotal += e.amount || 0;
+          } else if (CATEGORY_GROUPS.WANTS.includes(cat)) {
+            wantsTotal += e.amount || 0;
+          } else if (CATEGORY_GROUPS.SAVINGS.includes(cat)) {
+            savingsTotal += e.amount || 0;
+          } else {
+            wantsTotal += e.amount || 0;
+          }
         });
 
         const totalSpent = needsTotal + wantsTotal + savingsTotal;
-        const unspent = salary - totalSpent; 
-        
+        const unspent = salary - totalSpent;
+
         const effectiveSavings = savingsTotal + (unspent > 0 ? unspent : 0);
 
         const needsPct = salary > 0 ? Math.round((needsTotal / salary) * 100) : 0;
         const wantsPct = salary > 0 ? Math.round((wantsTotal / salary) * 100) : 0;
-        const savPct   = salary > 0 ? Math.round((effectiveSavings / salary) * 100) : 0;
+        const savPct = salary > 0 ? Math.round((effectiveSavings / salary) * 100) : 0;
 
         document.getElementById("barNeeds").style.width = `${Math.min(needsPct, 100)}%`;
         document.getElementById("barWants").style.width = `${Math.min(wantsPct, 100)}%`;
@@ -6778,7 +6974,7 @@
         document.getElementById("barSavings").style.background = savPct < 20 ? "#f59e0b" : "#10b981";
 
         const targetTxt = document.getElementById("budgetRuleTotalTxt");
-        if(targetTxt) targetTxt.textContent = `متبقي للادخار: ${formatNumber(unspent > 0 ? unspent : 0)}`;
+        if (targetTxt) targetTxt.textContent = `متبقي للادخار: ${formatNumber(unspent > 0 ? unspent : 0)}`;
       }
 
       // ==========================================
@@ -6789,33 +6985,33 @@
       let activeRolloverDistribution = {};
 
       function checkRollover(oldMonthId, newMonthId) {
-        const sortedMonths = state.months.slice().sort((a,b) => a.year - b.year || a.month - b.month);
+        const sortedMonths = state.months.slice().sort((a, b) => a.year - b.year || a.month - b.month);
         const oldMonth = sortedMonths.find(m => m.id === oldMonthId);
         const newMonth = sortedMonths.find(m => m.id === newMonthId);
-        
+
         if (!oldMonth || !newMonth) return;
 
         const oldIndex = sortedMonths.findIndex(m => m.id === oldMonthId);
         const newIndex = sortedMonths.findIndex(m => m.id === newMonthId);
 
         if (newIndex > oldIndex && !oldMonth.rolloverProcessed) {
-           const expensesTotal = (oldMonth.expenses || []).reduce((sum, e) => sum + (e.amount || 0), 0);
-           const remaining = (oldMonth.salary || 0) - expensesTotal;
+          const expensesTotal = (oldMonth.expenses || []).reduce((sum, e) => sum + (e.amount || 0), 0);
+          const remaining = (oldMonth.salary || 0) - expensesTotal;
 
-           if (remaining > 0) {
-               showRolloverModal(oldMonth, remaining, newMonth);
-           }
+          if (remaining > 0) {
+            showRolloverModal(oldMonth, remaining, newMonth);
+          }
         }
       }
 
       function showRolloverModal(oldMonth, remaining, newMonth) {
         const modal = document.getElementById("rolloverModal");
         if (!modal) return;
-        
+
         activeRolloverMonthId = oldMonth.id;
         activeRolloverAmount = remaining;
         activeRolloverDistribution = {};
-        
+
         document.getElementById("rolloverTotalAmount").textContent = formatNumber(remaining);
         document.getElementById("rolloverRemainingToDistribute").textContent = formatNumber(remaining);
 
@@ -6823,161 +7019,161 @@
         const btnSave = document.getElementById("btnSaveRolloverGoals");
 
         if (goals.length > 0) {
-            document.getElementById("rolloverGoalsSection").style.display = "block";
-            document.getElementById("rolloverNoGoalsSection").style.display = "none";
-            
-            const cont = document.getElementById("rolloverSlidersContainer");
-            cont.innerHTML = "";
-            let remainingToDistribute = remaining;
+          document.getElementById("rolloverGoalsSection").style.display = "block";
+          document.getElementById("rolloverNoGoalsSection").style.display = "none";
 
-            goals.forEach(g => {
-                const row = document.createElement("div");
-                row.style.marginBottom = "15px";
-                const label = document.createElement("div");
-                label.style.display = "flex";
-                label.style.justifyContent = "space-between";
-                label.style.fontSize = "13px";
-                label.style.marginBottom = "5px";
-                
-                const titleSpan = document.createElement("span");
-                titleSpan.textContent = g.title + ` (متبقي: ${formatNumber(g.target - g.current)})`;
-                
-                const valSpan = document.createElement("span");
-                valSpan.textContent = "0";
-                valSpan.style.fontWeight = "bold";
-                valSpan.style.color = "#10b981";
+          const cont = document.getElementById("rolloverSlidersContainer");
+          cont.innerHTML = "";
+          let remainingToDistribute = remaining;
 
-                label.appendChild(titleSpan);
-                label.appendChild(valSpan);
+          goals.forEach(g => {
+            const row = document.createElement("div");
+            row.style.marginBottom = "15px";
+            const label = document.createElement("div");
+            label.style.display = "flex";
+            label.style.justifyContent = "space-between";
+            label.style.fontSize = "13px";
+            label.style.marginBottom = "5px";
 
-                const slider = document.createElement("input");
-                slider.type = "range";
-                slider.min = "0";
-                slider.max = remaining;
-                slider.value = "0";
-                slider.className = "form-input";
-                slider.style.padding = "0";
+            const titleSpan = document.createElement("span");
+            titleSpan.textContent = g.title + ` (متبقي: ${formatNumber(g.target - g.current)})`;
 
-                slider.addEventListener("input", (e) => {
-                    const newVal = parseInt(e.target.value) || 0;
-                    const oldVal = activeRolloverDistribution[g.id] || 0;
-                    let diff = newVal - oldVal;
+            const valSpan = document.createElement("span");
+            valSpan.textContent = "0";
+            valSpan.style.fontWeight = "bold";
+            valSpan.style.color = "#10b981";
 
-                    if (remainingToDistribute - diff < 0) {
-                        e.target.value = oldVal + remainingToDistribute;
-                    }
+            label.appendChild(titleSpan);
+            label.appendChild(valSpan);
 
-                    const finalVal = parseInt(e.target.value) || 0;
-                    activeRolloverDistribution[g.id] = finalVal;
-                    valSpan.textContent = formatNumber(finalVal);
+            const slider = document.createElement("input");
+            slider.type = "range";
+            slider.min = "0";
+            slider.max = remaining;
+            slider.value = "0";
+            slider.className = "form-input";
+            slider.style.padding = "0";
 
-                    remainingToDistribute = remaining - Object.values(activeRolloverDistribution).reduce((a,b)=>a+b, 0);
-                    document.getElementById("rolloverRemainingToDistribute").textContent = formatNumber(remainingToDistribute);
-                    
-                    btnSave.disabled = (Object.values(activeRolloverDistribution).reduce((a,b)=>a+b,0) === 0);
-                });
+            slider.addEventListener("input", (e) => {
+              const newVal = parseInt(e.target.value) || 0;
+              const oldVal = activeRolloverDistribution[g.id] || 0;
+              let diff = newVal - oldVal;
 
-                row.appendChild(label);
-                row.appendChild(slider);
-                cont.appendChild(row);
+              if (remainingToDistribute - diff < 0) {
+                e.target.value = oldVal + remainingToDistribute;
+              }
+
+              const finalVal = parseInt(e.target.value) || 0;
+              activeRolloverDistribution[g.id] = finalVal;
+              valSpan.textContent = formatNumber(finalVal);
+
+              remainingToDistribute = remaining - Object.values(activeRolloverDistribution).reduce((a, b) => a + b, 0);
+              document.getElementById("rolloverRemainingToDistribute").textContent = formatNumber(remainingToDistribute);
+
+              btnSave.disabled = (Object.values(activeRolloverDistribution).reduce((a, b) => a + b, 0) === 0);
             });
+
+            row.appendChild(label);
+            row.appendChild(slider);
+            cont.appendChild(row);
+          });
         } else {
-            document.getElementById("rolloverGoalsSection").style.display = "none";
-            document.getElementById("rolloverNoGoalsSection").style.display = "flex";
+          document.getElementById("rolloverGoalsSection").style.display = "none";
+          document.getElementById("rolloverNoGoalsSection").style.display = "flex";
         }
 
         modal.style.display = "flex";
 
         if (!modal.dataset.bound) {
-            document.getElementById("btnCancelRollover")?.addEventListener("click", () => {
-                modal.style.display = "none";
-            });
+          document.getElementById("btnCancelRollover")?.addEventListener("click", () => {
+            modal.style.display = "none";
+          });
 
-            document.getElementById("btnSkipRolloverGoals")?.addEventListener("click", () => {
-                document.getElementById("rolloverGoalsSection").style.display = "none";
-                document.getElementById("rolloverNoGoalsSection").style.display = "flex";
-            });
+          document.getElementById("btnSkipRolloverGoals")?.addEventListener("click", () => {
+            document.getElementById("rolloverGoalsSection").style.display = "none";
+            document.getElementById("rolloverNoGoalsSection").style.display = "flex";
+          });
 
-            document.getElementById("btnRolloverNextMonth")?.addEventListener("click", async () => {
-                const nM = state.months.find(m => m.id === state.selectedMonthId);
-                const oM = state.months.find(m => m.id === activeRolloverMonthId);
-                if(nM && oM) {
-                   nM.salary = (nM.salary || 0) + activeRolloverAmount;
-                   markOldMonthProcessed(oM);
-                   await saveState();
-                   refreshUI({forceAnimate: true});
+          document.getElementById("btnRolloverNextMonth")?.addEventListener("click", async () => {
+            const nM = state.months.find(m => m.id === state.selectedMonthId);
+            const oM = state.months.find(m => m.id === activeRolloverMonthId);
+            if (nM && oM) {
+              nM.salary = (nM.salary || 0) + activeRolloverAmount;
+              markOldMonthProcessed(oM);
+              await saveState();
+              refreshUI({ forceAnimate: true });
+            }
+            modal.style.display = "none";
+          });
+
+          document.getElementById("btnRolloverVault")?.addEventListener("click", async () => {
+            const oM = state.months.find(m => m.id === activeRolloverMonthId);
+            privateState.totalBalance = (privateState.totalBalance || 0) + activeRolloverAmount;
+            if (oM) markOldMonthProcessed(oM);
+            await savePrivateState();
+            await saveState();
+            modal.style.display = "none";
+            if (typeof showToast === 'function') showToast("إيداع ناجح في القاصة", "success", 2000);
+          });
+
+          document.getElementById("btnRolloverCreateGoal")?.addEventListener("click", () => {
+            modal.style.display = "none";
+            const btnAddGoal = document.getElementById("btnAddGoal");
+            if (btnAddGoal) btnAddGoal.click();
+          });
+
+          btnSave?.addEventListener("click", async () => {
+            const oM = state.months.find(m => m.id === activeRolloverMonthId);
+            let distributedSome = false;
+            Object.entries(activeRolloverDistribution).forEach(([gId, amt]) => {
+              if (amt > 0) {
+                const g = state.goals.find(xg => xg.id == gId);
+                if (g) {
+                  g.current = (g.current || 0) + amt;
+                  distributedSome = true;
                 }
-                modal.style.display = "none";
+              }
             });
 
-            document.getElementById("btnRolloverVault")?.addEventListener("click", async () => {
-                const oM = state.months.find(m => m.id === activeRolloverMonthId);
-                privateState.totalBalance = (privateState.totalBalance || 0) + activeRolloverAmount;
-                if(oM) markOldMonthProcessed(oM);
-                await savePrivateState();
-                await saveState();
-                modal.style.display = "none";
-                if(typeof showToast === 'function') showToast("إيداع ناجح في القاصة", "success", 2000);
-            });
+            if (distributedSome && oM) {
+              const exactSum = Object.values(activeRolloverDistribution).reduce((s, a) => s + a, 0);
 
-            document.getElementById("btnRolloverCreateGoal")?.addEventListener("click", () => {
-                modal.style.display = "none";
-                const btnAddGoal = document.getElementById("btnAddGoal");
-                if (btnAddGoal) btnAddGoal.click();
-            });
+              // Deduct as an expense in old month
+              oM.expenses = oM.expenses || [];
+              oM.expenses.push({
+                id: Date.now(),
+                title: "تحويل للأهداف (تقفيل الشهر) 🔄",
+                amount: exactSum,
+                category: "أخرى",
+                date: new Date().toISOString().split('T')[0],
+                note: "تم توزيعه أوتوماتيكياً بواسطة تقفيل الشهر الذكي",
+                imageDataUrl: null
+              });
+              oM.rolloverProcessed = true;
 
-            btnSave?.addEventListener("click", async () => {
-                const oM = state.months.find(m => m.id === activeRolloverMonthId);
-                let distributedSome = false;
-                Object.entries(activeRolloverDistribution).forEach(([gId, amt]) => {
-                    if (amt > 0) {
-                        const g = state.goals.find(xg => xg.id == gId);
-                        if(g) {
-                            g.current = (g.current || 0) + amt;
-                            distributedSome = true;
-                        }
-                    }
-                });
+              await saveState();
+              refreshUI({ forceAnimate: true });
+              if (typeof showToast === 'function') showToast("تم تحديث الأهداف وخصم المبلغ من الشهر السابق بنجاح", "success", 2000);
+            }
+            modal.style.display = "none";
+          });
 
-                if (distributedSome && oM) {
-                    const exactSum = Object.values(activeRolloverDistribution).reduce((s, a) => s + a, 0);
-                    
-                    // Deduct as an expense in old month
-                    oM.expenses = oM.expenses || [];
-                    oM.expenses.push({
-                        id: Date.now(),
-                        title: "تحويل للأهداف (تقفيل الشهر) 🔄",
-                        amount: exactSum,
-                        category: "أخرى",
-                        date: new Date().toISOString().split('T')[0],
-                        note: "تم توزيعه أوتوماتيكياً بواسطة تقفيل الشهر الذكي",
-                        imageDataUrl: null
-                    });
-                    oM.rolloverProcessed = true; 
-                    
-                    await saveState();
-                    refreshUI({forceAnimate: true});
-                    if(typeof showToast === 'function') showToast("تم تحديث الأهداف وخصم المبلغ من الشهر السابق بنجاح", "success", 2000);
-                }
-                modal.style.display = "none";
-            });
-
-            modal.dataset.bound = "true";
+          modal.dataset.bound = "true";
         }
       }
 
       function markOldMonthProcessed(oMonth) {
-          oMonth.expenses = oMonth.expenses || [];
-          oMonth.expenses.push({
-             id: Date.now(),
-             title: "ترحيل رصيد للإيداع 🔄",
-             amount: activeRolloverAmount,
-             category: "أخرى",
-             date: new Date().toISOString().split('T')[0],
-             note: "تمت تصفيته وتحويله تلقائياً لراتب الشهر الجديد أو القاصة",
-             imageDataUrl: null
-          });
-          oMonth.rolloverProcessed = true;
+        oMonth.expenses = oMonth.expenses || [];
+        oMonth.expenses.push({
+          id: Date.now(),
+          title: "ترحيل رصيد للإيداع 🔄",
+          amount: activeRolloverAmount,
+          category: "أخرى",
+          date: new Date().toISOString().split('T')[0],
+          note: "تمت تصفيته وتحويله تلقائياً لراتب الشهر الجديد أو القاصة",
+          imageDataUrl: null
+        });
+        oMonth.rolloverProcessed = true;
       }
 
       let _hasRunRefresh = false; // track whether we already animated once
@@ -6996,6 +7192,7 @@
           // options.noAnimate = true will skip any fade transitions
           const noAnim = options.noAnimate || (_hasRunRefresh && !options.forceAnimate);
           state = normalizeState(state);
+          window._appState = state; // يربط state بالمحلل المالي الذكي
 
           if (!noAnim) {
             // apply fade-out to the main app view so existing data hides smoothly
@@ -7059,56 +7256,56 @@
 
       const compareTabBtnNode = document.querySelector('.tab-btn[data-tab="compare"]');
       if (compareTabBtnNode && quickCompareCategory) {
-          compareTabBtnNode.addEventListener("click", () => {
-              quickCompareCategory.innerHTML = "";
-              state.categories.forEach(cat => {
-                  const opt = document.createElement("option");
-                  opt.value = cat;
-                  opt.textContent = cat;
-                  quickCompareCategory.appendChild(opt);
-              });
-              quickCompareResult.style.display = "none";
+        compareTabBtnNode.addEventListener("click", () => {
+          quickCompareCategory.innerHTML = "";
+          state.categories.forEach(cat => {
+            const opt = document.createElement("option");
+            opt.value = cat;
+            opt.textContent = cat;
+            quickCompareCategory.appendChild(opt);
           });
+          quickCompareResult.style.display = "none";
+        });
       }
 
       if (btnQuickCompare) {
         btnQuickCompare.addEventListener("click", () => {
           const category = quickCompareCategory.value;
           if (!category) return;
-          
-          const sortedMonths = state.months.slice().sort((a,b) => a.year - b.year || a.month - b.month);
+
+          const sortedMonths = state.months.slice().sort((a, b) => a.year - b.year || a.month - b.month);
           if (sortedMonths.length < 1) return;
 
           const currMonth = getSelectedMonth() || sortedMonths[sortedMonths.length - 1];
           const currIdx = sortedMonths.findIndex(m => m.id === currMonth.id);
-          
+
           let prevMonth = null;
           if (currIdx > 0) {
-             prevMonth = sortedMonths[currIdx - 1];
+            prevMonth = sortedMonths[currIdx - 1];
           }
 
           let currAmount = 0;
           let prevAmount = 0;
 
           if (currMonth && Array.isArray(currMonth.expenses)) {
-             document.getElementById("labelCurrMonth").textContent = currMonth.name + " " + currMonth.year;
-             currMonth.expenses.forEach(e => {
-               if (e.category === category) currAmount += (e.amount || 0);
-             });
+            document.getElementById("labelCurrMonth").textContent = currMonth.name + " " + currMonth.year;
+            currMonth.expenses.forEach(e => {
+              if (e.category === category) currAmount += (e.amount || 0);
+            });
           }
 
           if (prevMonth && Array.isArray(prevMonth.expenses)) {
-             document.getElementById("labelPrevMonth").textContent = prevMonth.name + " " + prevMonth.year;
-             prevMonth.expenses.forEach(e => {
-               if (e.category === category) prevAmount += (e.amount || 0);
-             });
+            document.getElementById("labelPrevMonth").textContent = prevMonth.name + " " + prevMonth.year;
+            prevMonth.expenses.forEach(e => {
+              if (e.category === category) prevAmount += (e.amount || 0);
+            });
           } else {
-             document.getElementById("labelPrevMonth").textContent = "بدون سجل سابق";
+            document.getElementById("labelPrevMonth").textContent = "بدون سجل سابق";
           }
 
           document.getElementById("quickComparePrevVal").textContent = formatNumber(prevAmount);
           document.getElementById("quickCompareCurrVal").textContent = formatNumber(currAmount);
-          
+
           const badge = document.getElementById("quickCompareBadge");
 
           if (prevAmount === 0 && currAmount > 0) {
@@ -7120,24 +7317,24 @@
             badge.style.backgroundColor = "var(--bg-color)";
             badge.style.color = "var(--text-secondary)";
           } else {
-             const diff = currAmount - prevAmount;
-             const pct = Math.round((diff / prevAmount) * 100);
-             
-             if (diff > 0) {
-               badge.textContent = `↑ زيادة ${pct}%`;
-               badge.style.backgroundColor = "rgba(239, 68, 68, 0.1)";
-               badge.style.color = "#ef4444";
-             } else if (diff < 0) {
-               badge.textContent = `↓ توفير ${Math.abs(pct)}%`;
-               badge.style.backgroundColor = "rgba(16, 185, 129, 0.1)";
-               badge.style.color = "#10b981";
-             } else {
-               badge.textContent = "== مستقر";
-               badge.style.backgroundColor = "var(--bg-color)";
-               badge.style.color = "var(--text-secondary)";
-             }
+            const diff = currAmount - prevAmount;
+            const pct = Math.round((diff / prevAmount) * 100);
+
+            if (diff > 0) {
+              badge.textContent = `↑ زيادة ${pct}%`;
+              badge.style.backgroundColor = "rgba(239, 68, 68, 0.1)";
+              badge.style.color = "#ef4444";
+            } else if (diff < 0) {
+              badge.textContent = `↓ توفير ${Math.abs(pct)}%`;
+              badge.style.backgroundColor = "rgba(16, 185, 129, 0.1)";
+              badge.style.color = "#10b981";
+            } else {
+              badge.textContent = "== مستقر";
+              badge.style.backgroundColor = "var(--bg-color)";
+              badge.style.color = "var(--text-secondary)";
+            }
           }
-          
+
           quickCompareResult.style.display = "flex";
         });
       }
@@ -7664,8 +7861,513 @@
         setTimeout(updateSpendingProgress, 1000);
         setInterval(updateSpendingProgress, 3000);
 
+        // === تصدير الدوال للاستخدام الخارجي (المساعد الذكي) ===
+        window.getSelectedMonth = getSelectedMonth;
+        window.saveExpenseObject = saveExpenseObject;
+        window.saveState = saveState;
+        window.refreshUI = refreshUI;
+        window.formatNumber = formatNumber;
+        window.parseFormattedNumber = parseFormattedNumber;
+
       })();
     </script>
+    <script src="ai-assistant.js"></script>
+    <script>
+      // ===== تهيئة المحلل المالي الذكي =====
+      let aiAnalyzer;
+      window.addEventListener('load', () => {
+        aiAnalyzer = new AIFinancialAnalyzer('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');
+      });
+
+      // ===== مساعد: تنسيق الأرقام من state =====
+      function _fmt(n) {
+        return typeof window.formatNumber === 'function'
+          ? window.formatNumber(n)
+          : Number(n).toLocaleString('ar-IQ');
+      }
+
+      // ===== Skeleton Loading Template =====
+      function renderAISkeleton(container) {
+        container.style.display = 'block';
+        container.innerHTML = `
+          <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; padding: 60px 20px; gap: 24px; animation: fadeInAI 0.5s ease both;">
+            <div style="position:relative; width:90px; height:90px; display:flex; align-items:center; justify-content:center;">
+              <svg class="ai-svg-icon ai-anim-spin-slow" viewBox="0 0 24 24" style="position:absolute; width:100%; height:100%; color:var(--ai-emerald); opacity:0.3;">
+                <circle cx="12" cy="12" r="11" stroke="currentColor"/>
+                <circle cx="12" cy="12" r="8" stroke="currentColor" stroke-dasharray="4" class="ai-anim-rotate"/>
+              </svg>
+              <svg class="ai-svg-icon" viewBox="0 0 24 24" style="position:absolute; width:50%; height:50%; color:var(--ai-indigo);">
+                <rect x="4" y="4" width="6" height="6" rx="1" class="ai-anim-box-1" fill="currentColor" stroke="none"/>
+                <rect x="14" y="4" width="6" height="6" rx="1" class="ai-anim-box-2" fill="currentColor" stroke="none"/>
+                <rect x="4" y="14" width="6" height="6" rx="1" class="ai-anim-box-3" fill="currentColor" stroke="none"/>
+                <rect x="14" y="14" width="6" height="6" rx="1" class="ai-anim-box-4" fill="currentColor" stroke="none"/>
+              </svg>
+            </div>
+            <div style="text-align:center;">
+              <div style="font-size:19px; font-weight:900; color:var(--ai-primary); animation: aiBoxPulse 1.5s infinite alternate; margin-bottom: 8px;">الذكاء الاصطناعي يقوم بالتحليل</div>
+              <div style="font-size:14.5px; font-weight:600; color:var(--subtext-color); max-width:280px; margin:0 auto; line-height:1.6;">جاري دراسة أنماط إنفاقك المعقدة لاكتشاف فرص التوفير وتوليد الاستبصارات...</div>
+            </div>
+          </div>
+        `;
+      }
+
+      // ===== Animated Premium SVG Icons Generator =====
+      function getAIAnimationSVG(type, keyword = '') {
+        const k = keyword.toLowerCase();
+        let iconType = type;
+
+        if (type === 'category') {
+          if (/(مطعم|طعام|اكل|غداء|عشاء|وجب|كافيه|مقهى)/.test(k)) iconType = 'food';
+          else if (/(سيار|بنزين|وقود|مواصلات|نقل|تكسي|اجرة)/.test(k)) iconType = 'transport';
+          else if (/(بقالة|سوبر|ماركت|تسوق|منزل|اغراض)/.test(k)) iconType = 'shopping';
+          else if (/(فاتر|فواتير|كهرب|ماء|انترنت|اشتراك|نت)/.test(k)) iconType = 'bills';
+          else if (/(صحة|علاج|دواء|طبيب|مستش|صيدلي)/.test(k)) iconType = 'health';
+          else iconType = 'generic';
+        }
+
+        const svgs = {
+          trendUp: `<svg class="ai-svg-icon ai-anim-arrow-up" viewBox="0 0 24 24"><path d="M12 19V5m0 0l7 7m-7-7L5 12"/></svg>`,
+          trendDown: `<svg class="ai-svg-icon ai-anim-arrow-down" viewBox="0 0 24 24"><path d="M12 5v14m0 0l7-7m-7 7l-7-7"/></svg>`,
+          alert: `<svg class="ai-svg-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" class="ai-anim-pulse-ring"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>`,
+          opportunity: `<svg class="ai-svg-icon" viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="12" rx="2" class="ai-anim-beat"/><path d="M21 12h-4"/><circle cx="14" cy="12" r="1"/></svg>`,
+          insight: `<svg class="ai-svg-icon" viewBox="0 0 24 24"><path d="M12 3v3m0 12v3M4.93 4.93l2.12 2.12m9.9 9.9l2.12 2.12M3 12h3m12 0h3M4.93 19.07l2.12-2.12m9.9-9.9l2.12-2.12" class="ai-anim-rotate"/><circle cx="12" cy="12" r="3"/></svg>`,
+          food: `<svg class="ai-svg-icon ai-anim-arrow-up" viewBox="0 0 24 24"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2M7 2v20M21 15V2v0a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"/></svg>`,
+          transport: `<svg class="ai-svg-icon" viewBox="0 0 24 24"><path d="M14 16H9m10 0h3v-3.15a1 1 0 0 0-.84-.99L16 11l-2.7-3.6a2 2 0 0 0-1.6-.8H8a2 2 0 0 0-1.6.8L3.7 11l-1.46.26a1 1 0 0 0-.84.99V16h3"/><circle cx="6.5" cy="16.5" r="2.5" class="ai-anim-spin-slow"/><circle cx="16.5" cy="16.5" r="2.5" class="ai-anim-spin-slow"/></svg>`,
+          shopping: `<svg class="ai-svg-icon" viewBox="0 0 24 24"><path d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.29 2.06A2 2 0 0 0 6.22 19H19"/><circle cx="9" cy="20" r="1" class="ai-anim-pulse-ring"/><circle cx="20" cy="20" r="1" class="ai-anim-pulse-ring"/></svg>`,
+          bills: `<svg class="ai-svg-icon" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8" class="ai-anim-arrow-up"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>`,
+          health: `<svg class="ai-svg-icon ai-anim-beat" viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>`,
+          generic: `<svg class="ai-svg-icon" viewBox="0 0 24 24"><rect x="4" y="4" width="6" height="6" rx="1" class="ai-anim-box-1"/><rect x="14" y="4" width="6" height="6" rx="1" class="ai-anim-box-2"/><rect x="4" y="14" width="6" height="6" rx="1" class="ai-anim-box-3"/><rect x="14" y="14" width="6" height="6" rx="1" class="ai-anim-box-4"/></svg>`
+        };
+
+        return svgs[iconType] || svgs.generic;
+      }
+
+      // ===== رسم النتيجة بصيغة Fintech =====
+      function renderMonthlyAIResult(container, data) {
+        renderFintechUI(container, data, null, 'monthly');
+      }
+
+      function renderCompareAIResult(container, data, allMonths) {
+        renderFintechUI(container, data, allMonths, 'compare');
+      }
+
+      function renderFintechUI(container, data, allMonths, mode) {
+        const scoreVal = data.score?.value || 0;
+        const scoreLabel = data.score?.label || '—';
+        const scoreColor = data.score?.color || 'var(--ai-indigo)';
+
+        // 1. Mobile Alert
+        let alertHTML = '';
+        if (data.mobile_alert) {
+          alertHTML = `
+            <div class="ai-mobile-alert">
+              <span class="ai-mobile-alert-icon" style="width:24px;height:24px;flex-shrink:0;">${getAIAnimationSVG('alert')}</span>
+              <span>${data.mobile_alert}</span>
+            </div>
+          `;
+        }
+
+        // 2. Score Dashboard
+        let scoreHTML = `
+          <div class="ai-score-dashboard">
+            <div class="ai-score-ring-wrap">
+              <svg class="ai-score-ring" viewBox="0 0 120 120">
+                <circle class="ai-score-ring-bg" cx="60" cy="60" r="50" />
+                <circle class="ai-score-ring-fill" cx="60" cy="60" r="50"
+                  style="stroke:${scoreColor}; stroke-dasharray:${Math.round((scoreVal) / 100 * 314)} 314;" />
+              </svg>
+              <div class="ai-score-center">
+                <div class="ai-score-number" style="color:${scoreColor}">${scoreVal}</div>
+                <div class="ai-score-max">/ 100</div>
+              </div>
+            </div>
+            <div class="ai-score-meta">
+              <div class="ai-score-label" style="color:${scoreColor}">${scoreLabel}</div>
+              <div class="ai-score-summary">${data.summary || ''}</div>
+            </div>
+          </div>
+        `;
+
+        // 2.5 Financial Pulse (Monthly Override)
+        let pulseHTML = '';
+        if (data.financial_pulse) {
+          pulseHTML = `
+            <div class="ai-master-trend" style="margin-bottom:12px;">
+              <div class="ai-analysis-icon-wrap" style="color:var(--ai-primary);border-radius:16px;">${getAIAnimationSVG('insight')}</div>
+              <div class="ai-trend-main">
+                <div class="ai-trend-headline">النبض المالي: ${data.financial_pulse.budget_status}</div>
+                <div class="ai-trend-sub" style="font-weight: 500;">سرعة الصرف: ${data.financial_pulse.burn_rate}</div>
+                ${data.financial_pulse.main_leak && data.financial_pulse.main_leak !== 'null' ? `<div class="ai-trend-sub" style="margin-top:4px; opacity:0.85; color:var(--ai-rose);">مصدر التسريب: ${data.financial_pulse.main_leak}</div>` : ''}
+              </div>
+            </div>
+          `;
+        }
+
+
+        // 3. Comparison Master Trend
+        // 3. Trend Analysis
+        let trendHTML = '';
+        if (data.trend_analysis && data.trend_analysis.trend) {
+          const tType = data.trend_analysis.trend === 'Up' ? 'trendUp' : (data.trend_analysis.trend === 'Down' ? 'trendDown' : 'insight');
+          trendHTML = `
+            <div class="ai-master-trend" style="margin-bottom:12px;">
+              <div class="ai-analysis-icon-wrap" style="color:var(--ai-primary);border-radius:16px;">${getAIAnimationSVG(tType)}</div>
+              <div class="ai-trend-main">
+                <div class="ai-trend-headline">الاتجاه العام: ${data.trend_analysis.trend}</div>
+                <div class="ai-trend-sub" style="font-weight: 500;">القوة: ${data.trend_analysis.trend_strength} | الاستقرار: ${data.trend_analysis.consistency}</div>
+                ${data.trend_analysis.volatility_reason && data.trend_analysis.volatility_reason !== 'null' ? `<div class="ai-trend-sub" style="margin-top:4px; opacity:0.85;">السبب: ${data.trend_analysis.volatility_reason}</div>` : ''}
+              </div>
+            </div>
+          `;
+        }
+
+        // 4. Key Driver
+        let driverHTML = '';
+        if (data.key_driver) {
+          driverHTML = `
+            <div class="ai-section-label" style="margin-top:10px;">المحرك الأساسي للتغيير</div>
+            <div class="ai-floating-card" style="margin-bottom:16px; border: 1px solid rgba(99, 102, 241, 0.3);">
+               <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                  <strong style="color:var(--text-color);"><span style="color:var(--ai-primary);font-size:16px;">🔑</span> ${data.key_driver.category}</strong>
+                  <span style="background:var(--muted-bg-2); padding:4px 8px; border-radius:8px; font-weight:bold; font-size:12px;">${data.key_driver.change}</span>
+               </div>
+               <div style="font-size:13px; color:var(--text-color); margin-bottom:4px;">${data.key_driver.reason}</div>
+               <div style="font-size:12px; color:var(--subtext-color);">التأثير: ${data.key_driver.impact}</div>
+            </div>
+          `;
+        }
+
+        // 4. Mathematical Category Breakdown
+        let categoryBarsHTML = '';
+        if (mode === 'compare' && allMonths && allMonths.length >= 2) {
+          const currentM = allMonths[allMonths.length - 1];
+          const prevM = allMonths[allMonths.length - 2];
+
+          const getCatSpend = (m) => {
+            const cats = {};
+            (m.expenses || []).forEach(e => { cats[e.category] = (cats[e.category] || 0) + e.amount; });
+            return cats;
+          };
+          const currentCats = getCatSpend(currentM);
+          const prevCats = getCatSpend(prevM);
+
+          const allCatNames = new Set([...Object.keys(currentCats), ...Object.keys(prevCats)]);
+          let catArray = [];
+          allCatNames.forEach(c => {
+            const curr = currentCats[c] || 0;
+            const prev = prevCats[c] || 0;
+            let diff = curr - prev;
+            let pct = prev > 0 ? (diff / prev) * 100 : (curr > 0 ? 100 : 0);
+            catArray.push({ name: c, curr, prev, diff, pct });
+          });
+          catArray.sort((a, b) => Math.abs(b.diff) - Math.abs(a.diff));
+
+          if (catArray.length > 0) {
+            categoryBarsHTML = '<div class="ai-section-label" style="margin-bottom:12px;">مقارنة التصنيفات (رياضياً)</div><div class="ai-category-bars">';
+            catArray.slice(0, 5).forEach(cat => {
+              const isUp = cat.diff > 0;
+              const maxVal = Math.max(cat.curr, cat.prev) * 1.1 || 1;
+              const currW = (cat.curr / maxVal) * 100;
+              const prevW = (cat.prev / maxVal) * 100;
+              const cleanName = cat.name.replace(/[^\u0600-\u06FFa-zA-Z0-9\s]/g, '').trim() || cat.name;
+
+              const catSVG = getAIAnimationSVG('category', cleanName);
+              const warningSVG = (isUp && cat.pct > 15) ? `<span style="width:16px;height:16px;color:var(--ai-rose);">${getAIAnimationSVG('alert')}</span>` : '';
+              const diffText = cat.diff === 0 ? '-' : (isUp ? '+' : '') + formatInt(cat.diff);
+
+              categoryBarsHTML += `
+                <div class="ai-cat-row">
+                  <div class="ai-cat-header">
+                    <span style="display:flex;align-items:center;gap:10px;">
+                      <span style="width:24px;height:24px;color:var(--ai-indigo);opacity:0.9;">${catSVG}</span>
+                      ${cleanName} ${warningSVG}
+                    </span>
+                    <span class="ai-cat-pct ${isUp ? 'ai-cat-pct--up' : (cat.diff < 0 ? 'ai-cat-pct--down' : 'ai-cat-pct--stable')}">
+                      ${diffText} (${Math.abs(cat.pct).toFixed(0)}%)
+                    </span>
+                  </div>
+                  <div class="ai-cat-stats">
+                    <div>الحالي: ${formatInt(cat.curr)}</div>
+                    <div>السابق: ${formatInt(cat.prev)}</div>
+                  </div>
+                  <div class="ai-progress-bg">
+                    <div class="ai-progress-fill-prev" style="width: ${prevW}%;"></div>
+                    <div class="ai-progress-fill-curr" style="width: ${currW}%; background: ${isUp ? 'var(--ai-rose)' : 'var(--ai-emerald)'};"></div>
+                  </div>
+                </div>
+              `;
+            });
+            categoryBarsHTML += '</div>';
+          }
+        }
+
+        let chainHTML = '';
+        if (data.cause_effect_chain && data.cause_effect_chain.length > 0) {
+          chainHTML = `
+            <div class="ai-section-label" style="margin-top:16px;">تسلسل التأثير (كيف وصلنا هنا؟)</div>
+            <div class="ai-floating-card" style="margin-bottom:16px; display:flex; flex-direction:column; gap:8px;">
+          `;
+          data.cause_effect_chain.forEach((step, idx) => {
+            chainHTML += `<div style="font-size:13px; color:var(--text-color); display:flex; gap:8px;"><span style="color:var(--ai-primary); font-weight:bold;">${idx + 1}.</span> <span>${step}</span></div>`;
+          });
+          chainHTML += `</div>`;
+        }
+
+        let catTrendsHTML = '';
+        if (data.category_trends && data.category_trends.length > 0) {
+          catTrendsHTML = `<div class="ai-section-label" style="margin-top:16px;">تحليل الفئات (الذكاء الاصطناعي)</div><div style="display:flex; flex-direction:column; gap:8px; margin-bottom:16px;">`;
+          data.category_trends.forEach(ct => {
+            let trendColor = ct.trend === 'Up' ? 'var(--ai-rose)' : (ct.trend === 'Down' ? 'var(--ai-emerald)' : 'var(--ai-indigo)');
+            catTrendsHTML += `
+              <div class="ai-floating-card">
+                <div style="display:flex; justify-content:space-between; margin-bottom:6px; font-size:13px;">
+                  <strong style="color:var(--text-color);">${ct.category}</strong>
+                  <span style="color:${trendColor}; font-weight:bold;">${ct.trend} (${ct.change})</span>
+                </div>
+                <div style="font-size:12px; color:var(--subtext-color);">${ct.insight}</div>
+              </div>
+             `;
+          });
+          catTrendsHTML += `</div>`;
+        }
+
+        let catAnalysisHTML = '';
+        if (data.category_analysis && data.category_analysis.length > 0) {
+          catAnalysisHTML = `<div class="ai-section-label" style="margin-top:16px;">تحليل الفئات (الذكاء الاصطناعي)</div><div style="display:flex; flex-direction:column; gap:8px; margin-bottom:16px;">`;
+          data.category_analysis.forEach(ct => {
+            let statusColor = ct.status === 'إسراف' ? 'var(--ai-rose)' : (ct.status === 'طبيعي' ? 'var(--text-color)' : 'var(--ai-emerald)');
+            catAnalysisHTML += `
+              <div class="ai-floating-card">
+                <div style="display:flex; justify-content:space-between; margin-bottom:6px; font-size:13px;">
+                  <strong style="color:var(--text-color);">${ct.category}</strong>
+                  <span style="color:${statusColor}; font-weight:bold;">${ct.status}</span>
+                </div>
+                <div style="font-size:12px; color:var(--subtext-color);">${ct.insight}</div>
+              </div>
+             `;
+          });
+          catAnalysisHTML += `</div>`;
+        }
+
+        let behaviorHTML = '';
+        if (data.behavioral_patterns && data.behavioral_patterns.length > 0) {
+          behaviorHTML = `<div class="ai-section-label" style="margin-top:16px;">الأنماط السلوكية المكتشفة</div><div style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:16px;">`;
+          data.behavioral_patterns.forEach(bp => {
+            behaviorHTML += `<div style="background:rgba(255, 159, 10, 0.1); color:#ff9f0a; border:1px solid rgba(255,159,10,0.2); padding:6px 12px; border-radius:12px; font-size:12px; font-weight:500;">🧠 ${bp}</div>`;
+          });
+          behaviorHTML += `</div>`;
+        }
+
+        let compsHTML = '';
+        if (data.comparisons && data.comparisons.length > 0) {
+          compsHTML = `<div class="ai-section-label" style="margin-top:16px;">مقارنات مبنية على السياق</div><div style="display:flex; flex-direction:column; gap:8px; margin-bottom:16px;">`;
+          data.comparisons.forEach(comp => {
+            compsHTML += `
+               <div class="ai-floating-card">
+                 <div style="display:flex; justify-content:space-between; margin-bottom:6px; font-size:13px; border-bottom:1px solid var(--border-color); padding-bottom:6px;">
+                   <strong style="color:var(--text-color);">${comp.category}</strong>
+                   <span style="font-weight:bold; color:var(--ai-indigo);">${comp.change}</span>
+                 </div>
+                 <div style="font-size:12px; color:var(--subtext-color); margin-top:6px;">${comp.interpretation}</div>
+               </div>
+             `;
+          });
+          compsHTML += `</div>`;
+        }
+
+        // 5. Floating Insights
+        let insightsHTML = '';
+        if (data.insights && data.insights.length > 0) {
+          insightsHTML = '<div class="ai-section-label" style="margin-top:16px;">ملاحظات دقيقة ومستقلة</div><div class="ai-insights-stack">';
+          data.insights.forEach(ins => {
+            insightsHTML += `
+              <div class="ai-floating-card">
+                <div class="ai-insight-top">
+                  <div class="ai-insight-title-group">
+                    <span class="ai-insight-icon" style="width:28px;height:28px;color:var(--ai-primary);">${getAIAnimationSVG('insight')}</span>
+                    <span class="ai-insight-title">${ins.title}</span>
+                  </div>
+                  <span class="ai-delta-pill ai-delta--${ins.impact || 'Neutral'}">${ins.impact === 'Positive' ? 'إيجابي' : (ins.impact === 'Negative' ? 'سلبي' : 'مستقر')}</span>
+                </div>
+                <div class="ai-insight-detail">${ins.detail}</div>
+              </div>
+            `;
+          });
+          insightsHTML += '</div>';
+        }
+
+        // 6. Top Saving Ops
+        let opsHTML = '';
+        if (data.top_saving_opportunities && data.top_saving_opportunities.length > 0) {
+          opsHTML = '<div class="ai-section-label" style="margin-top:16px;">خطوات قابلة للتنفيذ بخصوصية</div><div class="ai-opportunities">';
+          data.top_saving_opportunities.forEach(tip => {
+            let tipText = tip;
+            if (typeof tip === 'object' && tip !== null) {
+              tipText = tip.detail || tip.description || tip.text || tip.title || Object.values(tip)[0] || JSON.stringify(tip);
+            }
+            opsHTML += `
+              <div class="ai-opp-item">
+                <div class="ai-opp-icon" style="width:28px;height:28px;flex-shrink:0;">${getAIAnimationSVG('opportunity')}</div>
+                <div>${tipText}</div>
+              </div>
+            `;
+          });
+          opsHTML += '</div>';
+        }
+
+        let forwardHTML = '';
+        if (data.forward_strategy) {
+          forwardHTML = `
+            <div class="ai-section-label" style="margin-top:16px;">الاستراتيجية المستقبلية</div>
+            <div class="ai-floating-card" style="margin-bottom:16px; background:rgba(99, 102, 241, 0.05); border: 1px solid rgba(99, 102, 241, 0.2);">
+              <div style="margin-bottom:12px;"><strong style="color:var(--ai-primary);font-size:13px;display:flex;align-items:center;gap:6px;">🎯 التركيز القادم:</strong> <div style="font-size:13px;color:var(--text-color);margin-top:4px;">${data.forward_strategy.next_month_focus}</div></div>
+              <div style="margin-bottom:12px;"><strong style="color:var(--ai-rose);font-size:13px;display:flex;align-items:center;gap:6px;">⚠️ تحذير المخاطر:</strong> <div style="font-size:13px;color:var(--text-color);margin-top:4px;">${data.forward_strategy.risk_warning}</div></div>
+              <div><strong style="color:var(--ai-emerald);font-size:13px;display:flex;align-items:center;gap:6px;">💡 خطوة التحسين:</strong> <div style="font-size:13px;color:var(--text-color);margin-top:4px;">${data.forward_strategy.optimization_move}</div></div>
+            </div>
+          `;
+        }
+
+        let dataQualityHTML = '';
+        if (data.data_quality) {
+          let statusAr = data.data_quality.status || '';
+          if (statusAr.toLowerCase() === 'sufficient') statusAr = 'كافية (ممتازة)';
+          else if (statusAr.toLowerCase() === 'limited') statusAr = 'محدودة';
+          else if (statusAr.toLowerCase() === 'insufficient') statusAr = 'غير كافية';
+
+          dataQualityHTML = `<div style="text-align:center; font-size:12px; font-weight:500; color:var(--subtext-color); margin-top:20px; padding:8px; border-radius:8px; background:var(--muted-bg);">جودة وموثوقية البيانات: ${statusAr} ${data.data_quality.note && data.data_quality.note !== 'null' ? ' - ' + data.data_quality.note : ''}</div>`;
+        }
+
+        let headerHTML = `
+          <div style="display:flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 12px; border-bottom: 1px solid rgba(255, 255, 255, 0.05);">
+            <div style="font-size: 16px; font-weight: 700; color: var(--text-color); display:flex; align-items:center; gap:8px;">
+               <span style="color:var(--ai-primary); width:20px; height:20px; display:flex;">${getAIAnimationSVG('insight')}</span> 
+               <span>${mode === 'compare' ? 'التحليل الذكي الشامل' : 'التحليل الذكي الشهري'}</span>
+            </div>
+            <button onclick="this.closest('.ai-result-area').style.display='none'; this.closest('.ai-result-area').innerHTML='';" 
+                    style="background:rgba(225, 29, 72, 0.15); color:var(--ai-rose); border:1px solid rgba(225, 29, 72, 0.3); width:36px; height:36px; border-radius:10px; display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:18px; font-weight:900; transition:all 0.2s;">
+              ✕
+            </button>
+          </div>
+        `;
+
+        container.style.display = 'block';
+        container.innerHTML = headerHTML + alertHTML + scoreHTML + pulseHTML + trendHTML + driverHTML + categoryBarsHTML + catTrendsHTML + catAnalysisHTML + compsHTML + chainHTML + behaviorHTML + insightsHTML + opsHTML + forwardHTML + dataQualityHTML + `
+          <div class="ai-refresh-row" style="display:flex; gap:12px; justify-content: center; margin-top:24px; border-top:none; flex-wrap:wrap;">
+            <button onclick="this.closest('.ai-result-area').style.display='none'; this.closest('.ai-result-area').innerHTML=''; window.scrollTo(0, 0);" 
+                    style="flex:1; min-width:140px; background:rgba(225, 29, 72, 0.1); color:var(--ai-rose); border:1px solid rgba(225, 29, 72, 0.2); padding:12px; border-radius:12px; font-weight:600; font-size:14.5px; cursor:pointer; display:flex; justify-content:center; align-items:center; gap:8px;">
+              إغلاق التحليل ✖
+            </button>
+            <button class="ai-refresh-btn" id="btnReAnalyze${mode === 'compare' ? 'Compare' : 'Month'}" style="flex:1; min-width:140px; justify-content:center;">
+              <span style="width:20px;height:20px;display:flex;">${getAIAnimationSVG('insight')}</span> 
+              <span>تحديث التحليل</span>
+            </button>
+          </div>
+        `;
+
+        const reBtn = document.getElementById(`btnReAnalyze${mode === 'compare' ? 'Compare' : 'Month'}`);
+        if (reBtn) reBtn.onclick = () => { mode === 'compare' ? triggerCompareAnalysis() : triggerMonthAnalysis(); };
+      }
+
+      function formatInt(num) {
+        return new Intl.NumberFormat('en-IQ').format(Math.round(num));
+      }
+
+      // ===== تشغيل التحليل الشهري =====
+      async function triggerMonthAnalysis() {
+        if (!aiAnalyzer) return;
+
+        const monthSelect = document.getElementById('monthSelect');
+        const currentMonthId = monthSelect ? monthSelect.value : null;
+        const allMonths = window._appState?.months || [];
+        const month = allMonths.find(m => m.id === currentMonthId);
+
+        if (!month) {
+          alert('تعذّر تحديد الشهر الحالي. تأكد من وجود بيانات في النظام.');
+          return;
+        }
+
+        const btn = document.getElementById('btnAnalyzeMonth');
+        const container = document.getElementById('monthlyAIResult');
+        if (!btn || !container) return;
+
+        btn.disabled = true;
+        btn.innerHTML = '<span class="ai-btn-spinner"></span><span style="margin-right:8px;">جاري المعالجة...</span>';
+        renderAISkeleton(container);
+
+        try {
+          const result = await aiAnalyzer.analyzeMonth(month, allMonths);
+          renderMonthlyAIResult(container, result);
+        } catch (err) {
+          console.error('Monthly AI Error:', err);
+          container.innerHTML = `
+            <div class="ai-error-box">
+              <div class="ai-error-icon">⚠️</div>
+              <div>
+                <div class="ai-error-title">تعذّر إجراء التحليل</div>
+                <div class="ai-error-msg">${err.message || 'حدث خطأ غير متوقع. تحقق من الاتصال.'}</div>
+              </div>
+              <button class="ai-refresh-btn" onclick="triggerMonthAnalysis()" style="margin-top:10px;">إعادة المحاولة</button>
+            </div>`;
+        } finally {
+          btn.disabled = false;
+          btn.innerHTML = '<span class="ai-btn-icon">🔍</span><span class="ai-btn-text">حلل شهري</span>';
+        }
+      }
+
+      // ===== تشغيل التحليل المقارن =====
+      async function triggerCompareAnalysis() {
+        if (!aiAnalyzer) return;
+        const allMonths = window._appState?.months || [];
+        if (!allMonths.length) {
+          alert('لا توجد بيانات للأشهر.');
+          return;
+        }
+        if (allMonths.length < 2) {
+          alert('تحتاج لشهرين على الأقل لإدراك المقارنة والاتجاهات.');
+          return;
+        }
+
+        const btn = document.getElementById('btnAnalyzeAllMonths');
+        const container = document.getElementById('compareAIResult');
+        if (!btn || !container) return;
+
+        btn.disabled = true;
+        btn.innerHTML = '<span class="ai-btn-spinner"></span><span style="margin-right:8px;">جاري المعالجة...</span>';
+        renderAISkeleton(container);
+
+        try {
+          const result = await aiAnalyzer.analyzeAllMonths(allMonths);
+          renderCompareAIResult(container, result, allMonths);
+        } catch (err) {
+          console.error('Compare AI Error:', err);
+          container.innerHTML = `
+            <div class="ai-error-box">
+              <div class="ai-error-icon">⚠️</div>
+              <div>
+                <div class="ai-error-title">تعذّر إجراء التحليل</div>
+                <div class="ai-error-msg">${err.message || 'حدث خطأ غير متوقع. تحقق من الاتصال.'}</div>
+              </div>
+              <button class="ai-refresh-btn" onclick="triggerCompareAnalysis()" style="margin-top:10px;">إعادة المحاولة</button>
+            </div>`;
+        } finally {
+          btn.disabled = false;
+          btn.innerHTML = '<span class="ai-btn-icon">🔍</span><span class="ai-btn-text">مقارنة شاملة</span>';
+        }
+      }
+
+      // ===== ربط الأزرار =====
+      document.addEventListener('DOMContentLoaded', () => {
+        const btnMonth = document.getElementById('btnAnalyzeMonth');
+        const btnCompare = document.getElementById('btnAnalyzeAllMonths');
+        if (btnMonth) btnMonth.addEventListener('click', triggerMonthAnalysis);
+        if (btnCompare) btnCompare.addEventListener('click', triggerCompareAnalysis);
+      });
+
+      // ===== نقطة وصول للـ state من الكود الرئيسي =====
+      // يتم تحديثها من refreshUI أو saveState في الكود الأصلي
+      window._appState = window._appState || {};
+    </script>
+
 </body>
 
 </html>

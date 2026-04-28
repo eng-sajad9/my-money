@@ -1,8 +1,9 @@
-const CACHE_NAME = 'mony-app-v2';
+const CACHE_NAME = 'mony-app-v3';
 const ASSETS_TO_CACHE = [
   '/',
   '/index.html',
-  '/style.css?v=2.0'
+  '/style.css?v=3.0',
+  '/ai-assistant.js?v=3.0'
 ];
 
 self.addEventListener('install', (e) => {

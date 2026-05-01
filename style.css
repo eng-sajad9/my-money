@@ -11,6 +11,33 @@
   width: 100%;
 }
 
+.bottom-menu {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background: var(--card-bg);
+  display: flex;
+  justify-content: space-around;
+  padding: 10px 0;
+  border-top: 1px solid var(--border-color);
+  z-index: 1000;
+}
+
+@media (min-width: 1024px) {
+  .bottom-menu {
+    width: auto;
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: 24px;
+    padding: 12px 30px;
+    border: 1px solid var(--border-color);
+    border-radius: 40px;
+    box-shadow: var(--shadow-strong);
+    gap: 30px;
+  }
+}
+
 .login-card {
   width: 100%;
   max-width: 400px;
@@ -542,6 +569,42 @@ body {
   align-items: center;
 }
 
+.goals-container .expense-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 14px;
+  background: var(--muted-bg);
+  border-radius: 14px;
+  border: 1px solid transparent;
+  transition: all 0.2s;
+  animation: slideLeft 0.3s ease-out both;
+}
+
+@media (min-width: 1024px) {
+  .expense-item {
+    padding: 16px 20px;
+  }
+  
+  .expense-details {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    flex: 1;
+  }
+
+  .expense-name {
+    min-width: 150px;
+    font-size: 15px;
+  }
+
+  .expense-meta {
+    margin-top: 0 !important;
+    display: flex;
+    gap: 15px;
+  }
+}
+
 .goals-container {
   padding: 12px;
   display: flex;
@@ -904,6 +967,42 @@ body {
   display: none;
   animation: fadeIn 0.3s ease-out;
   position: relative;
+  transition: max-width 0.3s ease;
+}
+
+@media (min-width: 1024px) {
+  .app-container {
+    max-width: 98% !important; /* ملء كامل الشاشة */
+    width: 98%;
+    padding: 24px;
+    padding-bottom: 40px;
+    margin: 10px auto;
+    min-height: calc(100vh - 20px);
+    border-radius: 20px;
+  }
+
+  .desktop-layout {
+    display: grid;
+    grid-template-columns: minmax(320px, 380px) 1fr;
+    gap: 30px;
+    align-items: start;
+    width: 100%;
+  }
+
+  .desktop-sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    position: sticky;
+    top: 24px;
+  }
+
+  .desktop-main {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    width: 100%;
+  }
 }
 
 @media (max-width: 600px) {
@@ -1064,6 +1163,18 @@ header h2 span.icon {
   margin-bottom: 10px;
 }
 
+@media (min-width: 1024px) {
+  .month-row {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: var(--card-bg);
+    padding: 10px 0;
+    margin-bottom: 20px;
+    border-bottom: 1px solid var(--border-color);
+  }
+}
+
 .month-select {
   flex: 1;
   padding: 7px 10px;
@@ -1100,8 +1211,15 @@ header h2 span.icon {
 .summary-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 8px;
-  margin-top: 6px;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+@media (min-width: 1024px) {
+  .summary-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
 }
 
 .summary-item {
@@ -2869,6 +2987,21 @@ header h2 span.icon {
 }
 
 /* المحتوى المحمي */
+#notesList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+@media (min-width: 1024px) {
+  #notesList {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    max-height: 600px !important;
+  }
+}
+
 .private-content {
   display: flex;
   flex-direction: column;
@@ -3005,6 +3138,14 @@ header h2 span.icon {
   flex-direction: column;
   gap: 8px;
   transition: all 0.3s ease;
+}
+
+@media (min-width: 1024px) {
+  .budget-allocations-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+  }
 }
 
 .allocation-item {
@@ -3153,6 +3294,116 @@ header h2 span.icon {
   color: var(--subtext-color);
   text-align: right;
   transition: color 0.3s ease;
+}
+
+/* === New Note System Styles === */
+.note-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  transition: all 0.2s ease;
+  position: relative;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+}
+
+.note-card:hover {
+  border-color: var(--accent);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+  transform: translateY(-2px);
+}
+
+.note-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.note-title {
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--text-color);
+  flex: 1;
+}
+
+.note-timestamp {
+  font-size: 10px;
+  color: var(--subtext-color);
+  white-space: nowrap;
+}
+
+.note-content {
+  font-size: 13px;
+  color: var(--text-color);
+  line-height: 1.6;
+  white-space: pre-wrap;
+  word-break: break-word;
+  opacity: 0.9;
+}
+
+.note-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 6px;
+  border-top: 1px solid var(--border-color);
+  padding-top: 8px;
+}
+
+.note-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  transition: all 0.2s;
+  color: var(--subtext-color);
+}
+
+.note-btn-edit:hover {
+  background: rgba(37, 99, 235, 0.1);
+  color: var(--accent);
+}
+
+.note-btn-delete:hover {
+  background: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+}
+
+.notes-search-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.notes-search-icon {
+  position: absolute;
+  right: 12px;
+  color: var(--subtext-color);
+  font-size: 14px;
+  pointer-events: none;
+}
+
+#notesSearchInput {
+  padding-right: 36px !important;
+  background: var(--muted-bg);
+}
+
+#notesSearchInput:focus {
+  background: var(--card-bg);
+}
+
+@keyframes slideInUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 .btn-private-logout {

@@ -1130,7 +1130,7 @@
           <div class="ai-analysis-header-right">
             <button id="btnAnalyzeMonth" class="ai-analyze-btn">
               <span class="ai-btn-icon">🔍</span>
-              <span class="ai-btn-text">تحليل الشهر</span>
+              <span class="ai-btn-text">حلل شهري</span>
             </button>
           </div>
         </div>
@@ -1240,7 +1240,7 @@
           <div class="ai-analysis-header-right">
             <button id="btnAnalyzeAllMonths" class="ai-analyze-btn ai-analyze-btn--compare">
               <span class="ai-btn-icon">🔍</span>
-              <span class="ai-btn-text">تحليل الاشهر</span>
+              <span class="ai-btn-text">حلل الاشهر</span>
             </button>
           </div>
         </div>
@@ -1425,18 +1425,59 @@
           </div>
         </div>
 
-        <!-- قسم الملاحظات العامة -->
-        <div class="private-card" style="display:flex;flex-direction:column;gap:10px;">
+        <!-- قسم الملاحظات العامة المطور -->
+        <div class="private-card" style="display:flex;flex-direction:column;gap:12px;">
           <div style="display:flex;justify-content:space-between;align-items:center;">
             <div class="private-card-title" style="margin:0;">📝 ملاحظاتي</div>
-            <div id="notesCharCount" style="font-size:11px;color:var(--subtext-color);">0 حرف</div>
+            <button id="btnAddNote" class="btn btn-primary btn-sm"
+              style="border-radius:20px; padding: 4px 14px; font-weight:700;">
+              ✨ إضافة ملاحظة
+            </button>
           </div>
-          <textarea id="privateNotes" class="private-notes-textarea"
-            placeholder="اكتب ملاحظاتك هنا... يتم الحفظ تلقائياً عند الكتابة"
-            style="min-height:160px;resize:vertical;"></textarea>
-          <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
-            <div class="private-notes-meta" id="privateNotesLastUpdate" style="font-size:11px;"></div>
-            <button id="btnSaveNotes" class="btn btn-primary btn-sm">💾 حفظ الملاحظات</button>
+
+          <!-- صندوق إضافة ملاحظة جديدة -->
+          <div id="newNoteForm"
+            style="display:none; flex-direction:column; gap:10px; background:var(--muted-bg); padding:14px; border-radius:16px; border:2px solid var(--accent); animation: slideInUp 0.3s ease-out;">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <h4 id="noteFormTitle" style="font-size:14px; margin:0; color:var(--accent);">ملاحظة جديدة</h4>
+              <button id="btnCancelNewNote"
+                style="background:none; border:none; color:var(--subtext-color); cursor:pointer; font-size:18px;">✕</button>
+            </div>
+            <input type="text" id="newNoteTitle" class="form-input" placeholder="عنوان الملاحظة (اختياري)"
+              style="font-weight:bold; border-radius:10px;">
+            <textarea id="newNoteContent" class="form-textarea" placeholder="اكتب تفاصيلك هنا..."
+              style="min-height:120px; font-size:13px; border-radius:10px;"></textarea>
+            <div style="display:flex; justify-content:flex-end; gap:8px;">
+              <button id="btnConfirmAddNote" class="btn btn-primary btn-sm"
+                style="width:100%; padding:10px; border-radius:10px;">حفظ الملاحظة ✅</button>
+            </div>
+          </div>
+
+          <!-- فلتر البحث -->
+          <div class="notes-search-wrapper" id="notesSearchWrapper" style="display:none;">
+            <span class="notes-search-icon">🔍</span>
+            <input type="text" id="notesSearchInput" class="form-input form-input-sm" placeholder="ابحث في ملاحظاتك..."
+              style="font-size:12px; border-radius:20px;">
+          </div>
+
+          <!-- قائمة الملاحظات -->
+          <div id="notesList"
+            style="display:flex; flex-direction:column; gap:10px; max-height:450px; overflow-y:auto; padding:2px;">
+            <!-- يتم التعبئة بواسطة JS -->
+          </div>
+
+          <!-- حالة فارغة -->
+          <div id="notesPlaceholder"
+            style="text-align:center; padding:30px 10px; color:var(--subtext-color); background:rgba(0,0,0,0.02); border-radius:12px; border:1px dashed var(--border-color);">
+            <div style="font-size:32px; margin-bottom:10px;">empty</div>
+            <div style="font-size:14px; font-weight:600;">لا توجد ملاحظات حالياً</div>
+            <div style="font-size:12px; opacity:0.8;">ابدأ بتدوين أفكارك أو تفاصيلك المهمة هنا</div>
+          </div>
+
+          <div
+            style="display:flex;justify-content:space-between;align-items:center;font-size:11px;color:var(--subtext-color);border-top:1px solid var(--border-color);padding-top:8px;">
+            <div id="notesTotalCount">0 ملاحظات</div>
+            <div id="privateNotesLastUpdate"></div>
           </div>
         </div>
 
@@ -2135,7 +2176,7 @@
           { id: 2, name: "مواصلات", amount: 0 },
           { id: 3, name: "أكل", amount: 0 }
         ],
-        notes: "",
+        notes: [], // سيتم تحويله لمصفوفة
         lastNotesUpdate: null,
         nextAllocationId: 4
       };
@@ -3508,6 +3549,21 @@
             }
           } catch (e) { console.warn('Firebase private sync error:', e); }
         }
+
+        // --- هجرة البيانات القديمة (تحويل الملاحظة النصية إلى مصفوفة) ---
+        if (typeof privateState.notes === 'string' && privateState.notes.trim() !== '') {
+          const oldNoteContent = privateState.notes;
+          privateState.notes = [{
+            id: Date.now(),
+            title: "ملاحظاتي السابقة",
+            content: oldNoteContent,
+            timestamp: new Date().toLocaleString('ar-EG', { dateStyle: 'medium', timeStyle: 'short' })
+          }];
+          savePrivateState();
+        } else if (!Array.isArray(privateState.notes)) {
+          privateState.notes = [];
+        }
+
         privateState.isUnlocked = false;
         resetPrivateUI();
         populateBudgetMonthSelects();
@@ -3521,14 +3577,10 @@
         if (privateState.budgetToMonth && budgetToMonth) {
           budgetToMonth.value = privateState.budgetToMonth;
         }
-        if (privateNotes) {
-          privateNotes.value = privateState.notes || "";
-          // تحديث عداد الأحرف
-          if (notesCharCount) notesCharCount.textContent = (privateNotes.value.length).toLocaleString('ar') + ' حرف';
-          if (privateState.lastNotesUpdate && privateNotesLastUpdate) {
-            privateNotesLastUpdate.textContent = `💾 آخر حفظ: ${privateState.lastNotesUpdate}`;
-          }
-        }
+
+        // رندر الملاحظات
+        renderNotes();
+
         if (pinEnabledToggle) {
           pinEnabledToggle.checked = privateState.pinEnabled !== false;
         }
@@ -3890,31 +3942,149 @@
         // دالة قديمة - لا تفعل شيئاً الآن (الإدخال عبر الأزرار)
       }
 
-      // ===== عداد أحرف الملاحظات وزر الحفظ =====
-      const notesCharCount = document.getElementById('notesCharCount');
-      const btnSaveNotes = document.getElementById('btnSaveNotes');
+      // === نظام الملاحظات المطور ===
+      let editingNoteId = null;
 
-      if (privateNotes && notesCharCount) {
-        privateNotes.addEventListener('input', () => {
-          const len = privateNotes.value.length;
-          notesCharCount.textContent = len.toLocaleString('ar') + ' حرف';
+      function renderNotes(filter = '') {
+        const list = document.getElementById('notesList');
+        const placeholder = document.getElementById('notesPlaceholder');
+        const searchWrapper = document.getElementById('notesSearchWrapper');
+        const totalCountEl = document.getElementById('notesTotalCount');
+
+        if (!list) return;
+
+        const filteredNotes = privateState.notes.filter(n => {
+          const search = filter.toLowerCase();
+          return (n.title || '').toLowerCase().includes(search) || (n.content || '').toLowerCase().includes(search);
         });
-      }
 
-      if (btnSaveNotes) {
-        btnSaveNotes.addEventListener('click', () => {
-          if (privateNotes) {
-            privateState.notes = privateNotes.value;
-            const now = new Date();
-            const timeStr = now.toLocaleTimeString('ar', { hour: '2-digit', minute: '2-digit' });
-            privateState.lastNotesUpdate = timeStr;
-            savePrivateState();
-            if (privateNotesLastUpdate) privateNotesLastUpdate.textContent = `💾 آخر حفظ: ${timeStr}`;
-            showToast('تم حفظ الملاحظات ✅', 'success');
+        // ترتيب: الأحدث أولاً
+        filteredNotes.sort((a, b) => (b.id || 0) - (a.id || 0));
+
+        list.innerHTML = '';
+
+        if (privateState.notes.length > 0) {
+          searchWrapper.style.display = 'block';
+        } else {
+          searchWrapper.style.display = 'none';
+        }
+
+        if (filteredNotes.length === 0) {
+          placeholder.style.display = 'block';
+          if (filter) {
+            placeholder.innerHTML = `<div style="padding:20px; font-size:13px;">🔍 لا توجد نتائج للبحث عن "${filter}"</div>`;
+          } else {
+            placeholder.innerHTML = `
+                <div style="font-size:32px; margin-bottom:10px;">📝</div>
+                <div style="font-size:14px; font-weight:600;">لا توجد ملاحظات حالياً</div>
+                <div style="font-size:12px; opacity:0.8;">ابدأ بتدوين أفكارك المهمة هنا</div>
+             `;
           }
-        });
+        } else {
+          placeholder.style.display = 'none';
+          filteredNotes.forEach(note => {
+            const card = document.createElement('div');
+            card.className = 'note-card';
+            card.innerHTML = `
+              <div class="note-header">
+                <div class="note-title">${note.title || 'ملاحظة بدون عنوان'}</div>
+                <div class="note-timestamp">${note.timestamp}</div>
+              </div>
+              <div class="note-content">${note.content}</div>
+              <div class="note-actions">
+                <button class="note-btn note-btn-edit" onclick="editNote(${note.id})">✏️ تعديل</button>
+                <button class="note-btn note-btn-delete" onclick="deleteNote(${note.id})">🗑️ حذف</button>
+              </div>
+            `;
+            list.appendChild(card);
+          });
+        }
+
+        if (totalCountEl) totalCountEl.textContent = `${privateState.notes.length} ملاحظات`;
       }
 
+      window.addNote = function () {
+        document.getElementById('newNoteForm').style.display = 'flex';
+        document.getElementById('noteFormTitle').textContent = 'ملاحظة جديدة';
+        document.getElementById('newNoteTitle').value = '';
+        document.getElementById('newNoteContent').value = '';
+        editingNoteId = null;
+        document.getElementById('newNoteTitle').focus();
+      };
+
+      window.editNote = function (id) {
+        const note = privateState.notes.find(n => n.id === id);
+        if (!note) return;
+        editingNoteId = id;
+        document.getElementById('newNoteForm').style.display = 'flex';
+        document.getElementById('noteFormTitle').textContent = 'تعديل الملاحظة';
+        document.getElementById('newNoteTitle').value = note.title || '';
+        document.getElementById('newNoteContent').value = note.content || '';
+        document.getElementById('newNoteContent').focus();
+        document.getElementById('newNoteForm').scrollIntoView({ behavior: 'smooth', block: 'center' });
+      };
+
+      window.deleteNote = function (id) {
+        if (!confirm('هل أنت متأكد من حذف هذه الملاحظة؟')) return;
+        privateState.notes = privateState.notes.filter(n => n.id !== id);
+        savePrivateState();
+        renderNotes(document.getElementById('notesSearchInput').value);
+        showToast('تم حذف الملاحظة 🗑️', 'success');
+      };
+
+      document.getElementById('btnAddNote').addEventListener('click', () => {
+        const form = document.getElementById('newNoteForm');
+        if (form.style.display === 'flex') {
+          form.style.display = 'none';
+        } else {
+          addNote();
+        }
+      });
+
+      document.getElementById('btnCancelNewNote').addEventListener('click', () => {
+        document.getElementById('newNoteForm').style.display = 'none';
+      });
+
+      document.getElementById('btnConfirmAddNote').addEventListener('click', () => {
+        const title = document.getElementById('newNoteTitle').value.trim();
+        const content = document.getElementById('newNoteContent').value.trim();
+
+        if (!content) {
+          showToast('يرجى كتابة محتوى للملاحظة', 'error');
+          return;
+        }
+
+        const now = new Date();
+        const timeStr = now.toLocaleString('ar-EG', { dateStyle: 'medium', timeStyle: 'short' });
+
+        if (editingNoteId) {
+          const idx = privateState.notes.findIndex(n => n.id === editingNoteId);
+          if (idx !== -1) {
+            privateState.notes[idx].title = title;
+            privateState.notes[idx].content = content;
+            privateState.notes[idx].timestamp = timeStr + ' (معدلة)';
+          }
+        } else {
+          privateState.notes.push({
+            id: Date.now(),
+            title: title,
+            content: content,
+            timestamp: timeStr
+          });
+        }
+
+        privateState.lastNotesUpdate = timeStr;
+        savePrivateState();
+        renderNotes(document.getElementById('notesSearchInput').value);
+        document.getElementById('newNoteForm').style.display = 'none';
+        showToast(editingNoteId ? 'تم تحديث الملاحظة ✅' : 'تم إضافة الملاحظة ✅', 'success');
+        if (privateNotesLastUpdate) privateNotesLastUpdate.textContent = `آخر حفظ: ${timeStr}`;
+        editingNoteId = null;
+      });
+
+      document.getElementById('notesSearchInput').addEventListener('input', (e) => {
+        renderNotes(e.target.value);
+      });
 
       function openChangePinDialog() {
         const newPin = prompt("أدخل رقم PIN جديد (4-6 أرقام):");
@@ -3996,19 +4166,6 @@
           });
           savePrivateState();
           renderAllocations();
-        });
-      }
-
-      // calcInput تم استبداله بأزرار - لا يوجد مستمع للإدخال بعد الآن
-
-      if (privateNotes) {
-        privateNotes.addEventListener("input", () => {
-          privateState.notes = privateNotes.value;
-          privateState.lastNotesUpdate = new Date().toLocaleString("ar-EG");
-          savePrivateState();
-          if (privateNotesLastUpdate) {
-            privateNotesLastUpdate.textContent = `آخر حفظ: ${privateState.lastNotesUpdate}`;
-          }
         });
       }
 
@@ -8310,7 +8467,7 @@
             </div>`;
         } finally {
           btn.disabled = false;
-          btn.innerHTML = '<span class="ai-btn-icon">🔍</span><span class="ai-btn-text">تحليل الشهر</span>';
+          btn.innerHTML = '<span class="ai-btn-icon">🔍</span><span class="ai-btn-text">حلل شهري</span>';
         }
       }
 

@@ -1,23 +1,33 @@
-const CACHE_NAME = 'mony-app-v3';
+const CACHE_NAME = 'mony-app-v4.0';
 const ASSETS_TO_CACHE = [
   '/',
-  '/index.html',
-  '/style.css?v=3.0',
-  '/ai-assistant.js?v=3.0'
+  'index.html',
+  'style.css?v=4.0',
+  'ai-assistant.js?v=4.0',
+  'sync-system.js?v=4.0',
+  'manifest.json',
+  'photo_2026-03-03_11-01-38.jpg'
 ];
 
-self.addEventListener('install', (e) => {
-  e.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS_TO_CACHE))
+// التثبيت وحفظ الملفات في الكاش
+self.addEventListener('install', (event) => {
+  console.log('[Service Worker] Installing...');
+  event.waitUntil(
+    caches.open(CACHE_NAME).then((cache) => {
+      console.log('[Service Worker] Caching all assets');
+      return cache.addAll(ASSETS_TO_CACHE);
+    }).then(() => self.skipWaiting())
   );
-  self.skipWaiting();
 });
 
-self.addEventListener('activate', (e) => {
-  e.waitUntil(
+// التفعيل وحذف الكاش القديم
+self.addEventListener('activate', (event) => {
+  console.log('[Service Worker] Activating...');
+  event.waitUntil(
     caches.keys().then((keyList) => {
       return Promise.all(keyList.map((key) => {
         if (key !== CACHE_NAME) {
+          console.log('[Service Worker] Removing old cache', key);
           return caches.delete(key);
         }
       }));
@@ -25,19 +35,40 @@ self.addEventListener('activate', (e) => {
   );
 });
 
-self.addEventListener('fetch', (e) => {
-  const req = e.request;
-  // Network-first for API calls, cache-first for static
-  if (req.method !== 'GET') return;
-  e.respondWith(
-    fetch(req).catch(() => caches.match(req))
+// استراتيجية الاستجابة: الشبكة أولاً مع الرجوع للكاش
+self.addEventListener('fetch', (event) => {
+  if (event.request.method !== 'GET') return;
+
+  event.respondWith(
+    fetch(event.request)
+      .then((response) => {
+        // إذا نجح الاتصال بالشبكة، قم بتحديث الكاش
+        if (response && response.status === 200 && response.type === 'basic') {
+          const responseToCache = response.clone();
+          caches.open(CACHE_NAME).then((cache) => {
+            cache.put(event.request, responseToCache);
+          });
+        }
+        return response;
+      })
+      .catch(() => {
+        // إذا فشل الاتصال، حاول البحث في الكاش
+        return caches.match(event.request).then((response) => {
+          if (response) return response;
+          // إذا لم يوجد في الكاش وكان الطلب لصفحة HTML، ارجع لـ index.html
+          if (event.request.headers.get('accept').includes('text/html')) {
+            return caches.match('/');
+          }
+        });
+      })
   );
 });
 
+// المزامنة في الخلفية
 self.addEventListener('sync', (event) => {
   if (event.tag === 'sync-expenses') {
+    console.log('[Service Worker] Background Syncing...');
     event.waitUntil((async () => {
-      // Try to notify any open client to run sync; otherwise open app
       const all = await self.clients.matchAll({ type: 'window', includeUncontrolled: true });
       if (all && all.length) {
         for (const client of all) {
@@ -45,7 +76,8 @@ self.addEventListener('sync', (event) => {
         }
       } else {
         try {
-          await self.clients.openWindow('/');
+          // إذا لم تكن هناك نافذة مفتوحة، يمكن فتح التطبيق (اختياري حسب الحاجة)
+          // await self.clients.openWindow('/');
         } catch (e) {
           console.warn('Failed to open window for sync', e);
         }
@@ -54,9 +86,9 @@ self.addEventListener('sync', (event) => {
   }
 });
 
-self.addEventListener('message', (e) => {
-  // allow clients to ping the worker
-  if (e.data && e.data.type === 'PING') {
-    e.ports && e.ports[0] && e.ports[0].postMessage({ ok: true });
+// استقبال الرسائل من الواجهة البرمجية
+self.addEventListener('message', (event) => {
+  if (event.data && event.data.type === 'PING') {
+    event.ports && event.ports[0] && event.ports[0].postMessage({ ok: true });
   }
 });

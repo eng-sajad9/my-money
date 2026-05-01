@@ -26,7 +26,7 @@
     href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+Arabic:wght@400;500;600;700&display=swap"
     rel="stylesheet" />
 
-  <link rel="stylesheet" href="style.css?v=3.0">
+  <link rel="stylesheet" href="style.css?v=4.0">
   <style>
     .connection-toast {
       position: fixed;
@@ -912,17 +912,29 @@
         if (!('serviceWorker' in navigator)) return;
         try {
           const reg = await navigator.serviceWorker.register('/sw.js');
+          
+          // المستمع لتحديثات الـ Service Worker
+          reg.addEventListener('updatefound', () => {
+            const newWorker = reg.installing;
+            newWorker.addEventListener('statechange', () => {
+              if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                console.log('[SW] تحديث جديد متاح. يرجى إعادة تحميل الصفحة.');
+              }
+            });
+          });
+
           navigator.serviceWorker.addEventListener('message', (e) => {
             if (!e.data) return;
             if (e.data.type === 'sync-now') {
               try { if (typeof syncPendingChanges === 'function') syncPendingChanges(); } catch (err) { console.warn(err); }
             }
           });
+
           async function ensureBackgroundSyncRegistered() {
             if (!('sync' in reg)) return;
             try { await reg.sync.register('sync-expenses'); } catch (err) { console.warn(err); }
           }
-          setInterval(() => { ensureBackgroundSyncRegistered(); }, 30000);
+          setInterval(() => { ensureBackgroundSyncRegistered(); }, 60000);
           ensureBackgroundSyncRegistered();
         } catch (e) { console.warn('SW register failed', e); }
       }
@@ -8028,7 +8040,8 @@
 
       })();
     </script>
-    <script src="ai-assistant.js?v=3.0"></script>
+    <script src="sync-system.js?v=4.0"></script>
+    <script src="ai-assistant.js?v=4.0"></script>
     <script>
       // ===== تهيئة المحلل المالي الذكي =====
       let aiAnalyzer;

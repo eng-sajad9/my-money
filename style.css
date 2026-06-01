@@ -562,6 +562,101 @@ body {
 }
 
 /* شاشة تسجيل الدخول */
+/* Glassmorphism Styles for Planning Tab */
+.planning-tab-bg {
+  padding: 16px;
+  background-color: #f3f4f6;
+  background-image: 
+    radial-gradient(at 0% 0%, hsla(253,16%,7%,0.05) 0, transparent 50%), 
+    radial-gradient(at 50% 0%, hsla(225,39%,30%,0.05) 0, transparent 50%), 
+    radial-gradient(at 100% 0%, hsla(339,49%,30%,0.05) 0, transparent 50%);
+  min-height: 100vh;
+  position: relative;
+}
+
+[data-theme="dark"] .planning-tab-bg {
+  background-color: #0f172a;
+  background-image: 
+    radial-gradient(circle at 15% 50%, rgba(59, 130, 246, 0.15), transparent 25%),
+    radial-gradient(circle at 85% 30%, rgba(139, 92, 246, 0.15), transparent 25%);
+}
+
+.glass-card {
+  background: rgba(255, 255, 255, 0.4);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  border-radius: 24px;
+  padding: 24px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.05), inset 0 0 0 1px rgba(255, 255, 255, 0.3);
+  position: relative;
+  overflow: hidden;
+}
+
+[data-theme="dark"] .glass-card {
+  background: rgba(30, 41, 59, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+}
+
+/* Light reflection effect */
+.glass-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.1) 50%, rgba(255,255,255,0) 100%);
+  transform: skewX(-25deg);
+  animation: shimmer 8s infinite;
+  pointer-events: none;
+}
+
+@keyframes shimmer {
+  0% { left: -100%; }
+  20% { left: 200%; }
+  100% { left: 200%; }
+}
+
+.glass-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.goal-glass-card {
+  background: rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  border-radius: 20px;
+  padding: 16px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.03), inset 0 0 0 1px rgba(255, 255, 255, 0.4);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.goal-glass-card:hover {
+  transform: translateY(-4px) scale(1.01);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08), inset 0 0 0 1px rgba(255, 255, 255, 0.5);
+  background: rgba(255, 255, 255, 0.65);
+}
+
+[data-theme="dark"] .goal-glass-card {
+  background: rgba(30, 41, 59, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2), inset 0 0 0 1px rgba(255, 255, 255, 0.02);
+}
+
+[data-theme="dark"] .goal-glass-card:hover {
+  background: rgba(30, 41, 59, 0.7);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.3), inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+}
+
 /* Goals & Category Limits styles */
 .goals-card .card-header {
   display: flex;
@@ -1720,12 +1815,12 @@ header h2 span.icon {
 .compare-summary-banner {
   background: linear-gradient(135deg, rgba(37,99,235,0.08) 0%, rgba(79,70,229,0.06) 100%);
   border: 1px solid rgba(37,99,235,0.18);
-  border-radius: 14px;
-  padding: 14px 16px;
+  border-radius: 16px;
+  padding: 14px;
   margin-bottom: 14px;
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 8px;
+  grid-template-columns: repeat(4, 1fr); /* 4 columns on desktop */
+  gap: 10px;
 }
 
 [data-theme="dark"] .compare-summary-banner {
@@ -1734,15 +1829,40 @@ header h2 span.icon {
 }
 
 .compare-summary-stat {
-  text-align: center;
-  padding: 6px 4px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--card-bg);
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid var(--border-color);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+}
+
+.compare-summary-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+  flex-shrink: 0;
+}
+
+.compare-summary-info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  flex: 1;
+  min-width: 0;
 }
 
 .compare-summary-stat-label {
-  font-size: 10px;
+  font-size: 11px;
   color: var(--subtext-color);
-  font-weight: 600;
-  margin-bottom: 4px;
+  font-weight: 700;
+  margin-bottom: 2px;
 }
 
 .compare-summary-stat-value {
@@ -1756,6 +1876,18 @@ header h2 span.icon {
 .compare-summary-stat-value.success { color: var(--success); }
 .compare-summary-stat-value.danger { color: var(--danger); }
 .compare-summary-stat-value.warning { color: #f59e0b; }
+
+/* زر إظهار التفاصيل */
+.compare-details-toggle {
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px dashed var(--border-color);
+  color: var(--accent);
+  font-size: 13px !important;
+}
+.compare-details-toggle:hover {
+  opacity: 0.8;
+}
 
 /* الرسم البياني الأعمدة */
 .compare-chart-section {

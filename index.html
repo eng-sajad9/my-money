@@ -1127,7 +1127,7 @@
         </div>
       </div>
 
-      <!-- بطاقة التحليل الذكي للشهر -->
+      <!-- بطاقة التحليل الذكي للشهر (تم تعطيلها مؤقتاً بناءً على طلب المستخدم)
       <div class="card ai-analysis-card" id="monthlyAICard">
         <div class="ai-analysis-header">
           <div class="ai-analysis-header-left">
@@ -1147,11 +1147,10 @@
           </div>
         </div>
 
-        <!-- منطقة النتائج -->
         <div id="monthlyAIResult" class="ai-result-area" style="display:none;">
-          <!-- skeleton & content injected by JS -->
         </div>
       </div>
+      -->
 
       <!-- المصاريف -->
       <div class="card">
@@ -1191,6 +1190,11 @@
 
     <!-- تبويب مقارنة الأشهر -->
     <div id="tab-compare" style="display:none;">
+      <!-- زر المقارنة المفصلة -->
+      <button id="btnOpenDetailedCompare" class="btn btn-primary" style="width: 100%; margin-bottom: 12px; display: flex; align-items: center; justify-content: center; gap: 8px; font-weight: 700;">
+        <i class="fa-solid fa-code-compare"></i> مقارنة مفصلة بين شهرين
+      </button>
+
       <!-- شريط الترتيب والفلترة -->
       <div class="compare-toolbar">
         <span class="compare-toolbar-label">📊 ترتيب حسب:</span>
@@ -1237,7 +1241,7 @@
         </div>
       </div>
 
-      <!-- بطاقة التحليل الذكي المقارن -->
+      <!-- بطاقة التحليل الذكي المقارن (تم تعطيلها مؤقتاً بناءً على طلب المستخدم)
       <div class="card ai-analysis-card ai-compare-card" id="compareAICard">
         <div class="ai-analysis-header">
           <div class="ai-analysis-header-left">
@@ -1258,63 +1262,46 @@
         </div>
         <div id="compareAIResult" class="ai-result-area" style="display:none;"></div>
       </div>
+      -->
 
       <!-- حاوية المحتوى (تُملأ بواسطة renderComparison) -->
       <div id="compareContainer"></div>
     </div>
 
-    <!-- تبويب التخطيط والأهداف وتقسيم الراتب -->
-    <div id="tab-planning" style="display:none;">
-      <div id="goalsBucketsCard" class="card">
-        <div class="card-header">
-          <h3>الأهداف وتقسيم الراتب</h3>
-          <div class="card-header-actions">
-            <button id="btnAddGoal" class="btn btn-primary btn-sm">+ هدف</button>
-            <button id="btnAutoSplitBudget" class="btn btn-outline btn-sm btn-warning-outline">تقسيم ذكي
-              (50/30/20)</button>
-            <button id="btnAddBucket" class="btn btn-primary btn-sm">+ حافظة</button>
-          </div>
+    <!-- تبويب التخطيط والأهداف -->
+    <div id="tab-planning" class="planning-tab-bg" style="display:none;">
+      
+      <!-- قسم الأهداف -->
+      <div class="glass-card" style="margin-bottom: 24px;">
+        <div class="glass-header">
+          <h3 style="display:flex; align-items:center; gap:8px; font-size:1.3rem; color: var(--text-color); font-weight: 800;">
+            <div style="background: linear-gradient(135deg, #3b82f6, #8b5cf6); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;"><i class="fa-solid fa-bullseye"></i></div> أهدافي المستقبلية
+          </h3>
+          <button id="btnAddGoal" class="btn btn-primary" style="border-radius: 14px; font-weight: 800; padding: 8px 16px; background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); box-shadow: 0 4px 15px rgba(37,99,235,0.3); border: none; transition: transform 0.2s, box-shadow 0.2s;">+ هدف جديد</button>
         </div>
-
-        <div class="planning-section">
-          <h4 class="section-title">ميزانية 50/30/20 الذكية
-            <span id="budgetRuleTotalTxt" class="section-title-meta">--</span>
-          </h4>
-          <div class="budget-rule-bar">
-            <div id="barNeeds" class="budget-rule-segment" style="width: 0%; background: #4f46e5;"></div>
-            <div id="barWants" class="budget-rule-segment" style="width: 0%; background: #a855f7;"></div>
-            <div id="barSavings" class="budget-rule-segment" style="width: 0%; background: #059669;"></div>
-          </div>
-          <div class="budget-rule-labels">
-            <div id="labelNeeds" class="budget-rule-label">احتياجات (50%): 0</div>
-            <div id="labelWants" class="budget-rule-label">رغبات (30%): 0</div>
-            <div id="labelSavings" class="budget-rule-label budget-rule-label--savings">إدخار (20%): 0</div>
-          </div>
-        </div>
-
-        <!-- Goals Section -->
-        <div class="planning-section">
-          <h4 class="section-title">الأهداف</h4>
-          <div id="goalsContainer" class="goals-container">
-            <div class="empty-state" id="goalsEmpty">لا توجد أهداف حتى الآن.</div>
-          </div>
-        </div>
-
-        <!-- Buckets Section -->
-        <div class="planning-section planning-section--bordered">
-          <h4 class="section-title">تقسيم الراتب</h4>
-          <div id="bucketsContainer" class="buckets-container">
-            <div class="empty-state" id="bucketsEmpty">لا توجد حافظات حتى الآن.</div>
-          </div>
-          <div class="card-footer">
-            <div class="card-footer-info"><strong>المجموع المخصص:</strong> <span id="bucketsTotalPercent">0</span></div>
-            <button id="btnPreviewSplit" class="btn btn-outline btn-sm">معاينة</button>
-            <button id="btnApplySplit" class="btn btn-primary btn-sm">تطبيق</button>
-            <button id="btnClearAllBuckets" class="btn btn-danger btn-sm" title="مسح جميع تقسيمات الراتب">مسح
-              الكل</button>
-          </div>
+        <div id="goalsContainer" class="goals-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; margin-top: 16px;">
+          <!-- Goals injected via JS -->
+          <div class="empty-state" id="goalsEmpty" style="grid-column: 1 / -1; background: rgba(255,255,255,0.5); backdrop-filter: blur(4px); border-radius: 16px; padding: 24px;">لا توجد أهداف حالياً. ابدأ بالتخطيط لمستقبلك!</div>
         </div>
       </div>
+
+      <!-- قسم حدود الصرف -->
+      <div class="glass-card">
+        <div class="glass-header">
+          <h3 style="display:flex; align-items:center; gap:8px; font-size:1.3rem; color: var(--text-color); font-weight: 800;">
+            <div style="background: linear-gradient(135deg, #ef4444, #f97316); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;"><i class="fa-solid fa-shield-halved"></i></div> حدود الصرف
+          </h3>
+          <button id="btnOpenCategoryLimits" class="btn btn-outline" style="border-radius: 14px; font-weight: 800; background: rgba(255,255,255,0.6); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.8); color: var(--text-color); box-shadow: 0 4px 10px rgba(0,0,0,0.05); transition: all 0.2s;">إدارة الحدود</button>
+        </div>
+        <div style="margin-top: 8px; font-size: 13px; color: var(--subtext-color); margin-bottom: 16px;">
+          ضع حداً أقصى للصرف في فئات معينة لمراقبة ميزانيتك بدقة.
+        </div>
+        <div id="limitsContainer" style="display: flex; flex-direction: column; gap: 12px;">
+          <!-- Limits injected via JS -->
+          <div class="empty-state" id="limitsEmpty" style="background: rgba(255,255,255,0.5); backdrop-filter: blur(4px); border-radius: 16px; padding: 24px;">لم تقم بتعيين حدود صرف لأي فئة حتى الآن.</div>
+        </div>
+      </div>
+
     </div>
 
     <!-- تبويب ملاحظاتي والحسابات (محمي برقم PIN) -->
@@ -1706,6 +1693,21 @@
       </div>
     </div>
 
+    <!-- نافذة اختيار الفئة لوضع حد -->
+    <div id="modalSelectCategoryForLimit" class="modal-backdrop" style="display:none; z-index: 10003;">
+      <div class="modal" style="max-width: 400px; padding: 20px; border-radius: 20px;">
+        <div class="modal-header" style="margin-bottom: 16px;">
+          <h3 style="font-size: 1.1rem;"><i class="fa-solid fa-tags" style="color:var(--accent);"></i> اختر فئة</h3>
+          <button id="btnCloseSelectCategoryLimit" class="btn btn-outline btn-sm" style="border:none;">✕</button>
+        </div>
+        <div class="modal-body">
+          <label style="font-size: 12px; font-weight: 700; color: var(--subtext-color); display: block; margin-bottom: 8px;">اختر الفئة التي تريد وضع حد لها:</label>
+          <select id="selectCategoryForLimit" class="form-select" style="width: 100%; border-radius: 12px; margin-bottom: 16px; padding: 10px;"></select>
+          <button id="btnProceedCategoryLimit" class="btn btn-primary" style="width: 100%; border-radius: 12px; font-weight: 700;">إعداد الحد</button>
+        </div>
+      </div>
+    </div>
+
     <!-- مودال إعداد حد الفئة -->
     <div id="modalCategoryLimit" class="modal-backdrop" style="display:none;">
       <div class="modal" style="max-width:420px;">
@@ -1901,6 +1903,38 @@
     </div>
 
     <!-- AI Chat Removed — AI is now integrated into stats and comparison sections -->
+
+    <!-- نافذة المقارنة المفصلة بين شهرين -->
+    <div id="modalDetailedCompare" class="modal-backdrop" style="display:none; z-index: 10002; align-items: center; justify-content: center;">
+      <div class="modal" style="max-width: 480px; padding: 20px; border-radius: 24px;">
+        <div class="modal-header" style="margin-bottom: 20px;">
+          <h3 style="font-size: 1.2rem; display: flex; align-items: center; gap: 8px;"><i class="fa-solid fa-code-compare" style="color: var(--accent);"></i> مقارنة مفصلة</h3>
+          <button id="btnCloseDetailedCompare" class="btn btn-outline btn-sm" style="border:none; background: var(--muted-bg); border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;">✕</button>
+        </div>
+        <div class="modal-body">
+          <div style="background: var(--muted-bg); border: 1px solid var(--border-color); border-radius: 16px; padding: 16px; margin-bottom: 20px;">
+            <div style="display: flex; flex-direction: column; gap: 12px;">
+              <div>
+                <label style="font-size: 12px; font-weight: 700; color: var(--text-color); display: block; margin-bottom: 6px;">الشهر المراد تحليله (الشهر الحالي)</label>
+                <select id="detailedCompareMonth1" class="form-select" style="width: 100%; border-radius: 12px; border-color: rgba(37, 99, 235, 0.3); background-color: var(--card-bg);"></select>
+              </div>
+              <div style="display: flex; align-items: center; justify-content: center; margin: -4px 0;">
+                <div style="background: var(--card-bg); padding: 4px 12px; border-radius: 20px; font-size: 10px; font-weight: 700; color: var(--subtext-color); border: 1px solid var(--border-color); z-index: 1;">مقارنة مع</div>
+              </div>
+              <div>
+                <label style="font-size: 12px; font-weight: 700; color: var(--text-color); display: block; margin-bottom: 6px;">الشهر المرجعي (الشهر السابق)</label>
+                <select id="detailedCompareMonth2" class="form-select" style="width: 100%; border-radius: 12px; background-color: var(--card-bg);"></select>
+              </div>
+            </div>
+          </div>
+          <button id="btnRunDetailedCompare" class="btn btn-primary" style="width: 100%; border-radius: 14px; font-weight: 700; padding: 12px; font-size: 1rem; margin-bottom: 8px; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);">🚀 ابدأ المقارنة</button>
+          
+          <div id="detailedCompareResults" style="display: none; border-top: 1px solid var(--border-color); margin-top: 20px; padding-top: 20px;">
+            <!-- Results injected via JS -->
+          </div>
+        </div>
+      </div>
+    </div>
 
     <!-- مودال تغيير كلمة السر -->
     <div id="changePasswordModal" class="modal-backdrop"
@@ -2731,7 +2765,10 @@
           // إذا كان إرسال تلقائي — أرسل الشهر الحالي فقط
           if (silent) {
             const currentMonth = getSelectedMonth() || months[months.length - 1];
-            await _sendMonthToTelegram(currentMonth);
+            const ok = await _sendMonthToTelegram(currentMonth);
+            if (ok) {
+              try { localStorage.setItem(TG_BACKUP_INTERVAL_KEY, Date.now().toString()); } catch (e) { }
+            }
             return;
           }
 
@@ -2772,8 +2809,8 @@
         titleEl.textContent = 'نسخة احتياطية — Telegram';
         msgEl.innerHTML = `
           <div style="text-align:center;margin-bottom:10px;font-size:13px;color:var(--subtext-color)">اختر الشهر الذي تريد إرساله:</div>
-          <div style="flex-shrink:0; display:flex; align-items:center; justify-content:center; gap:8px; margin-bottom:12px; background:var(--muted-bg); padding:10px; border-radius:10px;">
-            <input type="checkbox" id="tgIncludeAiCb" checked style="width:16px;height:16px;accent-color:var(--ai-primary); cursor:pointer;">
+          <div style="flex-shrink:0; display:none; align-items:center; justify-content:center; gap:8px; margin-bottom:12px; background:var(--muted-bg); padding:10px; border-radius:10px;">
+            <input type="checkbox" id="tgIncludeAiCb" style="width:16px;height:16px;accent-color:var(--ai-primary); cursor:pointer;">
             <label for="tgIncludeAiCb" style="font-size:13px;color:var(--text-color);cursor:pointer;font-weight:600;">🤖 تضمين التحليل الذكي للشهر (AI)</label>
           </div>
           <div style="max-height:220px;overflow-y:auto;">${optionsHtml}</div>
@@ -3064,14 +3101,20 @@
       window.showSyncDetails = showSyncDetails;
       window.sendTelegramBackup = sendTelegramBackup;
 
-      // جدولة النسخ الاحتياطي التلقائي (أسبوعي)
+      // جدولة النسخ الاحتياطي التلقائي (كل 25 يوماً)
       function scheduleTelegramBackup() {
-        const WEEK_MS = 7 * 24 * 60 * 60 * 1000;
+        const INTERVAL_25_DAYS_MS = 25 * 24 * 60 * 60 * 1000;
         try {
-          const last = parseInt(localStorage.getItem(TG_BACKUP_INTERVAL_KEY) || '0');
+          let lastStr = localStorage.getItem(TG_BACKUP_INTERVAL_KEY);
           const now = Date.now();
-          if (now - last >= WEEK_MS) {
-            // مر أسبوع منذ آخر نسخة — أرسل نسخة جديدة
+          if (!lastStr) {
+            // إذا لم يكن هناك نسخ احتياطي سابق، نعتبر اليوم هو آخر نسخ لتفادي النسخ التلقائي المزعج فوراً عند فتح التطبيق أو تحديث الصفحة
+            localStorage.setItem(TG_BACKUP_INTERVAL_KEY, now.toString());
+            lastStr = now.toString();
+          }
+          const last = parseInt(lastStr);
+          if (now - last >= INTERVAL_25_DAYS_MS) {
+            // مر 25 يوماً منذ آخر نسخة — أرسل نسخة جديدة تلقائياً
             setTimeout(() => { sendTelegramBackup(true); }, 5000);
           }
         } catch (e) { }
@@ -3079,7 +3122,7 @@
         setInterval(() => {
           try {
             const last = parseInt(localStorage.getItem(TG_BACKUP_INTERVAL_KEY) || '0');
-            if (Date.now() - last >= WEEK_MS) {
+            if (Date.now() - last >= INTERVAL_25_DAYS_MS) {
               sendTelegramBackup(true);
             }
           } catch (e) { }
@@ -4815,20 +4858,32 @@
         banner.className = 'compare-summary-banner';
         banner.innerHTML = `
           <div class="compare-summary-stat">
-            <div class="compare-summary-stat-label">💳 إجمالي الرواتب</div>
-            <div class="compare-summary-stat-value accent">${formatNumber(allTotalSalaries)}</div>
+            <div class="compare-summary-icon" style="background: rgba(79, 70, 229, 0.1); color: var(--accent);"><i class="fa-solid fa-wallet"></i></div>
+            <div class="compare-summary-info">
+              <div class="compare-summary-stat-label">إجمالي الرواتب</div>
+              <div class="compare-summary-stat-value accent">${formatNumber(allTotalSalaries)}</div>
+            </div>
           </div>
           <div class="compare-summary-stat">
-            <div class="compare-summary-stat-label">💸 إجمالي الصرف</div>
-            <div class="compare-summary-stat-value danger">${formatNumber(allTotalExpenses)}</div>
+            <div class="compare-summary-icon" style="background: rgba(239, 68, 68, 0.1); color: var(--danger);"><i class="fa-solid fa-money-bill-wave"></i></div>
+            <div class="compare-summary-info">
+              <div class="compare-summary-stat-label">إجمالي الصرف</div>
+              <div class="compare-summary-stat-value danger">${formatNumber(allTotalExpenses)}</div>
+            </div>
           </div>
           <div class="compare-summary-stat">
-            <div class="compare-summary-stat-label">💰 إجمالي المتبقي</div>
-            <div class="compare-summary-stat-value ${allTotalRemaining >= 0 ? 'success' : 'danger'}">${formatNumber(allTotalRemaining)}</div>
+            <div class="compare-summary-icon" style="background: rgba(16, 185, 129, 0.1); color: var(--success);"><i class="fa-solid fa-piggy-bank"></i></div>
+            <div class="compare-summary-info">
+              <div class="compare-summary-stat-label">إجمالي المتبقي</div>
+              <div class="compare-summary-stat-value ${allTotalRemaining >= 0 ? 'success' : 'danger'}">${formatNumber(allTotalRemaining)}</div>
+            </div>
           </div>
           <div class="compare-summary-stat">
-            <div class="compare-summary-stat-label">📈 متوسط الصرف/شهر</div>
-            <div class="compare-summary-stat-value warning">${formatNumber(avgMonthlyExpense)}</div>
+            <div class="compare-summary-icon" style="background: rgba(245, 158, 11, 0.1); color: #f59e0b;"><i class="fa-solid fa-chart-line"></i></div>
+            <div class="compare-summary-info">
+              <div class="compare-summary-stat-label">متوسط الصرف</div>
+              <div class="compare-summary-stat-value warning">${formatNumber(avgMonthlyExpense)}</div>
+            </div>
           </div>
         `;
         compareContainer.appendChild(banner);
@@ -4976,6 +5031,17 @@
           card.appendChild(stats);
 
           // الشريط المتراكم
+          
+          // العنوان الثابت للتفاصيل بدلاً من الزر المخفي
+          const detailsTitle = document.createElement('div');
+          detailsTitle.style.cssText = 'font-weight: 700; font-size: 14px; color: var(--text-color); margin: 16px 0 8px 0; display:flex; align-items:center; gap:6px; padding-bottom: 8px; border-bottom: 1px solid var(--border-color);';
+          detailsTitle.innerHTML = `<i class="fa-solid fa-list-ul" style="color:var(--accent);"></i> تفاصيل الصرف لكل فئة`;
+          card.appendChild(detailsTitle);
+
+          const detailsBody = document.createElement('div');
+          detailsBody.className = 'compare-details-body'; // بدون كلاس الإخفاء
+          card.appendChild(detailsBody);
+
           const stacked = document.createElement('div');
           stacked.className = 'stacked-bar';
           if (d.total > 0) {
@@ -4996,13 +5062,12 @@
             empty.style.background = 'var(--muted-bg-2)';
             stacked.appendChild(empty);
           }
-          card.appendChild(stacked);
+          detailsBody.appendChild(stacked);
 
-          // أعلى 5 فئات
+          // جميع الفئات (مرتبة من الأعلى للأقل)
           const catEntries = Object.entries(d.catTotals)
             .filter(([, amt]) => amt > 0)
-            .sort((a, b) => b[1] - a[1])
-            .slice(0, 5);
+            .sort((a, b) => b[1] - a[1]);
 
           if (catEntries.length > 0) {
             const catRows = document.createElement('div');
@@ -5043,13 +5108,13 @@
               row.appendChild(pctEl);
               catRows.appendChild(row);
             });
-            card.appendChild(catRows);
+            detailsBody.appendChild(catRows);
           } else {
             const noData = document.createElement('div');
             noData.className = 'empty-state';
             noData.style.padding = '8px 0 0';
             noData.textContent = 'لا توجد مصاريف مسجلة.';
-            card.appendChild(noData);
+            detailsBody.appendChild(noData);
           }
 
           grid.appendChild(card);
@@ -5066,6 +5131,178 @@
           renderComparison();
         });
       });
+
+      // ======= المقارنة المفصلة بين شهرين =======
+      const modalDetailedCompare = document.getElementById('modalDetailedCompare');
+      const btnOpenDetailedCompare = document.getElementById('btnOpenDetailedCompare');
+      const btnCloseDetailedCompare = document.getElementById('btnCloseDetailedCompare');
+      const detailedCompareMonth1 = document.getElementById('detailedCompareMonth1');
+      const detailedCompareMonth2 = document.getElementById('detailedCompareMonth2');
+      const btnRunDetailedCompare = document.getElementById('btnRunDetailedCompare');
+      const detailedCompareResults = document.getElementById('detailedCompareResults');
+
+      if (btnOpenDetailedCompare) {
+        btnOpenDetailedCompare.addEventListener('click', () => {
+          if (!state.months || state.months.length < 2) {
+            alert('تحتاج إلى شهرين على الأقل لإجراء المقارنة المفصلة.');
+            return;
+          }
+          
+          detailedCompareMonth1.innerHTML = '';
+          detailedCompareMonth2.innerHTML = '';
+          
+          const sortedMonths = state.months.slice().sort((a, b) => b.year - a.year || b.month - a.month);
+          
+          sortedMonths.forEach((m, idx) => {
+            const label = `${m.name} ${m.year}`;
+            detailedCompareMonth1.add(new Option(label, m.id));
+            detailedCompareMonth2.add(new Option(label, m.id));
+          });
+          
+          // تحديد أول وثاني شهر افتراضياً
+          if (sortedMonths.length >= 2) {
+            detailedCompareMonth1.value = sortedMonths[0].id; // الشهر الحالي/الأحدث (المراد تحليله)
+            detailedCompareMonth2.value = sortedMonths[1].id; // الشهر السابق/الأقدم (للمقارنة)
+          }
+
+          detailedCompareResults.style.display = 'none';
+          modalDetailedCompare.style.display = 'flex';
+        });
+      }
+
+      if (btnCloseDetailedCompare) {
+        btnCloseDetailedCompare.addEventListener('click', () => {
+          modalDetailedCompare.style.display = 'none';
+        });
+      }
+
+      if (btnRunDetailedCompare) {
+        btnRunDetailedCompare.addEventListener('click', () => {
+          const id1 = detailedCompareMonth1.value;
+          const id2 = detailedCompareMonth2.value;
+          
+          if (id1 === id2) {
+            alert('يرجى اختيار شهرين مختلفين للمقارنة.');
+            return;
+          }
+          
+          const m1 = state.months.find(m => m.id == id1); // الشهر الحالي (التحليل)
+          const m2 = state.months.find(m => m.id == id2); // الشهر السابق (المرجعي)
+          
+          if (!m1 || !m2) return;
+          
+          // تجميع الفئات
+          const getTotals = (m) => {
+            const totals = {};
+            let sum = 0;
+            (m.expenses || []).forEach(e => {
+              const cat = e.category || 'أخرى';
+              totals[cat] = (totals[cat] || 0) + (e.amount || 0);
+              sum += (e.amount || 0);
+            });
+            return { totals, sum, salary: m.salary || 0, remaining: (m.salary || 0) - sum };
+          };
+          
+          const d1 = getTotals(m1);
+          const d2 = getTotals(m2);
+          
+          // m1 - m2
+          const diffTotal = d1.sum - d2.sum;
+          
+          const allCats = Array.from(new Set([...Object.keys(d1.totals), ...Object.keys(d2.totals)]));
+          
+          let catRowsHtml = '';
+          let biggestIncrease = { cat: '', amt: 0 };
+          let biggestSaving = { cat: '', amt: 0 };
+          
+          const catDiffs = [];
+          
+          allCats.forEach(cat => {
+            const v1 = d1.totals[cat] || 0;
+            const v2 = d2.totals[cat] || 0;
+            const diff = v1 - v2;
+            
+            if (diff > 0 && diff > biggestIncrease.amt) biggestIncrease = { cat, amt: diff };
+            if (diff < 0 && Math.abs(diff) > biggestSaving.amt) biggestSaving = { cat, amt: Math.abs(diff) };
+            
+            catDiffs.push({ cat, v1, v2, diff });
+          });
+          
+          catDiffs.sort((a, b) => b.diff - a.diff); // ترتيب من أعلى زيادة إلى أعلى توفير
+          
+          catDiffs.forEach(c => {
+            if (c.v1 === 0 && c.v2 === 0) return;
+            
+            let diffHtml = '';
+            if (c.diff > 0) {
+              diffHtml = `<div style="color: var(--danger); font-size: 11px; font-weight: 800; white-space: nowrap; direction: ltr;">▲ +${formatNumber(c.diff)}</div>`;
+            } else if (c.diff < 0) {
+              diffHtml = `<div style="color: var(--success); font-size: 11px; font-weight: 800; white-space: nowrap; direction: ltr;">▼ -${formatNumber(Math.abs(c.diff))}</div>`;
+            } else {
+              diffHtml = `<div style="color: var(--subtext-color); font-size: 11px; font-weight: 700; white-space: nowrap;">— متطابق</div>`;
+            }
+            
+            catRowsHtml += `
+              <div style="display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--border-color);">
+                <div style="flex: 1.5; font-size: 13px; font-weight: 700;">${c.cat}</div>
+                <div style="flex: 1; display: flex; flex-direction: column; align-items: center;">
+                  <div style="font-size: 10px; color: var(--subtext-color); margin-bottom: 2px;">${m1.name}</div>
+                  <div style="font-size: 13px; font-weight: 600;">${formatNumber(c.v1)}</div>
+                </div>
+                <div style="flex: 1; display: flex; flex-direction: column; align-items: center; opacity: 0.7;">
+                  <div style="font-size: 10px; color: var(--subtext-color); margin-bottom: 2px;">${m2.name}</div>
+                  <div style="font-size: 12px; font-weight: 600;">${formatNumber(c.v2)}</div>
+                </div>
+                <div style="flex: 1; text-align: left;">
+                  ${diffHtml}
+                </div>
+              </div>
+            `;
+          });
+          
+          // الملخص المالي
+          let totalDiffHtml = '';
+          if (diffTotal > 0) {
+            totalDiffHtml = `صرفت <strong>أكثر</strong> بـ <span style="color:var(--danger)">${formatNumber(diffTotal)}</span> في ${m1.name}`;
+          } else if (diffTotal < 0) {
+            totalDiffHtml = `وفرت <strong>أكثر</strong> بـ <span style="color:var(--success)">${formatNumber(Math.abs(diffTotal))}</span> في ${m1.name}`;
+          } else {
+            totalDiffHtml = 'الصرف الإجمالي <strong>متطابق</strong> بين الشهرين';
+          }
+          
+          detailedCompareResults.innerHTML = `
+            <div style="background: linear-gradient(135deg, rgba(37,99,235,0.05) 0%, rgba(79,70,229,0.05) 100%); border: 1px solid rgba(37,99,235,0.15); border-radius: 16px; padding: 16px; margin-bottom: 16px; text-align: center;">
+              <div style="font-size: 11px; font-weight: 700; color: var(--subtext-color); margin-bottom: 6px; text-transform: uppercase;">خلاصة المقارنة</div>
+              <div style="font-size: 15px;">${totalDiffHtml}</div>
+            </div>
+            
+            <div style="display: flex; gap: 8px; margin-bottom: 16px;">
+              ${biggestIncrease.cat ? `
+              <div style="flex: 1; background: rgba(239, 68, 68, 0.08); border: 1px solid rgba(239, 68, 68, 0.2); border-radius: 10px; padding: 10px; text-align: center;">
+                <div style="font-size: 10px; color: var(--danger); font-weight: 700; margin-bottom: 4px;">⚠️ أعلى زيادة</div>
+                <div style="font-size: 12px; font-weight: 600;">${biggestIncrease.cat}</div>
+                <div style="font-size: 12px; color: var(--danger); font-weight: 700; direction: ltr;">+${formatNumber(biggestIncrease.amt)}</div>
+              </div>` : ''}
+              
+              ${biggestSaving.cat ? `
+              <div style="flex: 1; background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.2); border-radius: 10px; padding: 10px; text-align: center;">
+                <div style="font-size: 10px; color: var(--success); font-weight: 700; margin-bottom: 4px;">✅ أعلى توفير</div>
+                <div style="font-size: 12px; font-weight: 600;">${biggestSaving.cat}</div>
+                <div style="font-size: 12px; color: var(--success); font-weight: 700; direction: ltr;">-${formatNumber(biggestSaving.amt)}</div>
+              </div>` : ''}
+            </div>
+            
+            <div style="font-size: 13px; font-weight: 700; color: var(--text-color); margin-bottom: 8px; display:flex; align-items:center; gap:6px;">
+              <i class="fa-solid fa-list-check"></i> تفاصيل كل الفئات
+            </div>
+            <div style="max-height: 250px; overflow-y: auto; padding-right: 4px;">
+              ${catRowsHtml || '<div class="empty-state">لا توجد تفاصيل للمقارنة.</div>'}
+            </div>
+          `;
+          
+          detailedCompareResults.style.display = 'block';
+        });
+      }
 
       /* ======= التصنيفات ======= */
 
@@ -5700,11 +5937,7 @@
         editingExpenseId = null;
         await refreshUI();
 
-        try {
-          if (typeof sendTelegramBackup === 'function') {
-            sendTelegramBackup(true);
-          }
-        } catch (e) { console.warn('Silent TG backup failed:', e); }
+        // تم إزالة النسخ الاحتياطي التلقائي عند إضافة/تعديل المصروف بناءً على طلب المستخدم
       }
 
       // ====== Goals feature ======
@@ -5766,68 +5999,70 @@
           else if (progress >= 40) progressColor = '#f39c12'; // أصفر
 
           const item = document.createElement('div');
-          item.className = 'goal-item';
-          // نجعل البطاقة أفقية: يسار (معلومات) + يمين (أزرار)
-          item.style.cssText = `display:flex; flex-direction:row; align-items:flex-start; gap:12px; ${isCompleted ? 'border:1.5px solid #2ecc71; background:rgba(46,204,113,0.05);' : ''}`;
+          item.className = 'goal-glass-card';
+          if (isCompleted) {
+            item.style.border = '1.5px solid rgba(46,204,113,0.5)';
+            item.style.background = 'rgba(46,204,113,0.05)';
+          }
 
-          // === القسم الأيسر: العنوان + التفاصيل ===
-          const left = document.createElement('div');
-          left.style.cssText = 'flex:1; min-width:0; display:flex; flex-direction:column; gap:6px;';
-
-          // العنوان (كامل العرض، لا اقتطاع)
+          // العنوان
           const titleEl = document.createElement('div');
-          titleEl.style.cssText = 'font-size:15px; font-weight:700; color:var(--text-color); word-break:break-word; white-space:normal; line-height:1.4;';
+          titleEl.style.cssText = 'font-size:16px; font-weight:800; color:var(--text-color); word-break:break-word; white-space:normal; line-height:1.4;';
           titleEl.textContent = (isCompleted ? '🏆 ' : '🎯 ') + (g.title || 'هدف');
-          left.appendChild(titleEl);
+          item.appendChild(titleEl);
 
           // المبالغ + النسبة
           const amountsEl = document.createElement('div');
-          amountsEl.style.cssText = 'display:flex; justify-content:space-between; font-size:12px; color:var(--subtext-color);';
-          amountsEl.innerHTML = `<span>المُدخر: <strong style="color:var(--text-color)">${formatNumber(current)}</strong></span><span style="font-weight:800; color:${progressColor};">${progress}%</span><span>الهدف: <strong style="color:var(--text-color)">${formatNumber(target)}</strong></span>`;
-          left.appendChild(amountsEl);
+          amountsEl.style.cssText = 'display:flex; justify-content:space-between; font-size:12px; color:var(--subtext-color); margin-top: 4px;';
+          amountsEl.innerHTML = `<span>مُدخر: <strong style="color:var(--text-color)">${formatNumber(current)}</strong></span><span style="font-weight:800; color:${progressColor};">${progress}%</span><span>الهدف: <strong style="color:var(--text-color)">${formatNumber(target)}</strong></span>`;
+          item.appendChild(amountsEl);
 
           // شريط التقدم
           const progWrap = document.createElement('div');
-          progWrap.style.cssText = 'height:8px; border-radius:999px; background:var(--muted-bg-2); overflow:hidden;';
+          progWrap.style.cssText = 'height:10px; border-radius:999px; background:var(--border-color); overflow:hidden; border: 1px solid rgba(255,255,255,0.2);';
           const prog = document.createElement('div');
           prog.style.cssText = `width:${progress}%; height:100%; border-radius:999px; background:${progressColor}; transition:width 0.5s ease;`;
           progWrap.appendChild(prog);
-          left.appendChild(progWrap);
+          item.appendChild(progWrap);
 
           // معلومات الوقت والادخار
           if (daysInfo || monthlyNeeded) {
             const infoRow = document.createElement('div');
-            infoRow.style.cssText = 'display:flex; flex-wrap:wrap; gap:6px;';
-            if (daysInfo) infoRow.innerHTML += `<span style="font-size:11px;color:${daysInfo.color};background:${daysInfo.color}18;padding:2px 7px;border-radius:20px;">${daysInfo.text}</span>`;
-            if (monthlyNeeded) infoRow.innerHTML += `<span style="font-size:11px;color:#3498db;background:#3498db18;padding:2px 7px;border-radius:20px;">💡 ادخر ${formatNumber(monthlyNeeded)} شهرياً</span>`;
-            left.appendChild(infoRow);
+            infoRow.style.cssText = 'display:flex; flex-wrap:wrap; gap:6px; margin-top: 4px;';
+            if (daysInfo) infoRow.innerHTML += `<span style="font-size:11px;font-weight:700;color:${daysInfo.color};background:${daysInfo.color}18;padding:4px 8px;border-radius:20px;">${daysInfo.text}</span>`;
+            if (monthlyNeeded) infoRow.innerHTML += `<span style="font-size:11px;font-weight:700;color:#3498db;background:#3498db18;padding:4px 8px;border-radius:20px;">💡 ادخر ${formatNumber(monthlyNeeded)} شهرياً</span>`;
+            item.appendChild(infoRow);
           }
 
-          item.appendChild(left);
-
-          // === القسم الأيمن: الأزرار ===
+          // الأزرار
           const actions = document.createElement('div');
-          actions.style.cssText = 'display:flex; flex-direction:column; gap:6px; flex-shrink:0;';
-
-          const btnView = document.createElement('button');
-          btnView.className = 'btn btn-outline btn-sm';
-          btnView.textContent = '✏️';
-          btnView.title = 'تعديل';
-          btnView.addEventListener('click', () => openGoalModal(g.id));
-          actions.appendChild(btnView);
-
+          actions.style.cssText = 'display:flex; flex-direction:row; gap:8px; margin-top: auto; padding-top: 8px;';
+          
           if (!isCompleted) {
             const btnAdd = document.createElement('button');
             btnAdd.className = 'btn btn-primary btn-sm';
-            btnAdd.textContent = '+ مبلغ';
+            btnAdd.style.flex = '1';
+            btnAdd.style.borderRadius = '10px';
+            btnAdd.style.fontWeight = '700';
+            btnAdd.textContent = '+ إضافة مبلغ';
             btnAdd.addEventListener('click', () => openAddGoalAmount(g.id));
             actions.appendChild(btnAdd);
           } else {
             const badge = document.createElement('div');
-            badge.style.cssText = 'font-size:11px;color:#2ecc71;font-weight:700;padding:3px 8px;background:rgba(46,204,113,0.1);border-radius:20px;text-align:center;';
-            badge.textContent = '✅';
+            badge.style.cssText = 'flex: 1; font-size:12px;color:#2ecc71;font-weight:700;padding:6px;background:rgba(46,204,113,0.1);border-radius:10px;text-align:center; border: 1px solid rgba(46,204,113,0.2);';
+            badge.textContent = '✅ مكتمل';
             actions.appendChild(badge);
           }
+
+          const btnView = document.createElement('button');
+          btnView.className = 'btn btn-outline btn-sm';
+          btnView.innerHTML = '<i class="fa-solid fa-pen"></i>';
+          btnView.style.width = '36px';
+          btnView.style.borderRadius = '10px';
+          btnView.style.background = 'var(--card-bg)';
+          btnView.title = 'تعديل';
+          btnView.addEventListener('click', () => openGoalModal(g.id));
+          actions.appendChild(btnView);
 
           item.appendChild(actions);
           goalsContainer.appendChild(item);
@@ -6059,6 +6294,122 @@
       //     if (btnAddBucket) btnAddBucket.style.display = '';
       //   });
       // }
+
+      // Category Limits in Planning Tab
+      const btnOpenCategoryLimits = document.getElementById('btnOpenCategoryLimits');
+      const modalSelectCategoryForLimit = document.getElementById('modalSelectCategoryForLimit');
+      const btnCloseSelectCategoryLimit = document.getElementById('btnCloseSelectCategoryLimit');
+      const selectCategoryForLimit = document.getElementById('selectCategoryForLimit');
+      const btnProceedCategoryLimit = document.getElementById('btnProceedCategoryLimit');
+      const limitsContainer = document.getElementById('limitsContainer');
+
+      if (btnOpenCategoryLimits) {
+        btnOpenCategoryLimits.addEventListener('click', () => {
+          selectCategoryForLimit.innerHTML = '';
+          if (state.categories.length === 0) {
+            alert("يرجى إضافة فئات للمصاريف أولاً.");
+            return;
+          }
+          state.categories.forEach(cat => {
+            const opt = document.createElement('option');
+            opt.value = cat;
+            opt.textContent = cat;
+            selectCategoryForLimit.appendChild(opt);
+          });
+          modalSelectCategoryForLimit.style.display = 'flex';
+        });
+      }
+
+      if (btnCloseSelectCategoryLimit) {
+        btnCloseSelectCategoryLimit.addEventListener('click', () => {
+          modalSelectCategoryForLimit.style.display = 'none';
+        });
+      }
+
+      if (btnProceedCategoryLimit) {
+        btnProceedCategoryLimit.addEventListener('click', () => {
+          const cat = selectCategoryForLimit.value;
+          modalSelectCategoryForLimit.style.display = 'none';
+          if (cat) openCategoryLimitModal(cat);
+        });
+      }
+
+      function renderCategoryLimitsInPlanning() {
+        if (!limitsContainer) return;
+        limitsContainer.innerHTML = '';
+        const limits = state.categoryLimits || {};
+        const limitKeys = Object.keys(limits).filter(k => limits[k] && limits[k].limit > 0);
+
+        if (limitKeys.length === 0) {
+          const empty = document.createElement('div');
+          empty.className = 'empty-state';
+          empty.style.cssText = 'background: rgba(255,255,255,0.5); backdrop-filter: blur(4px); border-radius: 16px; padding: 24px; color: var(--subtext-color);';
+          empty.textContent = 'لم تقم بتعيين حدود صرف لأي فئة حتى الآن.';
+          limitsContainer.appendChild(empty);
+          return;
+        }
+
+        // Get current month to calculate spent amount
+        const sortedMonths = state.months.slice().sort((a, b) => a.year - b.year || a.month - b.month);
+        const currMonth = getSelectedMonth() || (sortedMonths.length > 0 ? sortedMonths[sortedMonths.length - 1] : null);
+
+        limitKeys.forEach(cat => {
+          const limitObj = limits[cat];
+          const limitAmount = limitObj.limit;
+          let spent = 0;
+
+          if (currMonth && currMonth.expenses) {
+            currMonth.expenses.forEach(e => {
+              if (e.category === cat) spent += (e.amount || 0);
+            });
+          }
+
+          const progress = Math.min(100, (spent / limitAmount) * 100);
+          
+          let color = '#2ecc71'; // Green
+          if (progress >= 100) color = '#e74c3c'; // Red
+          else if (progress >= 80) color = '#e67e22'; // Orange
+          else if (progress >= 60) color = '#f1c40f'; // Yellow
+
+          const card = document.createElement('div');
+          card.className = 'goal-glass-card';
+          
+          const headerRow = document.createElement('div');
+          headerRow.style.cssText = 'display: flex; justify-content: space-between; align-items: center;';
+          
+          const titleWrap = document.createElement('div');
+          titleWrap.innerHTML = `<div style="font-weight: 800; font-size: 15px; color: var(--text-color);">${cat}</div>
+            <div style="font-size: 11px; color: var(--subtext-color);">${limitObj.hard ? '<span style="color:#e74c3c">حظر عند التجاوز</span>' : 'تنبيه فقط'}</div>`;
+          headerRow.appendChild(titleWrap);
+
+          const btnEdit = document.createElement('button');
+          btnEdit.className = 'btn btn-outline btn-sm';
+          btnEdit.innerHTML = '<i class="fa-solid fa-pen"></i>';
+          btnEdit.style.cssText = 'border-radius: 10px; width: 36px; height: 36px; padding: 0; display: flex; align-items: center; justify-content: center; border: none; background: rgba(0,0,0,0.05); transition: background 0.2s;';
+          btnEdit.onmouseover = () => btnEdit.style.background = 'rgba(0,0,0,0.1)';
+          btnEdit.onmouseout = () => btnEdit.style.background = 'rgba(0,0,0,0.05)';
+          btnEdit.onclick = () => openCategoryLimitModal(cat);
+          headerRow.appendChild(btnEdit);
+
+          card.appendChild(headerRow);
+
+          const amountsRow = document.createElement('div');
+          amountsRow.style.cssText = 'display: flex; justify-content: space-between; font-size: 12px; margin-top: 4px;';
+          amountsRow.innerHTML = `<span>صُرف: <strong style="color:var(--text-color)">${formatNumber(spent)}</strong></span>
+            <span style="color:${color}; font-weight:800;">${progress.toFixed(0)}%</span>
+            <span>الحد: <strong style="color:var(--text-color)">${formatNumber(limitAmount)}</strong></span>`;
+          card.appendChild(amountsRow);
+
+          const progWrap = document.createElement('div');
+          progWrap.style.cssText = 'height: 8px; border-radius: 999px; background: rgba(0,0,0,0.06); overflow: hidden;';
+          const prog = document.createElement('div');
+          prog.style.cssText = `height: 100%; width: ${progress}%; background: ${color}; border-radius: 999px; transition: width 0.3s ease;`;
+          progWrap.appendChild(prog);
+          card.appendChild(progWrap);
+
+          limitsContainer.appendChild(card);
+        });
+      }
 
       // Category Limit modal wiring & helpers
       const modalCategoryLimit = document.getElementById('modalCategoryLimit');
@@ -7386,8 +7737,7 @@
           renderCategoryOptions();
           renderCategoryList();
           renderGoals();
-          renderBudgetRule();
-          renderSavingsBuckets();
+          renderCategoryLimitsInPlanning();
 
           if (!noAnim) {
             // reveal updated UI with a subtle fade-in
@@ -7655,7 +8005,7 @@
                   // listener should also be active after initial sync
                   startRemoteListener();
 
-                  // جدولة النسخ الاحتياطي التلقائي عبر Telegram (أسبوعي)
+                  // جدولة النسخ الاحتياطي التلقائي عبر Telegram (كل 25 يوماً)
                   scheduleTelegramBackup();
 
                   // تحديث مؤشر المزامنة
@@ -8041,12 +8391,13 @@
       })();
     </script>
     <script src="sync-system.js?v=4.0"></script>
+    <!-- تم تعطيل سكربتات المساعد الذكي مؤقتاً بناءً على طلب المستخدم
     <script src="ai-assistant.js?v=4.0"></script>
     <script>
       // ===== تهيئة المحلل المالي الذكي =====
       let aiAnalyzer;
       window.addEventListener('load', () => {
-        aiAnalyzer = new AIFinancialAnalyzer('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');
+        aiAnalyzer = new AIFinancialAnalyzer('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');
       });
 
       // ===== مساعد: تنسيق الأرقام من state =====
@@ -8537,6 +8888,7 @@
       // يتم تحديثها من refreshUI أو saveState في الكود الأصلي
       window._appState = window._appState || {};
     </script>
+    -->
 
 </body>
 

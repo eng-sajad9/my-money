@@ -26,7 +26,7 @@
     href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+Arabic:wght@400;500;600;700&display=swap"
     rel="stylesheet" />
 
-  <link rel="stylesheet" href="style.css?v=4.0">
+  <link rel="stylesheet" href="style.css?v=9.0">
   <style>
     .connection-toast {
       position: fixed;
@@ -196,24 +196,7 @@
 
     /* Touch targets already set at base level (44px) */
 
-    /* ===== شاشة تسجيل الدخول - Mobile First (already default) ===== */
-    @media (max-width: 768px) {
-      .login-container {
-        max-width: 100%;
-        min-height: 100vh;
-        min-height: 100dvh;
-        border-radius: 0;
-        padding: 32px 20px 40px;
-        box-shadow: none;
-        border: none;
-        display: flex;
-        flex-direction: column;
-      }
-
-      .login-body {
-        flex: 1;
-      }
-    }
+    /* تم نقل تنسيقات تسجيل الدخول بالكامل إلى style.css لضمان الاحترافية والتوافق المطلق */
 
     /* ===== Mobile-only: modals, header, tabs ===== */
     @media (max-width: 768px) {
@@ -654,13 +637,7 @@
         min-height: 38px;
       }
 
-      .login-container {
-        max-width: 420px;
-        border-radius: var(--radius-lg);
-        box-shadow: var(--shadow-lg);
-        border: 1px solid var(--border-color);
-        min-height: auto;
-      }
+      /* تم إزالة تهيئة login-container من هنا لمنع التداخل مع التصميم الاحترافي الجديد */
     }
 
     /* ===== Desktop Enhancement (769px+) ===== */
@@ -838,72 +815,115 @@
 
   <!-- شاشة تسجيل الدخول -->
   <div id="loginView" class="login-container">
+    <!-- كرات الضوء العائمة الفاخرة في الخلفية -->
+    <div class="login-bg-glow">
+      <div class="glow-orb orb-1"></div>
+      <div class="glow-orb orb-2"></div>
+      <div class="glow-orb orb-3"></div>
+    </div>
 
-    <!-- بطاقة تسجيل الدخول -->
-    <div class="login-card">
-
-      <!-- الشعار والعنوان -->
-      <div class="login-brand">
-        <div class="login-brand-icon">💸</div>
-        <h1 class="login-brand-title">مصروفاتي</h1>
-        <p class="login-brand-sub">إدارة مصاريفك بذكاء من أي جهاز</p>
-      </div>
-
-      <!-- التبويبات -->
-      <div class="login-tabs">
-        <button id="tabLogin" class="login-tab-btn active">دخول</button>
-        <button id="tabRegister" class="login-tab-btn">حساب جديد</button>
-      </div>
-
-      <!-- نموذج تسجيل الدخول -->
-      <div id="loginForm" class="login-form-body">
-        <div class="login-field">
-          <label class="login-label">📧 البريد الإلكتروني</label>
-          <input id="loginEmail" type="email" class="login-input" placeholder="example@email.com"
-            autocomplete="email" />
-        </div>
-        <div class="login-field">
-          <label class="login-label">🔑 كلمة السر</label>
-          <div class="login-pw-wrap">
-            <input id="loginPassword" type="password" class="login-input" placeholder="••••••••"
-              autocomplete="current-password" />
-            <button id="btnTogglePwLogin" class="login-pw-toggle" type="button">👁️</button>
+    <!-- بطاقة تسجيل الدخول الزجاجية الفاخرة الممركزة -->
+    <div class="login-card-wrapper">
+      <div class="login-card">
+        <!-- لودر التحميل المدمج الذكي (يظهر فقط أثناء التحميل) -->
+        <div id="cardLoaderOverlay" class="card-loader-overlay" style="display: none;">
+          <div class="card-loader-content">
+            <div class="loader-shield-wrap">
+              <div class="loader-shield-glow"></div>
+              <svg class="loader-shield-svg" width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                  <linearGradient id="shieldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="#4f46e5" />
+                    <stop offset="100%" stop-color="#06b6d4" />
+                  </linearGradient>
+                </defs>
+                <path d="M32 6L12 14V28C12 42.8 24.8 54 32 58C39.2 54 52 42.8 52 28V14L32 6Z" fill="url(#shieldGrad)" />
+                <path d="M26 31L30 35L38 25" stroke="white" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
+              </svg>
+            </div>
+            <div class="loader-text-status">جاري تأمين الاتصال...</div>
+            <div class="loader-progress-bar">
+              <div class="loader-progress-fill"></div>
+            </div>
+            <div class="loader-sub-status">الرجاء الانتظار، يتم جلب بيانات ميزانيتك بأمان</div>
           </div>
         </div>
-        <div id="authError" class="login-error"></div>
-        <button id="btnLogin" class="login-submit-btn">تسجيل الدخول</button>
-        <div id="loginProcessingBar" class="login-processing-bar" role="status" aria-live="polite"
-          style="display:none;">
-          <div class="processing-spinner"></div>
-          <span>جاري التحقق...</span>
-        </div>
-      </div>
 
-      <!-- نموذج إنشاء حساب -->
-      <div id="registerForm" class="login-form-body" style="display:none;">
-        <div class="login-field">
-          <label class="login-label">📧 البريد الإلكتروني</label>
-          <input id="registerEmail" type="email" class="login-input" placeholder="example@email.com"
-            autocomplete="email" />
+        <!-- الشعار والعنوان -->
+        <div class="login-brand">
+          <svg class="login-brand-icon" width="60" height="60" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="logoGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#4f46e5" />
+                <stop offset="100%" stop-color="#06b6d4" />
+              </linearGradient>
+            </defs>
+            <rect x="2" y="2" width="60" height="60" rx="18" fill="url(#logoGrad)" />
+            <path d="M18 36V28C18 25.7909 19.7909 24 22 24H42C44.2091 24 46 25.7909 46 28V36C46 38.2091 44.2091 40 42 40H22C19.7909 40 18 38.2091 18 36Z" stroke="white" stroke-width="3.5" stroke-linejoin="round" />
+            <path d="M46 30H36C34.8954 30 34 30.8954 34 32C34 33.1046 34.8954 34 36 34H46V30Z" fill="white" />
+            <circle cx="39" cy="32" r="2" fill="#06b6d4" />
+            <path d="M25 31L29 27L33 31" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <h1 class="login-brand-title">مصروفاتي</h1>
+          <p class="login-brand-sub">إدارة مصاريفك بذكاء وأمان من أي جهاز</p>
         </div>
-        <div class="login-field">
-          <label class="login-label">🔑 كلمة السر</label>
-          <div class="login-pw-wrap">
-            <input id="registerPassword" type="password" class="login-input" placeholder="••••••••"
+
+        <!-- التبويبات -->
+        <div class="login-tabs">
+          <button id="tabLogin" class="login-tab-btn active">دخول</button>
+          <button id="tabRegister" class="login-tab-btn">حساب جديد</button>
+        </div>
+
+        <!-- نموذج تسجيل الدخول -->
+        <div id="loginForm" class="login-form-body">
+          <div class="login-field">
+            <label class="login-label">📧 البريد الإلكتروني</label>
+            <input id="loginEmail" type="email" class="login-input" placeholder="example@email.com"
+              autocomplete="email" />
+          </div>
+          <div class="login-field">
+            <label class="login-label">🔑 كلمة السر</label>
+            <div class="login-pw-wrap">
+              <input id="loginPassword" type="password" class="login-input" placeholder="••••••••"
+                autocomplete="current-password" />
+              <button id="btnTogglePwLogin" class="login-pw-toggle" type="button">👁️</button>
+            </div>
+          </div>
+          <div id="authError" class="login-error"></div>
+          <button id="btnLogin" class="login-submit-btn">تسجيل الدخول</button>
+          <div id="loginProcessingBar" class="login-processing-bar" role="status" aria-live="polite"
+            style="display:none;">
+            <div class="processing-spinner"></div>
+            <span>جاري التحقق...</span>
+          </div>
+        </div>
+
+        <!-- نموذج إنشاء حساب -->
+        <div id="registerForm" class="login-form-body" style="display:none;">
+          <div class="login-field">
+            <label class="login-label">📧 البريد الإلكتروني</label>
+            <input id="registerEmail" type="email" class="login-input" placeholder="example@email.com"
+              autocomplete="email" />
+          </div>
+          <div class="login-field">
+            <label class="login-label">🔑 كلمة السر</label>
+            <div class="login-pw-wrap">
+              <input id="registerPassword" type="password" class="login-input" placeholder="••••••••"
+                autocomplete="new-password" />
+              <button id="btnTogglePwReg" class="login-pw-toggle" type="button">👁️</button>
+            </div>
+          </div>
+          <div class="login-field">
+            <label class="login-label">🔒 تأكيد كلمة السر</label>
+            <input id="registerPasswordConfirm" type="password" class="login-input" placeholder="••••••••"
               autocomplete="new-password" />
-            <button id="btnTogglePwReg" class="login-pw-toggle" type="button">👁️</button>
           </div>
+          <div id="registerError" class="login-error"></div>
+          <button id="btnRegister" class="login-submit-btn">إنشاء الحساب</button>
+          <button id="btnCancelRegister" class="login-cancel-btn" type="button" style="display: none;">إلغاء</button>
         </div>
-        <div class="login-field">
-          <label class="login-label">🔒 تأكيد كلمة السر</label>
-          <input id="registerPasswordConfirm" type="password" class="login-input" placeholder="••••••••"
-            autocomplete="new-password" />
-        </div>
-        <div id="registerError" class="login-error"></div>
-        <button id="btnRegister" class="login-submit-btn">إنشاء الحساب</button>
-        <button id="btnCancelRegister" class="login-cancel-btn" type="button">إلغاء</button>
-      </div>
 
+      </div>
     </div>
 
     <script>
@@ -1049,67 +1069,72 @@
         </div>
         <div id="advancedStatsBody" class="collapse-body">
 
+          <!-- مؤشر وتيرة الإنفاق البصري -->
+          <div id="paceGaugeContainer"></div>
+
+          <!-- بطاقة المصروف اليومي الآمن البارزة -->
+          <div class="safe-limit-hero-card" id="safeLimitHeroCard">
+            <div class="safe-limit-icon">🛡️</div>
+            <div class="safe-limit-details">
+              <div class="safe-limit-title">المصروف اليومي الآمن المتبقي</div>
+              <div id="statSafeLimit" class="safe-limit-value">0</div>
+              <div id="statSafeLimitMsg" class="safe-limit-msg"></div>
+            </div>
+          </div>
+
           <!-- شبكة الإحصائيات الرئيسية -->
           <div class="adv-stats-grid">
             <div class="adv-stat-card">
-              <div class="adv-stat-icon">📅</div>
+              <div class="adv-stat-icon icon-blue">📅</div>
               <div class="adv-stat-info">
                 <div class="adv-stat-label">متوسط الصرف اليومي</div>
                 <div id="statDailyAvg" class="adv-stat-value">0</div>
               </div>
             </div>
             <div class="adv-stat-card">
-              <div class="adv-stat-icon">🗓️</div>
+              <div class="adv-stat-icon icon-green">💰</div>
               <div class="adv-stat-info">
                 <div class="adv-stat-label">المتبقي لكل يوم</div>
                 <div id="statRemainingPerDay" class="adv-stat-value">0</div>
               </div>
             </div>
             <div class="adv-stat-card">
-              <div class="adv-stat-icon">🔺</div>
+              <div class="adv-stat-icon icon-red">💸</div>
               <div class="adv-stat-info">
                 <div class="adv-stat-label">أكبر مصروف</div>
                 <div id="statMaxExpense" class="adv-stat-value">0</div>
               </div>
             </div>
             <div class="adv-stat-card">
-              <div class="adv-stat-icon">🔻</div>
+              <div class="adv-stat-icon icon-yellow">🪙</div>
               <div class="adv-stat-info">
                 <div class="adv-stat-label">أصغر مصروف</div>
                 <div id="statMinExpense" class="adv-stat-value">0</div>
               </div>
             </div>
             <div class="adv-stat-card">
-              <div class="adv-stat-icon">🧾</div>
+              <div class="adv-stat-icon icon-purple">🧾</div>
               <div class="adv-stat-info">
                 <div class="adv-stat-label">عدد المصاريف</div>
                 <div id="statCount" class="adv-stat-value">0</div>
               </div>
             </div>
             <div class="adv-stat-card">
-              <div class="adv-stat-icon">📊</div>
+              <div class="adv-stat-icon icon-cyan">📊</div>
               <div class="adv-stat-info">
                 <div class="adv-stat-label">متوسط مبلغ المصروف</div>
                 <div id="statAvgAmount" class="adv-stat-value">0</div>
               </div>
             </div>
             <div class="adv-stat-card">
-              <div class="adv-stat-icon">🏆</div>
+              <div class="adv-stat-icon icon-pink">👑</div>
               <div class="adv-stat-info">
                 <div class="adv-stat-label">أكثر تصنيف صرفاً</div>
                 <div id="statTopCategory" class="adv-stat-value">لا يوجد</div>
               </div>
             </div>
             <div class="adv-stat-card">
-              <div class="adv-stat-icon">🛡️</div>
-              <div class="adv-stat-info">
-                <div class="adv-stat-label">المصروف اليومي الآمن</div>
-                <div id="statSafeLimit" class="adv-stat-value">0</div>
-                <div id="statSafeLimitMsg" class="stat-safe-msg"></div>
-              </div>
-            </div>
-            <div class="adv-stat-card">
-              <div class="adv-stat-icon">⏰</div>
+              <div class="adv-stat-icon icon-teal">⏳</div>
               <div class="adv-stat-info">
                 <div class="adv-stat-label">الأيام المتبقية في الشهر</div>
                 <div id="statDaysLeft" class="adv-stat-value">—</div>
@@ -1117,12 +1142,23 @@
             </div>
           </div>
 
-          <!-- تنبيه وتير الإنفاق -->
+          <!-- التوزيع الأسبوعي للمصاريف -->
+          <div id="weeklyChartContainer"></div>
+
+          <!-- تنبيه وتيرة الإنفاق -->
           <div id="spendingPaceAlert" class="spending-pace-alert" style="display:none;"></div>
 
           <!-- أبار التصنيفات -->
           <div class="adv-cats-title">🗂️ توزيع الإنفاق حسب الفئة</div>
           <div class="category-bars" id="categoryBars"></div>
+
+          <!-- دليل المؤشرات البسيط -->
+          <div class="stats-info-tip">
+            💡 <b>دليل سريع للمؤشرات:</b><br>
+            • <b>المصروف الآمن:</b> حدك الأقصى المسموح بصرفه اليوم لتبقى على المسار الصحيح.<br>
+            • <b>المتبقي لكل يوم:</b> الحصة اليومية المتاحة لك للأيام القادمة (من باجر).<br>
+            • <b>متوسط الصرف:</b> معدل صرفك الفعلي باليوم منذ بداية الشهر.
+          </div>
 
         </div>
       </div>
@@ -3443,6 +3479,65 @@
         });
       }
 
+      // Auth loader helper functions for interactive, premium loading experience
+      let loaderProgressInterval = null;
+      function startCardLoaderAnimation() {
+        const fill = document.querySelector(".loader-progress-fill");
+        const statusText = document.querySelector(".loader-text-status");
+        if (!fill || !statusText) return;
+        
+        // Reset progress and set initial status
+        fill.style.width = "0%";
+        statusText.textContent = "جاري تأمين الاتصال...";
+        
+        if (loaderProgressInterval) clearInterval(loaderProgressInterval);
+        
+        let progress = 0;
+        loaderProgressInterval = setInterval(() => {
+          if (progress < 30) {
+            progress += Math.random() * 8 + 3;
+            statusText.textContent = "جاري تأمين الاتصال...";
+          } else if (progress < 65) {
+            progress += Math.random() * 5 + 2;
+            statusText.textContent = "جاري التحقق من الهوية...";
+          } else if (progress < 90) {
+            progress += Math.random() * 3 + 1;
+            statusText.textContent = "جاري جلب بيانات ميزانيتك بأمان...";
+          } else {
+            clearInterval(loaderProgressInterval);
+          }
+          if (progress > 90) progress = 90;
+          fill.style.width = `${progress}%`;
+        }, 150);
+      }
+
+      function stopCardLoaderAnimation() {
+        if (loaderProgressInterval) {
+          clearInterval(loaderProgressInterval);
+          loaderProgressInterval = null;
+        }
+      }
+
+      function completeCardLoaderAnimation(callback) {
+        if (loaderProgressInterval) {
+          clearInterval(loaderProgressInterval);
+          loaderProgressInterval = null;
+        }
+        const fill = document.querySelector(".loader-progress-fill");
+        const statusText = document.querySelector(".loader-text-status");
+        if (fill && statusText) {
+          fill.style.width = "100%";
+          statusText.textContent = "تم تأمين الاتصال بنجاح!";
+        }
+        setTimeout(() => {
+          if (callback) callback();
+        }, 400);
+      }
+
+      window.startCardLoaderAnimation = startCardLoaderAnimation;
+      window.stopCardLoaderAnimation = stopCardLoaderAnimation;
+      window.completeCardLoaderAnimation = completeCardLoaderAnimation;
+
       btnRegister.addEventListener("click", async () => {
         registerErrorEl.textContent = "";
         const email = (registerEmailInput.value || "").trim();
@@ -3461,14 +3556,25 @@
           return;
         }
 
+        const loaderOverlay = document.getElementById("cardLoaderOverlay");
+        const loginCard = document.querySelector(".login-card");
         // التحقق من حالة التسجيل
         try {
+          if (loginCard) loginCard.classList.add("loading");
+          if (loaderOverlay) {
+            loaderOverlay.style.display = "flex";
+            loaderOverlay.classList.remove("fade-out");
+          }
+          if (window.startCardLoaderAnimation) window.startCardLoaderAnimation();
           if (firebaseEnabled && db) {
             const statusRef = ref(db, "settings/registrationEnabled");
             const snap = await get(statusRef);
             const isEnabled = snap.exists() ? snap.val() : true;
             if (!isEnabled) {
               registerErrorEl.textContent = "✗ التسجيل الجديد معطّل حالياً. يرجى التواصل مع المسؤول.";
+              if (loginCard) loginCard.classList.remove("loading");
+              if (window.stopCardLoaderAnimation) window.stopCardLoaderAnimation();
+              if (loaderOverlay) loaderOverlay.style.display = "none";
               return;
             }
           }
@@ -3503,6 +3609,15 @@
         } catch (e) {
           console.error(e);
           registerErrorEl.textContent = "تعذر إنشاء الحساب. تأكد من صحة البريد وكلمة السر.";
+          if (loginCard) loginCard.classList.remove("loading");
+          if (window.stopCardLoaderAnimation) window.stopCardLoaderAnimation();
+          if (loaderOverlay) {
+            loaderOverlay.classList.add("fade-out");
+            setTimeout(() => {
+              loaderOverlay.style.display = "none";
+              loaderOverlay.classList.remove("fade-out");
+            }, 500);
+          }
         }
       });
 
@@ -3516,7 +3631,15 @@
         }
 
         const loginProcessingBar = document.getElementById("loginProcessingBar");
+        const loaderOverlay = document.getElementById("cardLoaderOverlay");
+        const loginCard = document.querySelector(".login-card");
         try {
+          if (loginCard) loginCard.classList.add("loading");
+          if (loaderOverlay) {
+            loaderOverlay.style.display = "flex";
+            loaderOverlay.classList.remove("fade-out");
+          }
+          if (window.startCardLoaderAnimation) window.startCardLoaderAnimation();
           // show processing UI
           if (loginProcessingBar) {
             loginProcessingBar.style.display = "flex";
@@ -3530,6 +3653,15 @@
         } catch (e) {
           console.error(e);
           authErrorEl.textContent = "بيانات الدخول غير صحيحة أو حدث خطأ.";
+          if (loginCard) loginCard.classList.remove("loading");
+          if (window.stopCardLoaderAnimation) window.stopCardLoaderAnimation();
+          if (loaderOverlay) {
+            loaderOverlay.classList.add("fade-out");
+            setTimeout(() => {
+              loaderOverlay.style.display = "none";
+              loaderOverlay.classList.remove("fade-out");
+            }, 500);
+          }
         } finally {
           // hide processing UI
           if (loginProcessingBar) {
@@ -3612,7 +3744,7 @@
             id: Date.now(),
             title: "ملاحظاتي السابقة",
             content: oldNoteContent,
-            timestamp: new Date().toLocaleString('ar-EG', { dateStyle: 'medium', timeStyle: 'short' })
+            timestamp: new Date().toLocaleString('ar-EG', { dateStyle: 'medium', timeStyle: 'short', numberingSystem: 'latn' })
           }];
           savePrivateState();
         } else if (!Array.isArray(privateState.notes)) {
@@ -4110,7 +4242,7 @@
         }
 
         const now = new Date();
-        const timeStr = now.toLocaleString('ar-EG', { dateStyle: 'medium', timeStyle: 'short' });
+        const timeStr = now.toLocaleString('ar-EG', { dateStyle: 'medium', timeStyle: 'short', numberingSystem: 'latn' });
 
         if (editingNoteId) {
           const idx = privateState.notes.findIndex(n => n.id === editingNoteId);
@@ -4372,6 +4504,12 @@
         const month = getSelectedMonth();
         categoryBars.innerHTML = "";
 
+        const paceGaugeContainer = document.getElementById("paceGaugeContainer");
+        const weeklyChartContainer = document.getElementById("weeklyChartContainer");
+
+        if (paceGaugeContainer) paceGaugeContainer.innerHTML = "";
+        if (weeklyChartContainer) weeklyChartContainer.innerHTML = "";
+
         // مراجع العناصر الجديدة
         const statMinExpenseEl = document.getElementById("statMinExpense");
         const statCountEl = document.getElementById("statCount");
@@ -4390,6 +4528,12 @@
           if (statAvgAmountEl) statAvgAmountEl.textContent = "—";
           if (statDaysLeftEl) statDaysLeftEl.textContent = "—";
           if (paceAlert) paceAlert.style.display = "none";
+          if (paceGaugeContainer) paceGaugeContainer.innerHTML = "";
+          if (weeklyChartContainer) weeklyChartContainer.innerHTML = "";
+          if (safeLimitHeroCard) {
+            safeLimitHeroCard.style.borderColor = "";
+            safeLimitHeroCard.style.background = "";
+          }
         }
 
         if (!month) { resetAll(); return; }
@@ -4447,7 +4591,100 @@
         });
         topCategoryEl.textContent = `${topCat} · ${formatNumber(topCatTotal)}`;
 
-        // ===== تنبيه وتيرة الإنفاق =====
+        // ===== رندرة مؤشر وتيرة الإنفاق البصري =====
+        if (paceGaugeContainer && salary > 0) {
+          const spendPct = Math.round((total / salary) * 100);
+          const monthPct = Math.round((daysPassed / daysInMonth) * 100);
+          const diff = spendPct - monthPct;
+          
+          let status = "ok";
+          let label = "وتيرة ممتازة (تحت السيطرة)";
+          let color = "#10b981";
+
+          if (diff > 15) {
+            status = "danger";
+            label = "إنفاق سريع جداً (تجاوز وتيرة الشهر)";
+            color = "#ef4444";
+          } else if (diff > 0) {
+            status = "warn";
+            label = "إنفاق متسارع قليلاً";
+            color = "#f59e0b";
+          }
+
+          paceGaugeContainer.innerHTML = `
+            <div class="pace-gauge-container">
+              <div class="pace-gauge-header">
+                <span style="display:flex; align-items:center; gap:4px; flex-wrap:wrap; font-size:11px;">
+                  <span>📈 وتيرة وسرعة الاستهلاك</span>
+                  <span style="opacity:0.75; font-size:10px;">(اليوم ${daysPassed} من ${daysInMonth})</span>
+                </span>
+                <span style="color:${color}; font-weight:800; font-size:10px; text-align:left;">${label}</span>
+              </div>
+              <div class="pace-gauge-track">
+                <div class="pace-gauge-fill ${status}" style="width: ${Math.min(spendPct, 100)}%"></div>
+                <div class="pace-gauge-marker" style="left: ${monthPct}%" title="اليوم الحالي"></div>
+              </div>
+              <div class="pace-gauge-footer">
+                <span>المصروف: ${spendPct}% (${formatNumber(total)} د.ع)</span>
+                <span>الزمن المنقضي: ${monthPct}%</span>
+              </div>
+            </div>
+          `;
+        }
+
+        // ===== رندرة التوزيع الأسبوعي للمصاريف =====
+        if (weeklyChartContainer) {
+          const weeklyAmounts = [0, 0, 0, 0];
+          expenses.forEach(e => {
+            const day = e.date ? parseInt(e.date.split('-')[2]) : 15;
+            if (day <= 7) weeklyAmounts[0] += (e.amount || 0);
+            else if (day <= 14) weeklyAmounts[1] += (e.amount || 0);
+            else if (day <= 21) weeklyAmounts[2] += (e.amount || 0);
+            else weeklyAmounts[3] += (e.amount || 0);
+          });
+
+          const maxWeekAmount = Math.max(...weeklyAmounts, 1);
+          
+          weeklyChartContainer.innerHTML = `
+            <div class="weekly-chart-container">
+              <div class="weekly-chart-title">📅 توزيع المصاريف أسبوعياً</div>
+              
+              <div class="weekly-row">
+                <div class="weekly-label">الأسبوع 1 (1-7)</div>
+                <div class="weekly-bar-wrapper">
+                  <div class="weekly-bar-fill" style="width: ${Math.round((weeklyAmounts[0] / maxWeekAmount) * 100)}%"></div>
+                </div>
+                <div class="weekly-value">${formatNumber(weeklyAmounts[0])} د.ع</div>
+              </div>
+              
+              <div class="weekly-row">
+                <div class="weekly-label">الأسبوع 2 (8-14)</div>
+                <div class="weekly-bar-wrapper">
+                  <div class="weekly-bar-fill" style="width: ${Math.round((weeklyAmounts[1] / maxWeekAmount) * 100)}%"></div>
+                </div>
+                <div class="weekly-value">${formatNumber(weeklyAmounts[1])} د.ع</div>
+              </div>
+              
+              <div class="weekly-row">
+                <div class="weekly-label">الأسبوع 3 (15-21)</div>
+                <div class="weekly-bar-wrapper">
+                  <div class="weekly-bar-fill" style="width: ${Math.round((weeklyAmounts[2] / maxWeekAmount) * 100)}%"></div>
+                </div>
+                <div class="weekly-value">${formatNumber(weeklyAmounts[2])} د.ع</div>
+              </div>
+              
+              <div class="weekly-row">
+                <div class="weekly-label">الأسبوع 4 (22+)</div>
+                <div class="weekly-bar-wrapper">
+                  <div class="weekly-bar-fill" style="width: ${Math.round((weeklyAmounts[3] / maxWeekAmount) * 100)}%"></div>
+                </div>
+                <div class="weekly-value">${formatNumber(weeklyAmounts[3])} د.ع</div>
+              </div>
+            </div>
+          `;
+        }
+
+        // ===== تنبيه وتيرة الإنفاق (احتياطي) =====
         if (paceAlert && salary > 0 && isCurrentMonth) {
           const spendPct = Math.round((total / salary) * 100);
           const monthPct = Math.round((daysPassed / daysInMonth) * 100);
@@ -4532,6 +4769,7 @@
         // === حساب المصروف اليومي الآمن ===
         const safeLimitEl = document.getElementById("statSafeLimit");
         const safeLimitMsgEl = document.getElementById("statSafeLimitMsg");
+        const safeLimitHeroCard = document.getElementById("safeLimitHeroCard");
 
         if (safeLimitEl && safeLimitMsgEl) {
           if (isCurrentMonth) {
@@ -4565,19 +4803,35 @@
             if (spentToday === 0) {
               safeLimitMsgEl.textContent = "لم تصرف شيئاً اليوم! 👏";
               safeLimitMsgEl.style.color = "#10b981";
+              if (safeLimitHeroCard) {
+                safeLimitHeroCard.style.borderColor = "rgba(16, 185, 129, 0.35)";
+                safeLimitHeroCard.style.background = "linear-gradient(135deg, rgba(16, 185, 129, 0.05) 0%, rgba(16, 185, 129, 0.01) 100%)";
+              }
             } else if (spentToday <= safeLimit) {
               const saved = safeLimit - spentToday;
               safeLimitMsgEl.textContent = `وفرت ${formatNumber(saved)} للغد! 📈`;
               safeLimitMsgEl.style.color = "#10b981";
+              if (safeLimitHeroCard) {
+                safeLimitHeroCard.style.borderColor = "rgba(16, 185, 129, 0.35)";
+                safeLimitHeroCard.style.background = "linear-gradient(135deg, rgba(16, 185, 129, 0.05) 0%, rgba(16, 185, 129, 0.01) 100%)";
+              }
             } else {
               const exceeded = spentToday - safeLimit;
               safeLimitMsgEl.textContent = `تجاوزت الحد بـ ${formatNumber(exceeded)} ⚠️`;
               safeLimitMsgEl.style.color = "#ef4444";
+              if (safeLimitHeroCard) {
+                safeLimitHeroCard.style.borderColor = "rgba(239, 68, 68, 0.35)";
+                safeLimitHeroCard.style.background = "linear-gradient(135deg, rgba(239, 68, 68, 0.05) 0%, rgba(239, 68, 68, 0.01) 100%)";
+              }
             }
           } else {
             safeLimitEl.textContent = "N/A";
             safeLimitMsgEl.textContent = "يُحسب للشهر الحالي فقط";
             safeLimitMsgEl.style.color = "var(--text-secondary)";
+            if (safeLimitHeroCard) {
+              safeLimitHeroCard.style.borderColor = "";
+              safeLimitHeroCard.style.background = "";
+            }
           }
         }
       }
@@ -5609,6 +5863,8 @@
       function openExpenseModal(expenseId = null) {
         isSavingExpense = false; // إعادة تعيين العلم عند فتح الـ Modal
         expenseImageRemoved = false; // إعادة تعيين علامة حذف الصورة
+        currentExpenseImageDataUrl = null;
+        isCompressingImage = false;
         const month = getSelectedMonth();
         if (!month) {
           alert("من فضلك أضف شهرًا أولاً.");
@@ -5631,6 +5887,7 @@
             imagePreviewFilename.textContent = "صورة موجودة";
             imagePreviewSize.textContent = "";
             imagePreviewContainer.classList.add("active");
+            currentExpenseImageDataUrl = exp.imageDataUrl;
           } else {
             imagePreviewContainer.classList.remove("active");
             imagePreviewImg.src = "";
@@ -5658,6 +5915,8 @@
         imagePreviewContainer.classList.remove("active");
         imagePreviewImg.src = "";
         expenseImageRemoved = false;
+        currentExpenseImageDataUrl = null;
+        isCompressingImage = false;
       }
 
       btnAddExpense.addEventListener("click", () => openExpenseModal(null));
@@ -5712,8 +5971,10 @@
         });
       }
 
-      // علامة لتتبع حذف الصورة أثناء التعديل
+      // علامة لتتبع حذف الصورة وتفاصيل ضغط الصورة
       let expenseImageRemoved = false;
+      let currentExpenseImageDataUrl = null;
+      let isCompressingImage = false;
 
       expenseImageInput.addEventListener("change", (e) => {
         const file = e.target.files[0];
@@ -5730,18 +5991,43 @@
             return;
           }
           expenseImageRemoved = false;
+          isCompressingImage = true;
+          
+          imagePreviewFilename.textContent = "جاري معالجة وضغط الصورة...";
+          imagePreviewSize.textContent = "";
+          imagePreviewContainer.classList.add("active");
+          imagePreviewImg.src = ""; // إخفاء مؤقت أثناء الضغط
+
           const reader = new FileReader();
-          reader.onload = function (event) {
-            imagePreviewImg.src = event.target.result;
-            imagePreviewFilename.textContent = file.name;
-            imagePreviewSize.textContent = formatFileSize(file.size);
-            imagePreviewContainer.classList.add("active");
+          reader.onload = async function (event) {
+            try {
+              const rawDataUrl = event.target.result;
+              // ضغط جميع الصور افتراضياً بدقة 800 وبجودة 0.6
+              const compressedDataUrl = await compressImage(rawDataUrl, 800, 800, 0.6);
+              
+              currentExpenseImageDataUrl = compressedDataUrl;
+              imagePreviewImg.src = compressedDataUrl;
+              imagePreviewFilename.textContent = file.name;
+              
+              const compressedSize = Math.round(compressedDataUrl.length * 0.75);
+              imagePreviewSize.textContent = `${formatFileSize(file.size)} ➔ ${formatFileSize(compressedSize)} (تم الضغط بنجاح)`;
+            } catch (err) {
+              console.error("Compression failed:", err);
+              imagePreviewFilename.textContent = "فشل الضغط، تم استخدام الصورة الأصلية";
+              currentExpenseImageDataUrl = event.target.result;
+              imagePreviewImg.src = event.target.result;
+              imagePreviewSize.textContent = formatFileSize(file.size);
+            } finally {
+              isCompressingImage = false;
+            }
           };
           reader.readAsDataURL(file);
         } else if (file) {
           showAlertModal('من فضلك اختر ملف صورة صحيح (JPG، PNG، WebP...)', 'ملف غير مقبول', '⚠️');
           expenseImageInput.value = "";
           imagePreviewContainer.classList.remove("active");
+          currentExpenseImageDataUrl = null;
+          isCompressingImage = false;
         }
       });
 
@@ -5754,6 +6040,8 @@
         imagePreviewSize.textContent = "";
         // تسجيل أن المستخدم طلب حذف الصورة بشكل صريح
         expenseImageRemoved = true;
+        currentExpenseImageDataUrl = null;
+        isCompressingImage = false;
       });
 
       async function deleteExpense(expenseId) {
@@ -5782,6 +6070,10 @@
       saveExpenseBtn.addEventListener("click", async () => {
         // منع النقر المتكرر
         if (isSavingExpense) return;
+        if (isCompressingImage) {
+          await showAlertModal("يرجى الانتظار حتى ينتهي معالجة وضغط الصورة.", "تنبيه", "⏳");
+          return;
+        }
         isSavingExpense = true;
 
         const month = getSelectedMonth();
@@ -5857,55 +6149,22 @@
           }
         }
 
-        // Proceed with expense save
-        const file = expenseImageInput.files[0];
-        // *** التقاط قيمة العلامة قبل إغلاق المودال (closeExpenseModal يُعيد تعيينها) ***
-        const wasImageRemoved = expenseImageRemoved;
+        // Proceed with expense save using pre-compressed image url
+        const imageDataUrl = currentExpenseImageDataUrl;
 
         // إغلاق الـ Modal فوراً لتجنب النقر المتكرر
         closeExpenseModal();
 
-        if (file) {
-          const reader = new FileReader();
-          reader.onload = async function (e) {
-            let imageDataUrl = e.target.result;
-
-            // ضغط الصورة إذا كانت كبيرة الحجم
-            if (file.size > 500000) { // أكبر من 500KB
-              imageDataUrl = await compressImage(imageDataUrl, 800, 800, 0.7);
-            }
-
-            await saveExpenseObject(month, {
-              id: editingExpenseId,
-              title,
-              amount,
-              category,
-              date,
-              note,
-              imageDataUrl,
-            });
-            isSavingExpense = false;
-          };
-          reader.readAsDataURL(file);
-        } else {
-          let imageDataUrl = null;
-          if (editingExpenseId && !wasImageRemoved) {
-            // الاحتفاظ بالصورة القديمة فقط إذا لم يطلب المستخدم حذفها
-            const existing = month.expenses.find((exp) => exp.id === editingExpenseId);
-            imageDataUrl = existing ? existing.imageDataUrl || null : null;
-          }
-          // إذا كانت wasImageRemoved = true يبقى imageDataUrl = null (الصورة محذوفة)
-          await saveExpenseObject(month, {
-            id: editingExpenseId,
-            title,
-            amount,
-            category,
-            date,
-            note,
-            imageDataUrl,
-          });
-          isSavingExpense = false;
-        }
+        await saveExpenseObject(month, {
+          id: editingExpenseId,
+          title,
+          amount,
+          category,
+          date,
+          note,
+          imageDataUrl,
+        });
+        isSavingExpense = false;
       });
 
 
@@ -8016,8 +8275,41 @@
 
                   /* 🔄 عرض واجهة التطبيق */
                   if (appLoader) appLoader.style.display = "none";
-                  loginView.style.display = "none";
-                  appView.style.display = "block";
+
+                  // تشغيل أنيميشن الخروج لبطاقة الدخول والدخول للوحة التحكم
+                  const loginCard = document.querySelector(".login-card");
+                  const cardLoader = document.getElementById("cardLoaderOverlay");
+                  
+                  const performTransition = () => {
+                    if (loginCard) {
+                      loginCard.classList.add("exit-active");
+                    }
+                    if (cardLoader) {
+                      cardLoader.classList.add("fade-out");
+                    }
+                    
+                    setTimeout(() => {
+                      if (loginView) loginView.style.display = "none";
+                      if (loginCard) loginCard.classList.remove("loading", "exit-active");
+                      if (cardLoader) {
+                        cardLoader.style.display = "none";
+                        cardLoader.classList.remove("fade-out");
+                      }
+                      if (appView) {
+                        appView.style.display = "block";
+                        appView.classList.add("entry-active");
+                        setTimeout(() => {
+                          appView.classList.remove("entry-active");
+                        }, 800);
+                      }
+                    }, 500);
+                  };
+
+                  if (window.completeCardLoaderAnimation) {
+                    window.completeCardLoaderAnimation(performTransition);
+                  } else {
+                    performTransition();
+                  }
 
                   // attach live number formatting to numeric inputs
                   attachNumericInputFormatting();

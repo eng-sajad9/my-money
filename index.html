@@ -3,6 +3,24 @@
 
 <head>
   <meta charset="UTF-8" />
+  <script id="fouc-fix-script">
+    (function() {
+      try {
+        // Apply theme immediately to prevent dark-mode white flashes
+        const savedTheme = localStorage.getItem("expense_manager_theme") || "light";
+        document.documentElement.setAttribute("data-theme", savedTheme);
+
+        // Hide login view if already logged in to prevent login screen flashes
+        const lastUid = localStorage.getItem("budget_app_storage_last_uid");
+        if (lastUid && localStorage.getItem("budget_app_storage_" + lastUid)) {
+          const style = document.createElement('style');
+          style.id = 'fouc-fix';
+          style.innerHTML = '#loginView { display: none !important; } #appView { display: block !important; }';
+          document.head.appendChild(style);
+        }
+      } catch (e) {}
+    })();
+  </script>
   <link rel="manifest" href="/my-money" />
   <title>نظام إدارة المصاريف</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -26,6 +44,7 @@
     href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+Arabic:wght@400;500;600;700&display=swap"
     rel="stylesheet" />
 
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
   <link rel="stylesheet" href="style.css?v=9.0">
   <style>
     .connection-toast {
@@ -925,41 +944,6 @@
 
       </div>
     </div>
-
-    <script>
-      // Service Worker registration and background-sync helpers
-      async function registerServiceWorkerAndSync() {
-        if (!('serviceWorker' in navigator)) return;
-        try {
-          const reg = await navigator.serviceWorker.register('/sw.js');
-          
-          // المستمع لتحديثات الـ Service Worker
-          reg.addEventListener('updatefound', () => {
-            const newWorker = reg.installing;
-            newWorker.addEventListener('statechange', () => {
-              if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                console.log('[SW] تحديث جديد متاح. يرجى إعادة تحميل الصفحة.');
-              }
-            });
-          });
-
-          navigator.serviceWorker.addEventListener('message', (e) => {
-            if (!e.data) return;
-            if (e.data.type === 'sync-now') {
-              try { if (typeof syncPendingChanges === 'function') syncPendingChanges(); } catch (err) { console.warn(err); }
-            }
-          });
-
-          async function ensureBackgroundSyncRegistered() {
-            if (!('sync' in reg)) return;
-            try { await reg.sync.register('sync-expenses'); } catch (err) { console.warn(err); }
-          }
-          setInterval(() => { ensureBackgroundSyncRegistered(); }, 60000);
-          ensureBackgroundSyncRegistered();
-        } catch (e) { console.warn('SW register failed', e); }
-      }
-      window.addEventListener('load', () => { registerServiceWorkerAndSync(); });
-    </script>
   </div>
 
 
@@ -967,7 +951,7 @@
   <div id="appView" class="app-container">
     <header>
       <div class="header-left">
-        <h2><span class="icon">📊</span>مصروفاتي الشهرية</h2>
+        <h2><span class="icon">📊</span>المصاريف الشهرية</h2>
         <div class="header-sub">إدارة الراتب والمصاريف مع فصل كامل بين الأشهر.</div>
       </div>
       <div class="header-actions">
@@ -1338,6 +1322,26 @@
         </div>
       </div>
 
+      <!-- قسم المصاريف المخططة (التجريبية) -->
+      <div class="glass-card" style="margin-top: 24px;">
+        <div class="glass-header">
+          <h3 style="display:flex; align-items:center; gap:8px; font-size:1.3rem; color: var(--text-color); font-weight: 800;">
+            <div style="background: linear-gradient(135deg, #10b981, #059669); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;"><i class="fa-solid fa-list-check"></i></div> مصاريف مخططة
+          </h3>
+          <button id="btnAddPlannedExpense" class="btn btn-primary" style="border-radius: 14px; font-weight: 800; padding: 8px 16px; background: linear-gradient(135deg, #10b981 0%, #059669 100%); box-shadow: 0 4px 15px rgba(16,185,129,0.3); border: none; transition: transform 0.2s, box-shadow 0.2s;">+ مصروف مخطط</button>
+        </div>
+        <div style="margin-top: 8px; font-size: 13px; color: var(--subtext-color); margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+          <span>خطط لمصاريفك المستقبلية أو التقديرية لهذا الشهر دون التأثير على الراتب الفعلي.</span>
+          <div style="background: rgba(16, 185, 129, 0.1); color: #10b981; padding: 6px 12px; border-radius: 12px; font-weight: 700; font-size: 14px;">
+            إجمالي المخطط: <span id="plannedExpensesTotal">0</span>
+          </div>
+        </div>
+        <div id="plannedExpensesContainer" style="display: flex; flex-direction: column; gap: 12px;">
+          <!-- Planned Expenses injected via JS -->
+          <div class="empty-state" id="plannedExpensesEmpty" style="background: rgba(255,255,255,0.5); backdrop-filter: blur(4px); border-radius: 16px; padding: 24px;">لا توجد مصاريف مخططة لهذا الشهر. خطط الآن!</div>
+        </div>
+      </div>
+
     </div>
 
     <!-- تبويب ملاحظاتي والحسابات (محمي برقم PIN) -->
@@ -1666,11 +1670,11 @@
           <label class="form-label">الراتب الشهري</label>
           <input id="salaryInput" type="text" inputmode="numeric" class="form-input" placeholder="مثال: 5,000" />
         </div>
-        <div class="modal-footer" style="justify-content: space-between;">
-          <button id="deleteMonthBtn" class="btn btn-outline btn-sm" style="display:none;">
+        <div class="modal-footer" style="justify-content: space-between; align-items: center;">
+          <button id="deleteMonthBtn" class="btn-ghost btn-delete btn-sm" style="display:none;">
             🗑️ حذف الشهر
           </button>
-          <div style="display:flex; gap:6px;">
+          <div style="display:flex; gap:6px; margin-left: auto;">
             <button class="btn btn-outline" id="btnCancelMonth">إلغاء</button>
             <button id="saveMonthBtn" class="btn btn-primary">حفظ</button>
           </div>
@@ -1701,9 +1705,9 @@
           <label class="form-label">تاريخ الإنتهاء (اختياري)</label>
           <input id="goalDueDate" type="date" class="form-input" />
         </div>
-        <div class="modal-footer">
-          <button id="btnDeleteGoal" class="btn btn-outline btn-sm" style="display:none;">🗑️ حذف</button>
-          <div style="display:flex; gap:6px;">
+        <div class="modal-footer" style="justify-content: space-between; align-items: center;">
+          <button id="btnDeleteGoal" class="btn-ghost btn-delete btn-sm" style="display:none;">🗑️ حذف</button>
+          <div style="display:flex; gap:6px; margin-left: auto;">
             <button id="btnCancelGoal" class="btn btn-outline">إلغاء</button>
             <button id="btnSaveGoal" class="btn btn-primary">حفظ الهدف</button>
           </div>
@@ -1876,13 +1880,54 @@
             </button>
           </div>
         </div>
-        <div class="modal-footer" style="justify-content: space-between;">
-          <button id="deleteExpenseBtn" class="btn btn-outline btn-sm" style="display:none;">
-            حذف المصروف
+        <div class="modal-footer" style="justify-content: space-between; align-items: center;">
+          <button id="deleteExpenseBtn" class="btn-ghost btn-delete btn-sm" style="display:none;">
+            🗑️ حذف المصروف
           </button>
-          <div style="display:flex; gap:6px;">
+          <div style="display:flex; gap:6px; margin-left: auto;">
             <button class="btn btn-outline" id="btnCancelExpense">إلغاء</button>
             <button id="saveExpenseBtn" class="btn btn-primary">حفظ</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- نافذة المصروف المخطط -->
+    <div id="modalPlannedExpense" class="modal-backdrop" style="display: none; z-index: 10001; align-items: center; justify-content: center;">
+      <div class="modal" style="max-width: 450px;">
+        <div class="modal-header">
+          <h3 id="plannedExpenseModalTitle">إضافة مصروف مخطط</h3>
+          <button id="btnClosePlannedExpense" class="btn btn-outline btn-sm" style="border: none; background: var(--muted-bg); border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;">✕</button>
+        </div>
+        <div class="modal-body" style="display: flex; flex-direction: column; gap: 12px;">
+          <div class="form-group">
+            <label class="form-label">العنوان</label>
+            <input id="plannedExpenseTitleInput" type="text" class="form-input" placeholder="مثال: شراء هاتف جديد" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">المبلغ</label>
+            <input id="plannedExpenseAmountInput" type="text" inputmode="numeric" class="form-input" placeholder="0" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">الفئة</label>
+            <select id="plannedExpenseCategoryInput" class="form-select"></select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">التاريخ المتوقع</label>
+            <input id="plannedExpenseDateInput" type="date" class="form-input" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">ملاحظة</label>
+            <input id="plannedExpenseNoteInput" type="text" class="form-input" placeholder="تفاصيل إضافية..." />
+          </div>
+          <div class="modal-footer" style="justify-content: space-between; align-items: center; margin-top: 10px;">
+            <button id="deletePlannedExpenseBtn" class="btn-ghost btn-delete btn-sm" style="display:none;">
+              🗑️ حذف المصروف المخطط
+            </button>
+            <div style="display:flex; gap:6px; margin-left: auto;">
+              <button class="btn btn-outline" id="btnCancelPlannedExpense">إلغاء</button>
+              <button id="savePlannedExpenseBtn" class="btn btn-primary" style="background: var(--success); border-color: var(--success);">حفظ</button>
+            </div>
           </div>
         </div>
       </div>
@@ -2359,6 +2404,7 @@
 
       function normalizeState(raw) {
         let s = raw && typeof raw === "object" ? raw : {};
+        if (typeof s.revision !== "number") s.revision = 0;
         if (!Array.isArray(s.months)) s.months = [];
         if (!Array.isArray(s.categories)) s.categories = [...defaultCategories];
         if (s.categories.length === 0) s.categories = [...defaultCategories];
@@ -2373,6 +2419,7 @@
 
         s.months.forEach((m) => {
           if (!Array.isArray(m.expenses)) m.expenses = [];
+          if (!Array.isArray(m.plannedExpenses)) m.plannedExpenses = [];
           m.year = parseInt(m.year) || new Date().getFullYear();
           m.month = parseInt(m.month) || 1;
           m.name = monthNames[m.month] || m.name || "";
@@ -2562,19 +2609,26 @@
             const remoteJson = JSON.stringify(remoteData);
             const localJson = JSON.stringify(state);
             if (remoteJson !== localJson) {
-              // دمج ذكي: لا نكتب بيانات أقل فوق بيانات أكثر
-              const remoteCount = countTotalExpenses(remoteData);
-              const localCount = countTotalExpenses(state);
-              if (remoteCount >= localCount) {
-                // البيانات البعيدة أكبر أو متساوية: استخدمها
+              const remoteRevision = remoteData.revision || 0;
+              const localRevision = state.revision || 0;
+              if (remoteRevision > localRevision) {
+                // البيانات البعيدة أحدث: استخدمها
                 state = remoteData;
+                saveStateLocal();
+                refreshUI({ noAnimate: true });
+                console.log(`✅ تم تحديث الحالة من السحابة (مراجعة سحابة: ${remoteRevision}, محلي: ${localRevision})`);
+              } else if (localRevision > remoteRevision) {
+                // البيانات المحلية أحدث: ارفعها للسحابة
+                console.log(`⏳ البيانات المحلية أحدث، جاري الرفع (مراجعة محلي: ${localRevision}, سحابة: ${remoteRevision})`);
+                saveState();
               } else {
-                // البيانات المحلية أكبر: دمج ذكي
+                // المراجعات متساوية ولكن البيانات مختلفة (حدوث تعارض): دمج ذكي للبيانات لمنع الفقدان
+                console.log(`🔄 المراجعات متساوية والبيانات مختلفة، جاري الدمج (مراجعة: ${localRevision})`);
                 state = normalizeState(mergeStates(state, remoteData));
+                state.revision = Math.max(localRevision, remoteRevision) + 1;
+                saveState();
+                refreshUI({ noAnimate: true });
               }
-              saveStateLocal();
-              refreshUI({ noAnimate: true });
-              console.log(`✅ تم تحديث الحالة (محلي: ${localCount}, بعيد: ${remoteCount})`);
             }
           }, 500);
         });
@@ -2643,6 +2697,7 @@
       }
 
       async function saveState() {
+        state.revision = (state.revision || 0) + 1;
         saveStateLocal();
         updateSyncIndicator('syncing');
 
@@ -3207,6 +3262,7 @@
               const merged = mergeStates(localData, remoteData);
               const mergedCount = countTotalExpenses(merged);
               state = normalizeState(merged);
+              state.revision = Math.max(localData.revision || 0, remoteData.revision || 0) + 1; // تعيين رقم مراجعة أحدث للمدمج
 
               // إذا كانت النتيجة المدمجة مختلفة عن Firebase، حدّثها
               if (mergedCount !== remoteCount) {
@@ -3235,6 +3291,7 @@
             try {
               const localData = normalizeState(JSON.parse(localRaw));
               state = localData;
+              state.revision = (state.revision || 0) + 1; // تعيين رقم مراجعة جديد
               _ignoreNextRemoteUpdate = true;
               await set(userRef, state);
               try { localStorage.setItem(LAST_SYNC_KEY, Date.now().toString()); } catch (e) { }
@@ -4200,7 +4257,7 @@
       };
 
       window.editNote = function (id) {
-        const note = privateState.notes.find(n => n.id === id);
+        const note = privateState.notes.find(n => String(n.id) === String(id));
         if (!note) return;
         editingNoteId = id;
         document.getElementById('newNoteForm').style.display = 'flex';
@@ -4213,7 +4270,7 @@
 
       window.deleteNote = function (id) {
         if (!confirm('هل أنت متأكد من حذف هذه الملاحظة؟')) return;
-        privateState.notes = privateState.notes.filter(n => n.id !== id);
+        privateState.notes = privateState.notes.filter(n => String(n.id) !== String(id));
         savePrivateState();
         renderNotes(document.getElementById('notesSearchInput').value);
         showToast('تم حذف الملاحظة 🗑️', 'success');
@@ -4245,7 +4302,7 @@
         const timeStr = now.toLocaleString('ar-EG', { dateStyle: 'medium', timeStyle: 'short', numberingSystem: 'latn' });
 
         if (editingNoteId) {
-          const idx = privateState.notes.findIndex(n => n.id === editingNoteId);
+          const idx = privateState.notes.findIndex(n => String(n.id) === String(editingNoteId));
           if (idx !== -1) {
             privateState.notes[idx].title = title;
             privateState.notes[idx].content = content;
@@ -4516,6 +4573,9 @@
         const statAvgAmountEl = document.getElementById("statAvgAmount");
         const statDaysLeftEl = document.getElementById("statDaysLeft");
         const paceAlert = document.getElementById("spendingPaceAlert");
+        const safeLimitEl = document.getElementById("statSafeLimit");
+        const safeLimitMsgEl = document.getElementById("statSafeLimitMsg");
+        const safeLimitHeroCard = document.getElementById("safeLimitHeroCard");
 
         // القيم الافتراضية
         function resetAll() {
@@ -4767,10 +4827,6 @@
         });
 
         // === حساب المصروف اليومي الآمن ===
-        const safeLimitEl = document.getElementById("statSafeLimit");
-        const safeLimitMsgEl = document.getElementById("statSafeLimitMsg");
-        const safeLimitHeroCard = document.getElementById("safeLimitHeroCard");
-
         if (safeLimitEl && safeLimitMsgEl) {
           if (isCurrentMonth) {
             const tDate = new Date();
@@ -5563,6 +5619,8 @@
       function renderCategoryOptions() {
         expenseCategoryInput.innerHTML = "";
         filterCategory.innerHTML = "";
+        const plannedExpenseCategoryInput = document.getElementById("plannedExpenseCategoryInput");
+        if (plannedExpenseCategoryInput) plannedExpenseCategoryInput.innerHTML = "";
         const allOpt = document.createElement("option");
         allOpt.value = "all";
         allOpt.textContent = "كل التصنيفات";
@@ -5578,6 +5636,13 @@
           opt2.value = cat;
           opt2.textContent = cat;
           filterCategory.appendChild(opt2);
+
+          if (plannedExpenseCategoryInput) {
+            const opt3 = document.createElement("option");
+            opt3.value = cat;
+            opt3.textContent = cat;
+            plannedExpenseCategoryInput.appendChild(opt3);
+          }
         });
       }
 
@@ -5871,7 +5936,7 @@
           return;
         }
         if (expenseId) {
-          const exp = (month.expenses || []).find((e) => e.id === expenseId);
+          const exp = (month.expenses || []).find((e) => String(e.id) === String(expenseId));
           if (!exp) return;
           editingExpenseId = expenseId;
           expenseModalTitle.textContent = "تعديل مصروف";
@@ -6053,7 +6118,7 @@
           "⚠️"
         );
         if (!confirmed) return;
-        const idx = month.expenses.findIndex((e) => e.id === expenseId);
+        const idx = month.expenses.findIndex((e) => String(e.id) === String(expenseId));
         if (idx !== -1) {
           month.expenses.splice(idx, 1);
           await refreshUI();
@@ -6174,7 +6239,7 @@
       ) {
         if (!Array.isArray(month.expenses)) month.expenses = [];
         if (id) {
-          const existing = month.expenses.find((e) => e.id === id);
+          const existing = month.expenses.find((e) => String(e.id) === String(id));
           if (!existing) return;
           existing.title = title;
           existing.amount = amount;
@@ -6314,11 +6379,13 @@
           }
 
           const btnView = document.createElement('button');
-          btnView.className = 'btn btn-outline btn-sm';
+          btnView.className = 'btn-ghost btn-edit';
           btnView.innerHTML = '<i class="fa-solid fa-pen"></i>';
           btnView.style.width = '36px';
+          btnView.style.height = '32px';
+          btnView.style.padding = '0';
+          btnView.style.justifyContent = 'center';
           btnView.style.borderRadius = '10px';
-          btnView.style.background = 'var(--card-bg)';
           btnView.title = 'تعديل';
           btnView.addEventListener('click', () => openGoalModal(g.id));
           actions.appendChild(btnView);
@@ -6335,7 +6402,7 @@
         if (goalId) {
           modalGoalTitle.textContent = 'تعديل الهدف';
           btnDeleteGoal.style.display = 'inline-flex';
-          const g = state.goals.find(x => x.id === goalId);
+          const g = state.goals.find(x => String(x.id) === String(goalId));
           if (g) {
             goalTitleInput.value = g.title || '';
             goalTargetInput.value = formatNumber(g.target || 0);
@@ -6380,7 +6447,7 @@
         if (!target || target <= 0) { alert('أدخل مبلغًا مستهدفًا صحيحًا'); return; }
         if (!Array.isArray(state.goals)) state.goals = [];
         if (editingGoalId) {
-          const g = state.goals.find(x => x.id === editingGoalId);
+          const g = state.goals.find(x => String(x.id) === String(editingGoalId));
           if (g) {
             g.title = title; g.target = target; g.current = current; g.dueDate = due;
           }
@@ -6395,7 +6462,7 @@
       function deleteGoal() {
         if (!editingGoalId) return;
         if (!confirm('هل تريد حذف هذا الهدف؟')) return;
-        const idx = state.goals.findIndex(x => x.id === editingGoalId);
+        const idx = state.goals.findIndex(x => String(x.id) === String(editingGoalId));
         if (idx !== -1) state.goals.splice(idx, 1);
         saveState();
         closeGoalModal();
@@ -6428,7 +6495,7 @@
           alert('أدخل مبلغًا صحيحًا');
           return;
         }
-        const g = state.goals.find(x => x.id === addingGoalId);
+        const g = state.goals.find(x => String(x.id) === String(addingGoalId));
         if (g) {
           g.current = (g.current || 0) + val;
           saveState();
@@ -6812,7 +6879,7 @@
           delBtn.className = 'btn btn-outline btn-sm';
           delBtn.textContent = '🗑️';
           delBtn.title = 'حذف الحافظة';
-          delBtn.addEventListener('click', (e) => { e.stopPropagation(); if (!confirm('هل تريد حذف هذه الحافظة؟')) return; const idx = state.savingsBuckets.findIndex(x => x.id === b.id); if (idx !== -1) state.savingsBuckets.splice(idx, 1); saveState(); refreshUI(); });
+          delBtn.addEventListener('click', (e) => { e.stopPropagation(); if (!confirm('هل تريد حذف هذه الحافظة؟')) return; const idx = state.savingsBuckets.findIndex(x => String(x.id) === String(b.id)); if (idx !== -1) state.savingsBuckets.splice(idx, 1); saveState(); refreshUI(); });
           controls.appendChild(delBtn);
 
           item.appendChild(controls);
@@ -6829,7 +6896,7 @@
         if (!modalBucket) return;
         modalBucket.style.display = 'flex';
         if (bucketId) {
-          const b = state.savingsBuckets.find(x => x.id === bucketId);
+          const b = state.savingsBuckets.find(x => String(x.id) === String(bucketId));
           if (b) {
             bucketNameInput.value = b.name || '';
             bucketAmountInput.value = formatNumber(b.amount || 0);
@@ -6848,7 +6915,7 @@
             const updateBucketNote = () => {
               const month = getSelectedMonth();
               const salary = month ? (month.salary || 0) : 0;
-              const existingTotal = (state.savingsBuckets || []).reduce((s, b) => s + (b.id === editingBucketId ? 0 : (b.amount || 0)), 0);
+              const existingTotal = (state.savingsBuckets || []).reduce((s, b) => s + (String(b.id) === String(editingBucketId) ? 0 : (b.amount || 0)), 0);
               const curVal = parseFormattedNumber(bucketAmountInput.value || '0') || 0;
               const newTotal = existingTotal + curVal;
               const pct = salary ? Math.round((newTotal / salary) * 100) : 0;
@@ -6882,7 +6949,7 @@
         const amount = parseFormattedNumber(bucketAmountInput.value || '0') || 0;
         if (amount < 0) { alert('أدخل مبلغًا صحيحًا.'); return; }
         // check total amount
-        const existingTotal = (state.savingsBuckets || []).reduce((s, b) => s + (b.id === editingBucketId ? 0 : (b.amount || 0)), 0);
+        const existingTotal = (state.savingsBuckets || []).reduce((s, b) => s + (String(b.id) === String(editingBucketId) ? 0 : (b.amount || 0)), 0);
         const newTotal = existingTotal + amount;
         const month = getSelectedMonth();
         const salary = month ? (month.salary || 0) : 0;
@@ -6891,7 +6958,7 @@
         }
         if (!Array.isArray(state.savingsBuckets)) state.savingsBuckets = [];
         if (editingBucketId) {
-          const b = state.savingsBuckets.find(x => x.id === editingBucketId);
+          const b = state.savingsBuckets.find(x => String(x.id) === String(editingBucketId));
           if (b) { b.name = name; b.amount = amount; }
         } else {
           state.savingsBuckets.push({ id: Date.now().toString(), name, amount });
@@ -6902,7 +6969,7 @@
       function deleteBucket() {
         if (!editingBucketId) return;
         if (!confirm('هل تريد حذف هذه الحافظة؟')) return;
-        const idx = state.savingsBuckets.findIndex(x => x.id === editingBucketId);
+        const idx = state.savingsBuckets.findIndex(x => String(x.id) === String(editingBucketId));
         if (idx !== -1) state.savingsBuckets.splice(idx, 1);
         saveState(); refreshUI(); closeBucketModal();
       }
@@ -7968,8 +8035,8 @@
         _refreshInProgress = true;
 
         try {
-          // options.noAnimate = true will skip any fade transitions
-          const noAnim = options.noAnimate || (_hasRunRefresh && !options.forceAnimate);
+          // Always skip fade transitions to prevent annoying flickers/flashes during updates and syncs
+          const noAnim = true;
           state = normalizeState(state);
           window._appState = state; // يربط state بالمحلل المالي الذكي
 
@@ -7997,6 +8064,7 @@
           renderCategoryList();
           renderGoals();
           renderCategoryLimitsInPlanning();
+          renderPlannedExpenses();
 
           if (!noAnim) {
             // reveal updated UI with a subtle fade-in
@@ -8114,6 +8182,269 @@
           }
 
           quickCompareResult.style.display = "flex";
+        });
+      }
+
+      // ====== Planned Expenses Feature ======
+      const btnAddPlannedExpense = document.getElementById("btnAddPlannedExpense");
+      const plannedExpensesContainer = document.getElementById("plannedExpensesContainer");
+      const plannedExpensesTotal = document.getElementById("plannedExpensesTotal");
+      
+      const modalPlannedExpense = document.getElementById("modalPlannedExpense");
+      const plannedExpenseModalTitle = document.getElementById("plannedExpenseModalTitle");
+      const plannedExpenseTitleInput = document.getElementById("plannedExpenseTitleInput");
+      const plannedExpenseAmountInput = document.getElementById("plannedExpenseAmountInput");
+      const plannedExpenseCategoryInput = document.getElementById("plannedExpenseCategoryInput");
+      const plannedExpenseDateInput = document.getElementById("plannedExpenseDateInput");
+      const plannedExpenseNoteInput = document.getElementById("plannedExpenseNoteInput");
+      const deletePlannedExpenseBtn = document.getElementById("deletePlannedExpenseBtn");
+      const savePlannedExpenseBtn = document.getElementById("savePlannedExpenseBtn");
+      const btnCancelPlannedExpense = document.getElementById("btnCancelPlannedExpense");
+      const btnClosePlannedExpense = document.getElementById("btnClosePlannedExpense");
+
+      let editingPlannedExpenseId = null;
+      let plannedExpenseModalEscHandler = null;
+
+      function openPlannedExpenseModal(plannedExpenseId = null) {
+        editingPlannedExpenseId = plannedExpenseId;
+        if (!modalPlannedExpense) return;
+        modalPlannedExpense.style.display = 'flex';
+        
+        // Populate category options
+        renderCategoryOptions();
+
+        if (plannedExpenseId) {
+          plannedExpenseModalTitle.textContent = 'تعديل مصروف مخطط';
+          deletePlannedExpenseBtn.style.display = 'inline-flex';
+          const month = getSelectedMonth();
+          if (month && Array.isArray(month.plannedExpenses)) {
+            const pe = month.plannedExpenses.find(x => String(x.id) === String(plannedExpenseId));
+            if (pe) {
+              plannedExpenseTitleInput.value = pe.title || '';
+              plannedExpenseAmountInput.value = formatNumber(pe.amount || 0);
+              plannedExpenseCategoryInput.value = pe.category || state.categories[0];
+              plannedExpenseDateInput.value = pe.date || '';
+              plannedExpenseNoteInput.value = pe.note || '';
+            }
+          }
+        } else {
+          plannedExpenseModalTitle.textContent = 'إضافة مصروف مخطط';
+          deletePlannedExpenseBtn.style.display = 'none';
+          plannedExpenseTitleInput.value = '';
+          plannedExpenseAmountInput.value = '';
+          plannedExpenseCategoryInput.value = state.categories[0] || '';
+          const today = new Date().toISOString().split('T')[0];
+          plannedExpenseDateInput.value = today;
+          plannedExpenseNoteInput.value = '';
+        }
+        setTimeout(() => {
+          attachNumericInputFormatting();
+          try { plannedExpenseTitleInput && plannedExpenseTitleInput.focus(); } catch (e) {}
+          plannedExpenseModalEscHandler = (e) => { if (e.key === 'Escape') closePlannedExpenseModal(); };
+          document.addEventListener('keydown', plannedExpenseModalEscHandler);
+        }, 0);
+      }
+
+      function closePlannedExpenseModal() {
+        if (!modalPlannedExpense) return;
+        modalPlannedExpense.style.display = 'none';
+        editingPlannedExpenseId = null;
+        if (plannedExpenseModalEscHandler) {
+          document.removeEventListener('keydown', plannedExpenseModalEscHandler);
+          plannedExpenseModalEscHandler = null;
+        }
+      }
+
+      async function savePlannedExpense() {
+        const month = getSelectedMonth();
+        if (!month) {
+          alert('من فضلك اختر شهراً أولاً.');
+          return;
+        }
+        const title = (plannedExpenseTitleInput.value || '').trim() || 'مصروف مخطط';
+        const amount = parseFormattedNumber(plannedExpenseAmountInput.value || '0') || 0;
+        const category = plannedExpenseCategoryInput.value || 'أخرى';
+        const date = plannedExpenseDateInput.value || '';
+        const note = plannedExpenseNoteInput.value || '';
+
+        if (amount <= 0) {
+          alert('يرجى إدخال مبلغ صحيح أكبر من الصفر.');
+          return;
+        }
+
+        if (!Array.isArray(month.plannedExpenses)) {
+          month.plannedExpenses = [];
+        }
+
+        if (editingPlannedExpenseId) {
+          const pe = month.plannedExpenses.find(x => String(x.id) === String(editingPlannedExpenseId));
+          if (pe) {
+            pe.title = title;
+            pe.amount = amount;
+            pe.category = category;
+            pe.date = date;
+            pe.note = note;
+          }
+        } else {
+          month.plannedExpenses.push({
+            id: Date.now().toString(),
+            title,
+            amount,
+            category,
+            date,
+            note
+          });
+        }
+
+        await saveState();
+        closePlannedExpenseModal();
+        refreshUI();
+      }
+
+      async function deletePlannedExpense(plannedExpenseId) {
+        if (!confirm('هل أنت متأكد من حذف هذا المصروف المخطط؟')) return;
+        const month = getSelectedMonth();
+        if (month && Array.isArray(month.plannedExpenses)) {
+          const idx = month.plannedExpenses.findIndex(x => String(x.id) === String(plannedExpenseId));
+          if (idx !== -1) {
+            month.plannedExpenses.splice(idx, 1);
+            await saveState();
+            closePlannedExpenseModal();
+            refreshUI();
+          }
+        }
+      }
+
+      function renderPlannedExpenses() {
+        if (!plannedExpensesContainer || !plannedExpensesTotal) return;
+        plannedExpensesContainer.innerHTML = '';
+        const month = getSelectedMonth();
+        if (!month) {
+          plannedExpensesTotal.textContent = '0';
+          plannedExpensesContainer.innerHTML = '<div class="empty-state">اختر شهراً أولاً لمشاهدة المصاريف المخططة.</div>';
+          return;
+        }
+
+        const peList = Array.isArray(month.plannedExpenses) ? month.plannedExpenses : [];
+        const total = peList.reduce((sum, pe) => sum + (pe.amount || 0), 0);
+        plannedExpensesTotal.textContent = formatNumber(total);
+
+        if (peList.length === 0) {
+          const empty = document.createElement('div');
+          empty.className = 'empty-state';
+          empty.style.background = 'rgba(255,255,255,0.5)';
+          empty.style.backdropFilter = 'blur(4px)';
+          empty.style.borderRadius = '16px';
+          empty.style.padding = '24px';
+          empty.textContent = 'لا توجد مصاريف مخططة لهذا الشهر. خطط الآن!';
+          plannedExpensesContainer.appendChild(empty);
+          return;
+        }
+
+        peList.forEach(pe => {
+          const card = document.createElement('div');
+          card.className = 'goal-glass-card';
+          card.style.borderColor = 'rgba(16, 185, 129, 0.2)';
+          card.style.background = 'rgba(16, 185, 129, 0.03)';
+          card.style.display = 'flex';
+          card.style.flexDirection = 'column';
+          card.style.gap = '8px';
+          card.style.padding = '16px';
+          card.style.borderRadius = '16px';
+
+          // Header
+          const header = document.createElement('div');
+          header.style.display = 'flex';
+          header.style.justifyContent = 'space-between';
+          header.style.alignItems = 'center';
+
+          const titleSpan = document.createElement('span');
+          titleSpan.style.fontWeight = '800';
+          titleSpan.style.color = 'var(--text-color)';
+          titleSpan.textContent = '📝 ' + (pe.title || 'مصروف مخطط');
+
+          const amountSpan = document.createElement('span');
+          amountSpan.style.fontWeight = '800';
+          amountSpan.style.color = '#10b981';
+          amountSpan.textContent = formatNumber(pe.amount || 0);
+
+          header.appendChild(titleSpan);
+          header.appendChild(amountSpan);
+          card.appendChild(header);
+
+          // Details Row
+          const details = document.createElement('div');
+          details.style.display = 'flex';
+          details.style.gap = '8px';
+          details.style.fontSize = '12px';
+          details.style.color = 'var(--subtext-color)';
+          
+          const catBadge = document.createElement('span');
+          catBadge.style.background = 'rgba(255,255,255,0.5)';
+          catBadge.style.padding = '2px 8px';
+          catBadge.style.borderRadius = '8px';
+          catBadge.textContent = pe.category || 'غير محدد';
+
+          const dateBadge = document.createElement('span');
+          dateBadge.style.background = 'rgba(255,255,255,0.5)';
+          dateBadge.style.padding = '2px 8px';
+          dateBadge.style.borderRadius = '8px';
+          dateBadge.textContent = pe.date || 'بدون تاريخ';
+
+          details.appendChild(catBadge);
+          details.appendChild(dateBadge);
+          card.appendChild(details);
+
+          // Note if exists
+          if (pe.note) {
+            const noteEl = document.createElement('div');
+            noteEl.style.fontSize = '12px';
+            noteEl.style.color = 'var(--text-secondary)';
+            noteEl.style.fontStyle = 'italic';
+            noteEl.style.borderRight = '3px solid #10b981';
+            noteEl.style.paddingRight = '8px';
+            noteEl.textContent = pe.note;
+            card.appendChild(noteEl);
+          }
+
+          // Actions
+          const actions = document.createElement('div');
+          actions.style.display = 'flex';
+          actions.style.gap = '8px';
+          actions.style.marginTop = '8px';
+          actions.style.justifyContent = 'flex-end';
+
+          const btnEdit = document.createElement('button');
+          btnEdit.className = 'btn btn-outline btn-sm';
+          btnEdit.innerHTML = '<i class="fa-solid fa-pen"></i> تعديل';
+          btnEdit.style.borderRadius = '10px';
+          btnEdit.addEventListener('click', () => openPlannedExpenseModal(pe.id));
+
+          const btnDel = document.createElement('button');
+          btnDel.className = 'btn btn-outline btn-sm';
+          btnDel.style.borderColor = 'rgba(239, 68, 68, 0.2)';
+          btnDel.style.color = 'var(--danger)';
+          btnDel.innerHTML = '<i class="fa-solid fa-trash"></i>';
+          btnDel.style.borderRadius = '10px';
+          btnDel.addEventListener('click', () => deletePlannedExpense(pe.id));
+
+          actions.appendChild(btnEdit);
+          actions.appendChild(btnDel);
+          card.appendChild(actions);
+
+          plannedExpensesContainer.appendChild(card);
+        });
+      }
+
+      // Event Listeners for Planned Expenses
+      if (btnAddPlannedExpense) btnAddPlannedExpense.addEventListener("click", () => openPlannedExpenseModal(false));
+      if (savePlannedExpenseBtn) savePlannedExpenseBtn.addEventListener("click", savePlannedExpense);
+      if (deletePlannedExpenseBtn) deletePlannedExpenseBtn.addEventListener("click", () => { if (editingPlannedExpenseId) deletePlannedExpense(editingPlannedExpenseId); });
+      if (btnCancelPlannedExpense) btnCancelPlannedExpense.addEventListener("click", closePlannedExpenseModal);
+      if (btnClosePlannedExpense) btnClosePlannedExpense.addEventListener("click", closePlannedExpenseModal);
+      if (modalPlannedExpense) {
+        modalPlannedExpense.addEventListener("click", (e) => {
+          if (e.target === modalPlannedExpense) closePlannedExpenseModal();
         });
       }
 
@@ -8249,6 +8580,7 @@
                   // السابقة بدمجها مع المفتاح الحالي قبل تحميل أي أشياء.
                   loadStateLocal();
                   state = normalizeState(state);
+                  const initialJson = JSON.stringify(state);
 
                   // بعد تحميل محلياً، حاول جلب/مزامنة النسخة البعيدة
                   await loadStateRemoteIfExists();
@@ -8256,6 +8588,8 @@
 
                   // اختيار الشهر الحالي تلقائياً
                   selectCurrentMonth();
+                  const finalJson = JSON.stringify(state);
+                  const stateChanged = initialJson !== finalJson;
 
                   // ملاحظة: لا نستدعي saveState() هنا لأن loadStateRemoteIfExists()
                   // تتولى المزامنة والدمج الذكي بالفعل. استدعاء saveState()
@@ -8302,6 +8636,8 @@
                           appView.classList.remove("entry-active");
                         }, 800);
                       }
+                      const fouc = document.getElementById('fouc-fix');
+                      if (fouc) fouc.remove();
                     }, 500);
                   };
 
@@ -8320,10 +8656,14 @@
                     // Removed: format test button - no longer needed
                   } catch (e) { }
 
-                  await refreshUI();
+                  if (stateChanged) {
+                    await refreshUI();
+                  }
 
                 } else {
                   /* 🚪 حالة تسجيل الخروج */
+                  const fouc = document.getElementById('fouc-fix');
+                  if (fouc) fouc.remove();
                   // بعد تحديث المنطق أعلاه، أي auth-null يتم تجاهله قبل الوصول إلى هذا الفرع
                   currentUser = null;
                   userInitiatedLogout = false; // reset flag
@@ -8390,6 +8730,8 @@
             });
           } else {
             // في حالة لم يعمل Firebase (وضع Offline)
+            const fouc = document.getElementById('fouc-fix');
+            if (fouc) fouc.remove();
             currentUser = null;
             userRef = null;
             if (appLoader) appLoader.style.display = "none";
@@ -8403,10 +8745,45 @@
           showDiagnostic(e && e.message ? e.message : String(e));
         }
       })();
-    </script>
 
-    <!-- ========== JavaScript التحسينات الجديدة ========== -->
-    <script>
+      // ===== Service Worker Helpers =====
+      async function registerServiceWorkerAndSync() {
+        if (!('serviceWorker' in navigator)) return;
+        try {
+          const reg = await navigator.serviceWorker.register('/sw.js');
+          
+          // المستمع لتحديثات الـ Service Worker
+          reg.addEventListener('updatefound', () => {
+            const newWorker = reg.installing;
+            newWorker.addEventListener('statechange', () => {
+              if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                console.log('[SW] تحديث جديد متاح. يرجى إعادة تحميل الصفحة.');
+              }
+            });
+          });
+
+          navigator.serviceWorker.addEventListener('message', (e) => {
+            if (!e.data) return;
+            if (e.data.type === 'sync-now') {
+              try { if (typeof syncPendingChanges === 'function') syncPendingChanges(); } catch (err) { console.warn(err); }
+            }
+          });
+
+          async function ensureBackgroundSyncRegistered() {
+            if (!('sync' in reg)) return;
+            try { await reg.sync.register('sync-expenses'); } catch (err) { console.warn(err); }
+          }
+          setInterval(() => { ensureBackgroundSyncRegistered(); }, 60000);
+          ensureBackgroundSyncRegistered();
+        } catch (e) { console.warn('SW register failed', e); }
+      }
+      if (document.readyState === 'complete') {
+        registerServiceWorkerAndSync();
+      } else {
+        window.addEventListener('load', registerServiceWorkerAndSync);
+      }
+
+      // ========== JavaScript التحسينات الجديدة ==========
       (function () {
         // ===== 1. Enter key في تسجيل الدخول =====
         const loginPasswordEl = document.getElementById('loginPassword');

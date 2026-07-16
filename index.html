@@ -1330,10 +1330,33 @@
           </h3>
           <button id="btnAddPlannedExpense" class="btn btn-primary" style="border-radius: 14px; font-weight: 800; padding: 8px 16px; background: linear-gradient(135deg, #10b981 0%, #059669 100%); box-shadow: 0 4px 15px rgba(16,185,129,0.3); border: none; transition: transform 0.2s, box-shadow 0.2s;">+ مصروف مخطط</button>
         </div>
-        <div style="margin-top: 8px; font-size: 13px; color: var(--subtext-color); margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
-          <span>خطط لمصاريفك المستقبلية أو التقديرية لهذا الشهر دون التأثير على الراتب الفعلي.</span>
-          <div style="background: rgba(16, 185, 129, 0.1); color: #10b981; padding: 6px 12px; border-radius: 12px; font-weight: 700; font-size: 14px;">
-            إجمالي المخطط: <span id="plannedExpensesTotal">0</span>
+        <div style="margin-top: 8px; font-size: 13px; color: var(--subtext-color); margin-bottom: 16px;">
+          خطط لمصاريفك المستقبلية أو التقديرية لهذا الشهر دون التأثير على الراتب الفعلي.
+        </div>
+        <div class="planned-summary-grid">
+          <!-- 1. إجمالي المخطط -->
+          <div class="planned-summary-card planned-card-green">
+            <div class="planned-card-icon"><i class="fa-solid fa-list-check"></i></div>
+            <div class="planned-card-info">
+              <span class="planned-card-label">إجمالي المخطط</span>
+              <span id="plannedExpensesTotal" class="planned-card-value">0</span>
+            </div>
+          </div>
+          <!-- 2. إجمالي المصاريف (الفعلي + المخطط) -->
+          <div class="planned-summary-card planned-card-red">
+            <div class="planned-card-icon"><i class="fa-solid fa-calculator"></i></div>
+            <div class="planned-card-info">
+              <span class="planned-card-label">المصاريف مع المخطط</span>
+              <span id="plannedAndActualExpensesTotal" class="planned-card-value">0</span>
+            </div>
+          </div>
+          <!-- 3. اجمالي المتبقي -->
+          <div class="planned-summary-card planned-card-blue">
+            <div class="planned-card-icon"><i class="fa-solid fa-wallet"></i></div>
+            <div class="planned-card-info">
+              <span class="planned-card-label">اجمالي المتبقي</span>
+              <span id="plannedRemainingTotal" class="planned-card-value">0</span>
+            </div>
           </div>
         </div>
         <div id="plannedExpensesContainer" style="display: flex; flex-direction: column; gap: 12px;">
@@ -8321,13 +8344,41 @@
         const month = getSelectedMonth();
         if (!month) {
           plannedExpensesTotal.textContent = '0';
+          const plannedAndActualExpensesTotal = document.getElementById("plannedAndActualExpensesTotal");
+          if (plannedAndActualExpensesTotal) plannedAndActualExpensesTotal.textContent = '0';
+          const plannedRemainingTotal = document.getElementById("plannedRemainingTotal");
+          if (plannedRemainingTotal) plannedRemainingTotal.textContent = '0';
           plannedExpensesContainer.innerHTML = '<div class="empty-state">اختر شهراً أولاً لمشاهدة المصاريف المخططة.</div>';
           return;
         }
 
+        const expenses = Array.isArray(month.expenses) ? month.expenses : [];
+        const actualExpensesTotal = expenses.reduce((sum, e) => sum + (e.amount || 0), 0);
+
         const peList = Array.isArray(month.plannedExpenses) ? month.plannedExpenses : [];
         const total = peList.reduce((sum, pe) => sum + (pe.amount || 0), 0);
         plannedExpensesTotal.textContent = formatNumber(total);
+
+        // حساب إجمالي المصاريف مدمجاً مع المخطط
+        const combinedExpenses = actualExpensesTotal + total;
+        const plannedAndActualExpensesTotal = document.getElementById("plannedAndActualExpensesTotal");
+        if (plannedAndActualExpensesTotal) {
+          plannedAndActualExpensesTotal.textContent = formatNumber(combinedExpenses);
+        }
+
+        // حساب المتبقي المتوقع بعد خصم المدمج من الراتب
+        const salary = month.salary || 0;
+        const projectedRemaining = salary - combinedExpenses;
+        const plannedRemainingTotal = document.getElementById("plannedRemainingTotal");
+        if (plannedRemainingTotal) {
+          if (projectedRemaining < 0) {
+            plannedRemainingTotal.textContent = '− ' + formatNumber(Math.abs(projectedRemaining));
+            plannedRemainingTotal.style.color = 'var(--danger)';
+          } else {
+            plannedRemainingTotal.textContent = formatNumber(projectedRemaining);
+            plannedRemainingTotal.style.color = '';
+          }
+        }
 
         if (peList.length === 0) {
           const empty = document.createElement('div');

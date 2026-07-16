@@ -5777,6 +5777,175 @@ header h2 span.icon {
         margin-top: 12px !important;
         line-height: 1.4 !important;
     }
+
+}
+
+/* ===== Planned Summary Cards (التصميم الأنيق لمخلص المصاريف المخططة) ===== */
+.planned-summary-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-bottom: 20px;
+}
+
+.planned-summary-card {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 16px;
+    border-radius: 18px;
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.02);
+}
+
+.planned-summary-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+}
+
+.planned-card-icon {
+    width: 42px;
+    height: 42px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    flex-shrink: 0;
+}
+
+.planned-card-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    flex: 1;
+    min-width: 0;
+}
+
+.planned-card-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--subtext-color);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.planned-card-value {
+    font-size: 15px;
+    font-weight: 800;
+}
+
+/* Light theme colors */
+.planned-card-green {
+    background: rgba(16, 185, 129, 0.05);
+    border: 1px solid rgba(16, 185, 129, 0.15);
+}
+.planned-card-green .planned-card-icon {
+    background: rgba(16, 185, 129, 0.1);
+    color: #10b981;
+}
+.planned-card-green .planned-card-value {
+    color: #10b981;
+}
+
+.planned-card-red {
+    background: rgba(239, 68, 68, 0.05);
+    border: 1px solid rgba(239, 68, 68, 0.15);
+}
+.planned-card-red .planned-card-icon {
+    background: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
+}
+.planned-card-red .planned-card-value {
+    color: #ef4444;
+}
+
+.planned-card-blue {
+    background: rgba(59, 130, 246, 0.05);
+    border: 1px solid rgba(59, 130, 246, 0.15);
+}
+.planned-card-blue .planned-card-icon {
+    background: rgba(59, 130, 246, 0.1);
+    color: #3b82f6;
+}
+.planned-card-blue .planned-card-value {
+    color: #3b82f6;
+}
+
+/* Dark theme overrides */
+[data-theme="dark"] .planned-card-green {
+    background: rgba(16, 185, 129, 0.1);
+    border: 1px solid rgba(16, 185, 129, 0.25);
+}
+[data-theme="dark"] .planned-card-green .planned-card-value {
+    color: #34d399;
+}
+[data-theme="dark"] .planned-card-green .planned-card-icon {
+    background: rgba(16, 185, 129, 0.2);
+    color: #34d399;
+}
+
+[data-theme="dark"] .planned-card-red {
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.25);
+}
+[data-theme="dark"] .planned-card-red .planned-card-value {
+    color: #f87171;
+}
+[data-theme="dark"] .planned-card-red .planned-card-icon {
+    background: rgba(239, 68, 68, 0.2);
+    color: #f87171;
+}
+
+[data-theme="dark"] .planned-card-blue {
+    background: rgba(59, 130, 246, 0.1);
+    border: 1px solid rgba(59, 130, 246, 0.25);
+}
+[data-theme="dark"] .planned-card-blue .planned-card-value {
+    color: #60a5fa;
+}
+[data-theme="dark"] .planned-card-blue .planned-card-icon {
+    background: rgba(59, 130, 246, 0.2);
+    color: #60a5fa;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 600px) {
+    .planned-summary-grid {
+        gap: 6px;
+        margin-bottom: 14px;
+    }
+    .planned-summary-card {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        padding: 8px 4px;
+        gap: 4px;
+        border-radius: 12px;
+    }
+    .planned-card-icon {
+        width: 28px;
+        height: 28px;
+        font-size: 0.85rem;
+        border-radius: 8px;
+    }
+    .planned-card-info {
+        align-items: center;
+        width: 100%;
+    }
+    .planned-card-label {
+        font-size: 9px;
+        white-space: normal;
+        line-height: 1.25;
+    }
+    .planned-card-value {
+        font-size: 12px;
+        margin-top: 1px;
+    }
 }
 
 

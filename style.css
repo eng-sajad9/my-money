@@ -1830,65 +1830,123 @@ header h2 span.icon {
   flex-shrink: 0;
 }
 
-.expense-amount-container {
-  display: flex;
+/* ===== كرت المبلغ الموحد مع العملة (المصغر والأنيق للهاتف) ===== */
+.expense-amount-pill {
+  display: inline-flex;
   align-items: center;
-  gap: 0;
-  flex-shrink: 0;
+  gap: 4px;
+  padding: 4px 8px;
   border-radius: 8px;
-  overflow: hidden;
-  box-shadow: none;
+  background: rgba(79, 70, 229, 0.07);
+  border: 1px solid rgba(79, 70, 229, 0.16);
+  flex-shrink: 0;
+  transition: all 0.2s ease;
+  white-space: nowrap;
 }
 
-.expense-amount-badge {
-  font-size: 16px;
-  padding: 6px 7px;
-  background: rgba(37, 99, 235, 0.06);
-  border-radius: 8px 0 0 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: 1px solid rgba(37, 99, 235, 0.12);
-  border-right: none;
-  backdrop-filter: none;
+.expense-amount-pill .amount-val {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--accent);
+  letter-spacing: -0.2px;
 }
 
-/* Dark mode للسعر */
-[data-theme="dark"] .expense-amount-badge {
+.expense-amount-pill .amount-currency {
+  font-size: 9px;
+  font-weight: 800;
+  color: var(--accent);
+  opacity: 0.85;
+  background: rgba(79, 70, 229, 0.12);
+  padding: 1px 4px;
+  border-radius: 4px;
+  letter-spacing: 0.3px;
+}
+
+@media (max-width: 480px) {
+  .expense-amount-pill {
+    padding: 3px 6px;
+    gap: 3px;
+    border-radius: 7px;
+  }
+  .expense-amount-pill .amount-val {
+    font-size: 12px;
+  }
+  .expense-amount-pill .amount-currency {
+    font-size: 8.5px;
+    padding: 1px 3px;
+  }
+}
+
+/* Dark theme للسعر الموحد المصغر */
+[data-theme="dark"] .expense-amount-pill {
   background: rgba(96, 165, 250, 0.08);
-  border-color: rgba(96, 165, 250, 0.15);
+  border-color: rgba(96, 165, 250, 0.2);
 }
 
-[data-theme="dark"] .expense-amount {
-  background: rgba(96, 165, 250, 0.1);
+[data-theme="dark"] .expense-amount-pill .amount-val {
   color: #60a5fa;
-  box-shadow: none;
-  border-color: rgba(96, 165, 250, 0.2);
+}
+
+[data-theme="dark"] .expense-amount-pill .amount-currency {
+  color: #60a5fa;
+  background: rgba(96, 165, 250, 0.16);
 }
 
 [data-theme="dark"] .expense-amount-container {
   box-shadow: none;
 }
 
-.expense-image-badge {
-  font-size: 11px;
-  padding: 3px 7px;
-  border-radius: 999px;
-  background: #eef2ff;
-  color: #4f46e5;
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  margin-top: 2px;
+/* ===== معاينة الفاتورة الجانبية الأنيقة والمدمجة (Compact Receipt Media Thumbnail) ===== */
+.expense-thumb-wrapper {
+  position: relative;
+  width: 52px;
+  height: 52px;
+  border-radius: 12px;
+  overflow: hidden;
+  flex-shrink: 0;
+  cursor: pointer;
+  border: 1px solid rgba(79, 70, 229, 0.25);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  background: var(--card-bg);
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.25s ease, border-color 0.25s ease;
+  -webkit-tap-highlight-color: transparent;
 }
 
-.expense-thumb {
-  margin-top: 6px;
-  max-height: 80px;
-  border-radius: 10px;
-  border: 1px solid var(--border-color);
+.expense-thumb-wrapper img {
+  width: 100%;
+  height: 100%;
   object-fit: cover;
-  cursor: pointer;
+  display: block;
+  transition: transform 0.3s ease;
+}
+
+@media (hover: hover) {
+  .expense-thumb-wrapper:hover {
+    transform: scale(1.15);
+    border-color: var(--accent);
+    box-shadow: 0 8px 22px rgba(79, 70, 229, 0.3);
+    z-index: 10;
+  }
+
+  .expense-thumb-wrapper:hover img {
+    transform: scale(1.08);
+  }
+}
+
+.expense-thumb-badge {
+  position: absolute;
+  bottom: 2px;
+  right: 2px;
+  background: rgba(15, 23, 42, 0.75);
+  color: #ffffff;
+  font-size: 8px;
+  padding: 2px 4px;
+  border-radius: 5px;
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
 }
 
 .expense-actions {
@@ -2151,21 +2209,186 @@ header h2 span.icon {
   margin-top: 10px;
 }
 
-.image-modal {
-  max-width: 95vw;
-  max-height: 95vh;
-  border-radius: 20px;
-  padding: 8px;
-  background: #000;
-  border: none;
+/* ===== منطقة رفع الصورة في المصروف (Mobile-First Dropzone) ===== */
+.image-upload-zone {
+  background: var(--card-bg);
+  border: 2px dashed var(--border-color);
+  border-radius: 16px;
+  padding: 14px;
+  text-align: center;
+  transition: all 0.25s ease;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: center;
+  justify-content: center;
 }
 
-.image-modal img {
+.image-upload-zone.drag-over {
+  border-color: var(--accent);
+  background: rgba(79, 70, 229, 0.08);
+}
+
+.image-upload-actions {
+  display: flex;
+  gap: 10px;
+  width: 100%;
+  justify-content: center;
+}
+
+.btn-image-action {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 700;
+  font-family: inherit;
+  border: 1px solid var(--border-color);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-height: 44px;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.btn-camera-action {
+  background: linear-gradient(135deg, #4f46e5, #4338ca);
+  color: #ffffff;
+  border: none;
+  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+}
+
+.btn-camera-action:active {
+  transform: scale(0.97);
+}
+
+.btn-gallery-action {
+  background: var(--card-solid);
+  color: var(--text-color);
+}
+
+.btn-gallery-action:active {
+  background: var(--border-color);
+  transform: scale(0.97);
+}
+
+.image-drop-hint {
+  font-size: 11px;
+  color: var(--subtext-color);
+}
+
+.image-drop-hint code {
+  background: rgba(79, 70, 229, 0.1);
+  color: var(--accent);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 10px;
+}
+
+.btn-preview-zoom {
+  position: absolute;
+  bottom: 4px;
+  right: 4px;
+  background: rgba(0, 0, 0, 0.65);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  width: 26px;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+/* ===== مودال عرض الصورة المحترف للهاتف (Image Viewer Modal) ===== */
+.image-modal-container {
+  width: 100%;
+  max-width: 600px;
+  max-height: 92vh;
+  display: flex;
+  flex-direction: column;
+  background: #0f172a;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.image-modal-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 18px;
+  background: rgba(15, 23, 42, 0.9);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+}
+
+.image-modal-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.image-modal-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: 10px;
+  font-size: 12px;
+  font-weight: 700;
+  font-family: inherit;
+  border: none;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  min-height: 38px;
+}
+
+.btn-download-img {
+  background: rgba(255, 255, 255, 0.15);
+  color: #ffffff;
+}
+
+.btn-download-img:hover, .btn-download-img:active {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.btn-close-img {
+  background: #ef4444;
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
+}
+
+.btn-close-img:hover, .btn-close-img:active {
+  background: #dc2626;
+  transform: scale(0.96);
+}
+
+.image-modal-body {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px;
+  overflow: auto;
+  background: #000000;
+}
+
+.image-modal-body img {
   max-width: 100%;
-  max-height: 100%;
-  display: block;
-  margin: 0 auto;
-  border-radius: 16px;
+  max-height: 75vh;
+  object-fit: contain;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
 }
 
 /* ===== مقارنة الأشهر - تصميم متطور ===== */

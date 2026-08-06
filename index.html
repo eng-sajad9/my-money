@@ -962,6 +962,22 @@
           <span class="sync-dot"></span>
           <span class="sync-label">مزامن</span>
         </div>
+        
+        <!-- قائمة الإعدادات والتقارير⚙️ -->
+        <div class="settings-dropdown-wrapper" style="position: relative; display: inline-block;">
+          <button id="btnDesktopSettings" class="btn btn-outline btn-sm" style="min-height: 36px; gap: 6px; font-weight: 700;" title="الإعدادات والتقارير">
+            ⚙️ الإعدادات
+          </button>
+          <div id="desktopSettingsMenu" class="settings-menu-dropdown" style="display: none; position: absolute; top: calc(100% + 6px); left: 0; background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 14px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); z-index: 500; min-width: 220px; overflow: hidden; backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);">
+            <a class="settings-menu-item" href="reports.html?type=month" style="text-decoration: none; display: flex; align-items: center; gap: 10px; padding: 12px 16px; color: var(--text-color); font-weight: 700; font-size: 13.5px; border-bottom: 1px solid var(--border-color); transition: background 0.15s;">
+              <span>📅</span> التقرير الشهري (Monthly)
+            </a>
+            <a class="settings-menu-item" href="reports.html?type=year" style="text-decoration: none; display: flex; align-items: center; gap: 10px; padding: 12px 16px; color: var(--text-color); font-weight: 700; font-size: 13.5px; border-bottom: 1px solid var(--border-color); transition: background 0.15s;">
+              <span>📆</span> التقرير السنوي (Yearly)
+            </a>
+          </div>
+        </div>
+
         <button id="btnChangePasswordQuick" class="btn btn-outline btn-sm">تغيير كلمة السر</button>
         <button id="btnToggleTheme" class="btn btn-outline btn-sm">الوضع الداكن</button>
         <button id="btnAdminPanel" class="btn btn-outline btn-sm" style="display:none;">لوحة التحكم</button>
@@ -980,10 +996,16 @@
         <span id="userEmailLabelMobile" class="user-label" style="font-size:11px;"></span>
       </div>
       <div class="mobile-header-right">
-        <div id="settingsMenuWrapper">
+        <div id="settingsMenuWrapper" style="position: relative;">
           <button id="btnMobileSettings" class="btn btn-outline btn-sm" style="min-height:36px;" aria-haspopup="true"
             aria-expanded="false">⚙️</button>
           <div id="settingsMenu" role="menu">
+            <a class="settings-menu-item" href="reports.html?type=month" style="text-decoration: none; display: flex; align-items: center; gap: 10px; color: inherit; font-weight: 700;">
+              <span>📅</span> التقرير الشهري (Monthly)
+            </a>
+            <a class="settings-menu-item" href="reports.html?type=year" style="text-decoration: none; display: flex; align-items: center; gap: 10px; color: inherit; font-weight: 700;">
+              <span>📆</span> التقرير السنوي (Yearly)
+            </a>
             <button class="settings-menu-item" id="menuToggleThemeMob">الوضع الداكن</button>
             <button class="settings-menu-item" id="menuChangePasswordMob">تغيير كلمة السر</button>
             <button class="settings-menu-item" id="menuAdminMob" style="display:none;">لوحة التحكم</button>
@@ -1887,12 +1909,37 @@
           <textarea id="expenseNoteInput" class="form-textarea" placeholder="تفاصيل إضافية إن وجدت"></textarea>
         </div>
         <div class="form-group">
-          <label class="form-label">صورة (اختياري)</label>
-          <input id="expenseImageInput" type="file" accept="image/*" class="form-input" />
+          <label class="form-label" style="display:flex; justify-content:space-between; align-items:center;">
+            <span>صورة الفاتورة / الوصل (اختياري)</span>
+            <span style="font-size: 10px; color: var(--subtext-color); font-weight: 500;">مزامنة مباشرة ☁️</span>
+          </label>
+
+          <!-- زر التقاط كاميرا مباشر + زر اختيار ملف + إمكانية اللصق والسحب -->
+          <div class="image-upload-zone" id="imageUploadDropzone">
+            <input id="expenseCameraInput" type="file" accept="image/*" capture="environment" style="display:none;" />
+            <input id="expenseImageInput" type="file" accept="image/*" style="display:none;" />
+            
+            <div class="image-upload-actions">
+              <button type="button" class="btn-image-action btn-camera-action" id="btnTriggerCamera">
+                <i class="fa-solid fa-camera"></i>
+                <span>التقاط بالكاميرا</span>
+              </button>
+              <button type="button" class="btn-image-action btn-gallery-action" id="btnTriggerGallery">
+                <i class="fa-solid fa-images"></i>
+                <span>من المعرض</span>
+              </button>
+            </div>
+            
+            <div class="image-drop-hint">
+              <span>أو اسحب الصورة هنا / إلصقها <code>Ctrl + V</code></span>
+            </div>
+          </div>
+
           <!-- معاينة الصورة -->
           <div id="imagePreviewContainer" class="image-preview-container">
             <div class="image-preview-box">
               <img id="imagePreviewImg" src="" alt="معاينة الصورة" />
+              <button type="button" id="btnExpandPreviewImg" class="btn-preview-zoom" title="تكبير">🔍</button>
             </div>
             <div class="image-preview-info">
               <span class="image-preview-filename" id="imagePreviewFilename"></span>
@@ -1956,10 +2003,28 @@
       </div>
     </div>
 
-    <!-- مودال عرض الصورة -->
-    <div id="modalImage" class="modal-backdrop">
-      <div class="modal image-modal">
-        <img id="imageModalView" src="" alt="صورة المصروف" />
+    <!-- مودال عرض الصورة المطور والمناسب للهاتف -->
+    <div id="modalImage" class="modal-backdrop" style="display: none; z-index: 10005; align-items: center; justify-content: center; background: rgba(0,0,0,0.92); backdrop-filter: blur(10px);">
+      <div class="modal image-modal-container">
+        <div class="image-modal-toolbar">
+          <div class="image-modal-title">
+            <i class="fa-solid fa-receipt"></i>
+            <span>صورة الفاتورة</span>
+          </div>
+          <div style="display: flex; gap: 8px; align-items: center;">
+            <a id="btnDownloadImageModal" href="" download="expense_receipt.jpg" class="image-modal-btn btn-download-img" title="تحميل الصورة للجهاز">
+              <i class="fa-solid fa-download"></i>
+              <span>تحميل</span>
+            </a>
+            <button type="button" id="btnCloseImageModal" class="image-modal-btn btn-close-img" title="إغلاق النافذة">
+              <i class="fa-solid fa-xmark"></i>
+              <span>خروج</span>
+            </button>
+          </div>
+        </div>
+        <div class="image-modal-body">
+          <img id="imageModalView" src="" alt="صورة المصروف" />
+        </div>
       </div>
     </div>
 
@@ -2499,14 +2564,33 @@
             // الشهر موجود فقط محلياً - أضفه
             merged.months.push(JSON.parse(JSON.stringify(localMonth)));
           } else {
-            // الشهر موجود في الاثنين - احتفظ بالنسخة الأكبر
-            const localCount = Array.isArray(localMonth.expenses) ? localMonth.expenses.length : 0;
-            const remoteCount = Array.isArray(merged.months[idx].expenses) ? merged.months[idx].expenses.length : 0;
-            if (localCount > remoteCount) {
-              // المحلي أكبر - استخدمه
-              merged.months[idx] = JSON.parse(JSON.stringify(localMonth));
-            }
-            // وإلا احتفظ بالبعيد (الأكبر أو المتساوي)
+            const remoteMonth = merged.months[idx];
+            const localExpenses = Array.isArray(localMonth.expenses) ? localMonth.expenses : [];
+            const remoteExpenses = Array.isArray(remoteMonth.expenses) ? remoteMonth.expenses : [];
+
+            // خريطة المصاريف البعيدة لاستعادتها حسب ID
+            const remoteMap = {};
+            remoteExpenses.forEach(re => { if (re && re.id) remoteMap[String(re.id)] = re; });
+
+            // دمج المصاريف مع الحفاظ الحتمي على الصور من السيرفر Remote
+            const mergedExpenses = localExpenses.map(le => {
+              const copy = JSON.parse(JSON.stringify(le));
+              const re = remoteMap[String(le.id)];
+              if (re && re.imageDataUrl && !copy.imageDataUrl) {
+                copy.imageDataUrl = re.imageDataUrl;
+              }
+              return copy;
+            });
+
+            // إضافة أية مصاريف بعيدة غير موجودة محلياً
+            const localIds = new Set(localExpenses.map(e => String(e.id)));
+            remoteExpenses.forEach(re => {
+              if (!localIds.has(String(re.id))) {
+                mergedExpenses.push(JSON.parse(JSON.stringify(re)));
+              }
+            });
+
+            merged.months[idx].expenses = mergedExpenses;
           }
         });
 
@@ -2559,21 +2643,25 @@
         try {
           localStorage.setItem(key, JSON.stringify(state));
         } catch (err) {
-          // quota exceeded or other storage error
           console.warn('localStorage save failed', err);
           if (err && err.name === 'QuotaExceededError') {
-            // try to free up space by removing expensive fields (images)
-            stripImagesFromState();
+            // في حالة تجاوز المساحة التخزينية فقط، نلجأ لتنظيف النسخة المحلية
             try {
-              localStorage.setItem(key, JSON.stringify(state));
-              console.warn('Saved state after stripping images');
-              alert('تمت إزالة الصور الكبيرة من البيانات لتفادي امتلاء التخزين المحلي. يمكنك إعادة رفع الصور إذا احتجت.');
-              return;
+              const cleanState = JSON.parse(JSON.stringify(state));
+              if (cleanState && Array.isArray(cleanState.months)) {
+                cleanState.months.forEach(m => {
+                  if (Array.isArray(m.expenses)) {
+                    m.expenses.forEach(e => {
+                      if (e && e.imageDataUrl) delete e.imageDataUrl;
+                    });
+                  }
+                });
+              }
+              localStorage.setItem(key, JSON.stringify(cleanState));
             } catch (e2) {
-              console.error('Still failed to save state after cleaning', e2);
+              console.error('Still failed local save', e2);
             }
           }
-          alert('تعذر حفظ البيانات محلياً: امتلأ التخزين. حاول حذف بعض المصاريف أو الصور الكبيرة.');
         }
       }
 
@@ -4993,21 +5081,29 @@
             main.appendChild(meta);
             if (e.note) main.appendChild(note);
 
+            // إذا كانت توجد صورة للمصروف، نضع معاينة سريعة صغيرة وجانبية (52x52) بدون أخذ مساحة عامودية
             if (e.imageDataUrl) {
-              const imgBadge = document.createElement("div");
-              imgBadge.className = "expense-image-badge";
-              imgBadge.textContent = "📷 توجد صورة";
-              main.appendChild(imgBadge);
+              const thumbWrapper = document.createElement("div");
+              thumbWrapper.className = "expense-thumb-wrapper";
+              thumbWrapper.title = "اضغط لتكبير الصورة وتحميلها";
 
               const img = document.createElement("img");
               img.src = e.imageDataUrl;
               img.alt = "صورة المصروف";
-              img.className = "expense-thumb";
-              img.addEventListener("click", () => {
-                imageModalView.src = e.imageDataUrl;
-                modalImage.style.display = "flex";
+
+              const badge = document.createElement("div");
+              badge.className = "expense-thumb-badge";
+              badge.innerHTML = '<i class="fa-solid fa-camera"></i>';
+
+              thumbWrapper.appendChild(img);
+              thumbWrapper.appendChild(badge);
+
+              thumbWrapper.addEventListener("click", (evt) => {
+                evt.stopPropagation();
+                openFullImageModal(e.imageDataUrl, (e.title || 'receipt') + '.jpg');
               });
-              main.appendChild(img);
+
+              item.appendChild(thumbWrapper);
             }
 
             const actions = document.createElement("div");
@@ -5026,21 +5122,21 @@
             actions.appendChild(delBtn);
             main.appendChild(actions);
 
-            const amountContainer = document.createElement("div");
-            amountContainer.className = "expense-amount-container";
+            const amountPill = document.createElement("div");
+            amountPill.className = "expense-amount-pill";
 
-            const amountBadge = document.createElement("div");
-            amountBadge.className = "expense-amount-badge";
-            amountBadge.textContent = "💰";
+            const amountVal = document.createElement("span");
+            amountVal.className = "amount-val";
+            amountVal.textContent = formatNumber(e.amount || 0);
 
-            const amount = document.createElement("div");
-            amount.className = "expense-amount";
-            amount.textContent = formatNumber(e.amount || 0);
+            const amountCurr = document.createElement("span");
+            amountCurr.className = "amount-currency";
+            amountCurr.textContent = "IQD";
 
-            amountContainer.appendChild(amountBadge);
-            amountContainer.appendChild(amount);
+            amountPill.appendChild(amountVal);
+            amountPill.appendChild(amountCurr);
             item.appendChild(main);
-            item.appendChild(amountContainer);
+            item.appendChild(amountPill);
             expenseList.appendChild(item);
           });
         }
@@ -6017,12 +6113,85 @@
 
 
 
-      // معالجة معاينة الصور
+      // ===== دالة فتح وتكبير وإغلاق نافذة عرض الصورة مع زر التنزيل الخروج =====
+      function openFullImageModal(srcUrl, filename = 'receipt.jpg') {
+        if (!srcUrl) return;
+        const modalImage = document.getElementById("modalImage");
+        const imageModalView = document.getElementById("imageModalView");
+        const btnDownloadImageModal = document.getElementById("btnDownloadImageModal");
+
+        imageModalView.src = srcUrl;
+        if (btnDownloadImageModal) {
+          btnDownloadImageModal.href = srcUrl;
+          btnDownloadImageModal.download = filename;
+        }
+        modalImage.style.display = "flex";
+      }
+
+      function closeFullImageModal() {
+        const modalImage = document.getElementById("modalImage");
+        const imageModalView = document.getElementById("imageModalView");
+        if (modalImage) modalImage.style.display = "none";
+        if (imageModalView) imageModalView.src = "";
+      }
+
+      const btnCloseImageModal = document.getElementById("btnCloseImageModal");
+      const modalImageEl = document.getElementById("modalImage");
+      const btnExpandPreviewImg = document.getElementById("btnExpandPreviewImg");
+
+      if (btnCloseImageModal) {
+        btnCloseImageModal.addEventListener("click", (e) => {
+          e.preventDefault();
+          closeFullImageModal();
+        });
+      }
+
+      if (modalImageEl) {
+        modalImageEl.addEventListener("click", (e) => {
+          if (e.target === modalImageEl || e.target.classList.contains("image-modal-body")) {
+            closeFullImageModal();
+          }
+        });
+      }
+
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape" && modalImageEl && modalImageEl.style.display === "flex") {
+          closeFullImageModal();
+        }
+      });
+
+      if (btnExpandPreviewImg) {
+        btnExpandPreviewImg.addEventListener("click", () => {
+          if (currentExpenseImageDataUrl) {
+            openFullImageModal(currentExpenseImageDataUrl, "expense_preview.jpg");
+          }
+        });
+      }
+
+      // ===== معالجة رفع ومعاينة وصور المصاريف وتصميم الهاتف =====
       const imagePreviewContainer = document.getElementById("imagePreviewContainer");
       const imagePreviewImg = document.getElementById("imagePreviewImg");
       const imagePreviewFilename = document.getElementById("imagePreviewFilename");
       const imagePreviewSize = document.getElementById("imagePreviewSize");
       const imagePreviewRemove = document.getElementById("imagePreviewRemove");
+      const btnTriggerCamera = document.getElementById("btnTriggerCamera");
+      const btnTriggerGallery = document.getElementById("btnTriggerGallery");
+      const expenseCameraInput = document.getElementById("expenseCameraInput");
+      const imageUploadDropzone = document.getElementById("imageUploadDropzone");
+
+      // ربط أزرار الكاميرا والمعرض
+      if (btnTriggerCamera && expenseCameraInput) {
+        btnTriggerCamera.addEventListener("click", () => expenseCameraInput.click());
+        expenseCameraInput.addEventListener("change", (e) => {
+          if (e.target.files && e.target.files[0]) {
+            handleImageFileInput(e.target.files[0]);
+          }
+        });
+      }
+
+      if (btnTriggerGallery && expenseImageInput) {
+        btnTriggerGallery.addEventListener("click", () => expenseImageInput.click());
+      }
 
       function formatFileSize(bytes) {
         if (bytes === 0) return "0 Bytes";
@@ -6033,7 +6202,7 @@
       }
 
       // دالة ضغط الصور لتقليل حجم البيانات المنقولة
-      function compressImage(dataUrl, maxWidth = 800, maxHeight = 800, quality = 0.7) {
+      function compressImage(dataUrl, maxWidth = 800, maxHeight = 800, quality = 0.6) {
         return new Promise((resolve) => {
           const img = new Image();
           img.src = dataUrl;
@@ -6042,7 +6211,6 @@
             let width = img.width;
             let height = img.height;
 
-            // حساب الأبعاد الجديدة مع الحفاظ على النسبة
             if (width > maxWidth || height > maxHeight) {
               const ratio = Math.min(maxWidth / width, maxHeight / height);
               width *= ratio;
@@ -6055,27 +6223,23 @@
             ctx.drawImage(img, 0, 0, width, height);
             resolve(canvas.toDataURL("image/jpeg", quality));
           };
-          img.onerror = () => resolve(dataUrl); // إرجاع الأصل في حالة الخطأ
+          img.onerror = () => resolve(dataUrl);
         });
       }
 
-      // علامة لتتبع حذف الصورة وتفاصيل ضغط الصورة
       let expenseImageRemoved = false;
       let currentExpenseImageDataUrl = null;
       let isCompressingImage = false;
 
-      expenseImageInput.addEventListener("change", (e) => {
-        const file = e.target.files[0];
-        if (file && file.type.startsWith("image/")) {
-          // التحقق من الحجم قبل القراءة (حد أقصى 15 MB)
+      function handleImageFileInput(file) {
+        if (file && file.type && file.type.startsWith("image/")) {
           const MAX_BYTES = 15 * 1024 * 1024;
           if (file.size > MAX_BYTES) {
             showAlertModal(
-              `حجم الصورة (${formatFileSize(file.size)}) كبير جداً.\nالحد الأقصى المسموح 15 MB.\nيرجى اختيار صورة أصغر أو ضغطها أولاً.`,
+              `حجم الصورة (${formatFileSize(file.size)}) كبير جداً.\nالحد الأقصى المسموح 15 MB.\nيرجى اختيار صورة أصغر.`,
               '❌ الصورة كبيرة جداً',
               '❌'
             );
-            expenseImageInput.value = '';
             return;
           }
           expenseImageRemoved = false;
@@ -6084,24 +6248,35 @@
           imagePreviewFilename.textContent = "جاري معالجة وضغط الصورة...";
           imagePreviewSize.textContent = "";
           imagePreviewContainer.classList.add("active");
-          imagePreviewImg.src = ""; // إخفاء مؤقت أثناء الضغط
+          imagePreviewImg.src = "";
 
           const reader = new FileReader();
           reader.onload = async function (event) {
             try {
               const rawDataUrl = event.target.result;
-              // ضغط جميع الصور افتراضياً بدقة 800 وبجودة 0.6
               const compressedDataUrl = await compressImage(rawDataUrl, 800, 800, 0.6);
               
               currentExpenseImageDataUrl = compressedDataUrl;
               imagePreviewImg.src = compressedDataUrl;
-              imagePreviewFilename.textContent = file.name;
+              imagePreviewFilename.textContent = file.name || "صورة الفاتورة";
               
+              const origSize = file.size;
               const compressedSize = Math.round(compressedDataUrl.length * 0.75);
-              imagePreviewSize.textContent = `${formatFileSize(file.size)} ➔ ${formatFileSize(compressedSize)} (تم الضغط بنجاح)`;
+              const savedPct = origSize > 0 ? Math.max(0, Math.round((1 - (compressedSize / origSize)) * 100)) : 0;
+              
+              imagePreviewSize.innerHTML = `
+                <div style="display:flex; flex-direction:column; gap:2px; margin-top:3px;">
+                  <div style="font-weight:700; color:var(--text-color); font-size:11px;">
+                    📦 الحجم: <span style="opacity:0.85;">${formatFileSize(origSize)}</span> ➔ <span style="color:var(--success); font-weight:800;">${formatFileSize(compressedSize)}</span>
+                  </div>
+                  <div style="font-size:10px; color:var(--success); font-weight:800;">
+                    ⚡ تم تخفيض الحجم بنسبة ${savedPct}%
+                  </div>
+                </div>
+              `;
             } catch (err) {
               console.error("Compression failed:", err);
-              imagePreviewFilename.textContent = "فشل الضغط، تم استخدام الصورة الأصلية";
+              imagePreviewFilename.textContent = "تم استخدام الصورة الأصلية";
               currentExpenseImageDataUrl = event.target.result;
               imagePreviewImg.src = event.target.result;
               imagePreviewSize.textContent = formatFileSize(file.size);
@@ -6112,21 +6287,58 @@
           reader.readAsDataURL(file);
         } else if (file) {
           showAlertModal('من فضلك اختر ملف صورة صحيح (JPG، PNG، WebP...)', 'ملف غير مقبول', '⚠️');
-          expenseImageInput.value = "";
-          imagePreviewContainer.classList.remove("active");
-          currentExpenseImageDataUrl = null;
-          isCompressingImage = false;
+        }
+      }
+
+      expenseImageInput.addEventListener("change", (e) => {
+        if (e.target.files && e.target.files[0]) {
+          handleImageFileInput(e.target.files[0]);
+        }
+      });
+
+      // السحب والإفلات للصورة
+      if (imageUploadDropzone) {
+        imageUploadDropzone.addEventListener("dragover", (e) => {
+          e.preventDefault();
+          imageUploadDropzone.classList.add("drag-over");
+        });
+        imageUploadDropzone.addEventListener("dragleave", () => {
+          imageUploadDropzone.classList.remove("drag-over");
+        });
+        imageUploadDropzone.addEventListener("drop", (e) => {
+          e.preventDefault();
+          imageUploadDropzone.classList.remove("drag-over");
+          if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0]) {
+            handleImageFileInput(e.dataTransfer.files[0]);
+          }
+        });
+      }
+
+      // دعم اللصق المباشر (Ctrl + V) عند فتح نافذة المصروف
+      document.addEventListener("paste", (e) => {
+        const modalExpenseEl = document.getElementById("modalExpense");
+        if (modalExpenseEl && modalExpenseEl.style.display === "flex") {
+          const items = (e.clipboardData || e.originalEvent.clipboardData).items;
+          for (let index in items) {
+            const item = items[index];
+            if (item.kind === 'file' && item.type.startsWith('image/')) {
+              const blob = item.getAsFile();
+              handleImageFileInput(blob);
+              showToast('📋 تم لصق الصورة بنجاح!', 'success');
+              break;
+            }
+          }
         }
       });
 
       imagePreviewRemove.addEventListener("click", (e) => {
         e.preventDefault();
         expenseImageInput.value = "";
+        if (expenseCameraInput) expenseCameraInput.value = "";
         imagePreviewContainer.classList.remove("active");
         imagePreviewImg.src = "";
         imagePreviewFilename.textContent = "";
         imagePreviewSize.textContent = "";
-        // تسجيل أن المستخدم طلب حذف الصورة بشكل صريح
         expenseImageRemoved = true;
         currentExpenseImageDataUrl = null;
         isCompressingImage = false;
@@ -6269,7 +6481,12 @@
           existing.category = category;
           existing.date = date;
           existing.note = note;
-          existing.imageDataUrl = imageDataUrl;
+          // إذا اختار المستخدم إزالة الصورة صراحةً
+          if (expenseImageRemoved) {
+            delete existing.imageDataUrl;
+          } else if (imageDataUrl) {
+            existing.imageDataUrl = imageDataUrl;
+          }
         } else {
           month.expenses.push({
             id: Date.now().toString(),
@@ -6283,6 +6500,7 @@
         }
         editingExpenseId = null;
         await refreshUI();
+        await saveState(); // رفع ومزامنة فورية ومباشرة للصور والبيانات مع السيرفر Firebase!
 
         // تم إزالة النسخ الاحتياطي التلقائي عند إضافة/تعديل المصروف بناءً على طلب المستخدم
       }

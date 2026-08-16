@@ -1509,57 +1509,42 @@
           </div>
         </div>
 
-        <!-- قسم الملاحظات العامة المطور -->
+        <!-- قسم الملاحظات الاحترافي V2 -->
         <div class="private-card" style="display:flex;flex-direction:column;gap:12px;">
-          <div style="display:flex;justify-content:space-between;align-items:center;">
-            <div class="private-card-title" style="margin:0;">📝 ملاحظاتي</div>
-            <button id="btnAddNote" class="btn btn-primary btn-sm"
-              style="border-radius:20px; padding: 4px 14px; font-weight:700;">
-              ✨ إضافة ملاحظة
-            </button>
-          </div>
-
-          <!-- صندوق إضافة ملاحظة جديدة -->
-          <div id="newNoteForm"
-            style="display:none; flex-direction:column; gap:10px; background:var(--muted-bg); padding:14px; border-radius:16px; border:2px solid var(--accent); animation: slideInUp 0.3s ease-out;">
-            <div style="display:flex; justify-content:space-between; align-items:center;">
-              <h4 id="noteFormTitle" style="font-size:14px; margin:0; color:var(--accent);">ملاحظة جديدة</h4>
-              <button id="btnCancelNewNote"
-                style="background:none; border:none; color:var(--subtext-color); cursor:pointer; font-size:18px;">✕</button>
-            </div>
-            <input type="text" id="newNoteTitle" class="form-input" placeholder="عنوان الملاحظة (اختياري)"
-              style="font-weight:bold; border-radius:10px;">
-            <textarea id="newNoteContent" class="form-textarea" placeholder="اكتب تفاصيلك هنا..."
-              style="min-height:120px; font-size:13px; border-radius:10px;"></textarea>
-            <div style="display:flex; justify-content:flex-end; gap:8px;">
-              <button id="btnConfirmAddNote" class="btn btn-primary btn-sm"
-                style="width:100%; padding:10px; border-radius:10px;">حفظ الملاحظة ✅</button>
+          <div class="notes-section-header">
+            <div class="private-card-title">📝 ملاحظاتي <span class="notes-count-badge" id="notesCountBadge">0</span></div>
+            <div style="display:flex; gap:8px; align-items:center;">
+              <button id="btnToggleNotesSearch" class="btn-notes-search-toggle" title="بحث في الملاحظات">
+                <i class="fa-solid fa-magnifying-glass"></i>
+              </button>
+              <button id="btnAddNote" class="btn-add-note">
+                <i class="fa-solid fa-plus"></i> ملاحظة جديدة
+              </button>
             </div>
           </div>
 
-          <!-- فلتر البحث -->
-          <div class="notes-search-wrapper" id="notesSearchWrapper" style="display:none;">
-            <span class="notes-search-icon">🔍</span>
-            <input type="text" id="notesSearchInput" class="form-input form-input-sm" placeholder="ابحث في ملاحظاتك..."
-              style="font-size:12px; border-radius:20px;">
+          <!-- حقل البحث في الملاحظات -->
+          <div id="notesSearchContainer" class="notes-search-container" style="display:none;">
+            <div class="notes-search-input-wrap">
+              <i class="fa-solid fa-magnifying-glass notes-search-icon"></i>
+              <input type="text" id="notesSearchInput" class="notes-search-input" placeholder="بحث في العنوان أو المحتوى..." />
+              <button type="button" id="btnClearNotesSearch" class="notes-search-clear" style="display:none;">✕</button>
+            </div>
           </div>
 
           <!-- قائمة الملاحظات -->
-          <div id="notesList"
-            style="display:flex; flex-direction:column; gap:10px; max-height:450px; overflow-y:auto; padding:2px;">
+          <div id="notesList" style="display:flex; flex-direction:column; gap:10px; padding:2px; -webkit-overflow-scrolling: touch;">
             <!-- يتم التعبئة بواسطة JS -->
           </div>
 
           <!-- حالة فارغة -->
-          <div id="notesPlaceholder"
-            style="text-align:center; padding:30px 10px; color:var(--subtext-color); background:rgba(0,0,0,0.02); border-radius:12px; border:1px dashed var(--border-color);">
-            <div style="font-size:32px; margin-bottom:10px;">empty</div>
-            <div style="font-size:14px; font-weight:600;">لا توجد ملاحظات حالياً</div>
-            <div style="font-size:12px; opacity:0.8;">ابدأ بتدوين أفكارك أو تفاصيلك المهمة هنا</div>
+          <div id="notesPlaceholder" class="notes-empty-state">
+            <div class="notes-empty-icon">📝</div>
+            <div class="notes-empty-title">لا توجد ملاحظات حالياً</div>
+            <div class="notes-empty-sub">ابدأ بتدوين أفكارك ومهامك المهمة هنا</div>
           </div>
 
-          <div
-            style="display:flex;justify-content:space-between;align-items:center;font-size:11px;color:var(--subtext-color);border-top:1px solid var(--border-color);padding-top:8px;">
+          <div class="notes-footer-meta">
             <div id="notesTotalCount">0 ملاحظات</div>
             <div id="privateNotesLastUpdate"></div>
           </div>
@@ -1882,81 +1867,88 @@
     <div id="modalExpense" class="modal-backdrop">
       <div class="modal">
         <div class="modal-header">
-          <h3 id="expenseModalTitle">إضافة مصروف</h3>
-          <button id="btnCloseExpense" class="btn btn-outline btn-sm">✕</button>
-        </div>
-        <div class="form-group">
-          <label class="form-label">عنوان المصروف</label>
-          <input id="expenseTitleInput" type="text" class="form-input" placeholder="مثال: غداء، بنزين، شراء كتاب" />
-        </div>
-        <div class="form-group">
-          <label class="form-label">المبلغ</label>
-          <input id="expenseAmountInput" type="text" inputmode="numeric" class="form-input"
-            placeholder="مثال: 25,000" />
-        </div>
-        <div class="form-group">
-          <label class="form-label">التصنيف</label>
-          <select id="expenseCategoryInput" class="form-select"></select>
-          <div id="categoryError" style="color: var(--danger); font-size: 12px; margin-top: 3px; display: none;">⚠️ من
-            فضلك اختر تصنيفًا</div>
-        </div>
-        <div class="form-group">
-          <label class="form-label">التاريخ</label>
-          <input id="expenseDateInput" type="date" class="form-input" />
-        </div>
-        <div class="form-group">
-          <label class="form-label">ملاحظات</label>
-          <textarea id="expenseNoteInput" class="form-textarea" placeholder="تفاصيل إضافية إن وجدت"></textarea>
-        </div>
-        <div class="form-group">
-          <label class="form-label" style="display:flex; justify-content:space-between; align-items:center;">
-            <span>صورة الفاتورة / الوصل (اختياري)</span>
-            <span style="font-size: 10px; color: var(--subtext-color); font-weight: 500;">مزامنة مباشرة ☁️</span>
-          </label>
-
-          <!-- زر التقاط كاميرا مباشر + زر اختيار ملف + إمكانية اللصق والسحب -->
-          <div class="image-upload-zone" id="imageUploadDropzone">
-            <input id="expenseCameraInput" type="file" accept="image/*" capture="environment" style="display:none;" />
-            <input id="expenseImageInput" type="file" accept="image/*" style="display:none;" />
-            
-            <div class="image-upload-actions">
-              <button type="button" class="btn-image-action btn-camera-action" id="btnTriggerCamera">
-                <i class="fa-solid fa-camera"></i>
-                <span>التقاط بالكاميرا</span>
-              </button>
-              <button type="button" class="btn-image-action btn-gallery-action" id="btnTriggerGallery">
-                <i class="fa-solid fa-images"></i>
-                <span>من المعرض</span>
-              </button>
-            </div>
-            
-            <div class="image-drop-hint">
-              <span>أو اسحب الصورة هنا / إلصقها <code>Ctrl + V</code></span>
-            </div>
-          </div>
-
-          <!-- معاينة الصورة -->
-          <div id="imagePreviewContainer" class="image-preview-container">
-            <div class="image-preview-box">
-              <img id="imagePreviewImg" src="" alt="معاينة الصورة" />
-              <button type="button" id="btnExpandPreviewImg" class="btn-preview-zoom" title="تكبير">🔍</button>
-            </div>
-            <div class="image-preview-info">
-              <span class="image-preview-filename" id="imagePreviewFilename"></span>
-              <span class="image-preview-size" id="imagePreviewSize"></span>
-            </div>
-            <button type="button" id="imagePreviewRemove" class="image-preview-remove">
-              ✕ إزالة الصورة
+          <div style="display:flex; align-items:center; gap:10px;">
+            <h3 id="expenseModalTitle">إضافة مصروف</h3>
+            <button type="button" id="btnQuickSaveExpense" class="btn-quick-save" title="حفظ سريع للمصروف">
+              <span>حفظ</span>
             </button>
           </div>
+          <button id="btnCloseExpense" class="btn btn-outline btn-sm">✕</button>
         </div>
-        <div class="modal-footer" style="justify-content: space-between; align-items: center;">
+        <div class="modal-body-scroll">
+          <div class="form-group">
+            <label class="form-label">عنوان المصروف</label>
+            <input id="expenseTitleInput" type="text" class="form-input" placeholder="مثال: غداء، بنزين، شراء كتاب" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">المبلغ</label>
+            <input id="expenseAmountInput" type="text" inputmode="numeric" class="form-input"
+              placeholder="مثال: 25,000" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">التصنيف</label>
+            <select id="expenseCategoryInput" class="form-select"></select>
+            <div id="categoryError" style="color: var(--danger); font-size: 12px; margin-top: 3px; display: none;">⚠️ من
+              فضلك اختر تصنيفًا</div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">التاريخ</label>
+            <input id="expenseDateInput" type="date" class="form-input" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">ملاحظات</label>
+            <textarea id="expenseNoteInput" class="form-textarea" placeholder="تفاصيل إضافية إن وجدت"></textarea>
+          </div>
+          <div class="form-group">
+            <label class="form-label" style="display:flex; justify-content:space-between; align-items:center;">
+              <span>صورة الفاتورة / الوصل (اختياري)</span>
+              <span style="font-size: 10px; color: var(--subtext-color); font-weight: 500;">مزامنة مباشرة ☁️</span>
+            </label>
+
+            <!-- زر التقاط كاميرا مباشر + زر اختيار ملف + إمكانية اللصق والسحب -->
+            <div class="image-upload-zone" id="imageUploadDropzone">
+              <input id="expenseCameraInput" type="file" accept="image/*" capture="environment" style="display:none;" />
+              <input id="expenseImageInput" type="file" accept="image/*" style="display:none;" />
+              
+              <div class="image-upload-actions">
+                <button type="button" class="btn-image-action btn-camera-action" id="btnTriggerCamera">
+                  <i class="fa-solid fa-camera"></i>
+                  <span>التقاط بالكاميرا</span>
+                </button>
+                <button type="button" class="btn-image-action btn-gallery-action" id="btnTriggerGallery">
+                  <i class="fa-solid fa-images"></i>
+                  <span>من المعرض</span>
+                </button>
+              </div>
+              
+              <div class="image-drop-hint">
+                <span>أو اسحب الصورة هنا / إلصقها <code>Ctrl + V</code></span>
+              </div>
+            </div>
+
+            <!-- معاينة الصورة -->
+            <div id="imagePreviewContainer" class="image-preview-container">
+              <div class="image-preview-box">
+                <img id="imagePreviewImg" src="" alt="معاينة الصورة" />
+                <button type="button" id="btnExpandPreviewImg" class="btn-preview-zoom" title="تكبير">🔍</button>
+              </div>
+              <div class="image-preview-info">
+                <span class="image-preview-filename" id="imagePreviewFilename"></span>
+                <span class="image-preview-size" id="imagePreviewSize"></span>
+              </div>
+              <button type="button" id="imagePreviewRemove" class="image-preview-remove">
+                ✕ إزالة الصورة
+              </button>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
           <button id="deleteExpenseBtn" class="btn-ghost btn-delete btn-sm" style="display:none;">
             🗑️ حذف المصروف
           </button>
-          <div style="display:flex; gap:6px; margin-left: auto;">
-            <button class="btn btn-outline" id="btnCancelExpense">إلغاء</button>
-            <button id="saveExpenseBtn" class="btn btn-primary">حفظ</button>
+          <div style="display:flex; gap:8px; margin-left: auto; width: 100%; justify-content: flex-end; align-items: center;">
+            <button class="btn btn-outline" id="btnCancelExpense" style="min-height: 44px; padding: 0 16px;">إلغاء</button>
+            <button id="saveExpenseBtn" class="btn btn-primary btn-save-modal" style="min-height: 44px; padding: 0 24px; font-weight: 800; flex: 1; max-width: 220px;">حفظ المصروف</button>
           </div>
         </div>
       </div>
@@ -1966,10 +1958,15 @@
     <div id="modalPlannedExpense" class="modal-backdrop" style="display: none; z-index: 10001; align-items: center; justify-content: center;">
       <div class="modal" style="max-width: 450px;">
         <div class="modal-header">
-          <h3 id="plannedExpenseModalTitle">إضافة مصروف مخطط</h3>
+          <div style="display:flex; align-items:center; gap:10px;">
+            <h3 id="plannedExpenseModalTitle">إضافة مصروف مخطط</h3>
+            <button type="button" id="btnQuickSavePlannedExpense" class="btn-quick-save btn-quick-save-success" title="حفظ سريع للمصروف المخطط">
+              <span>حفظ</span>
+            </button>
+          </div>
           <button id="btnClosePlannedExpense" class="btn btn-outline btn-sm" style="border: none; background: var(--muted-bg); border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;">✕</button>
         </div>
-        <div class="modal-body" style="display: flex; flex-direction: column; gap: 12px;">
+        <div class="modal-body-scroll" style="display: flex; flex-direction: column; gap: 12px;">
           <div class="form-group">
             <label class="form-label">العنوان</label>
             <input id="plannedExpenseTitleInput" type="text" class="form-input" placeholder="مثال: شراء هاتف جديد" />
@@ -1990,15 +1987,100 @@
             <label class="form-label">ملاحظة</label>
             <input id="plannedExpenseNoteInput" type="text" class="form-input" placeholder="تفاصيل إضافية..." />
           </div>
-          <div class="modal-footer" style="justify-content: space-between; align-items: center; margin-top: 10px;">
-            <button id="deletePlannedExpenseBtn" class="btn-ghost btn-delete btn-sm" style="display:none;">
-              🗑️ حذف المصروف المخطط
-            </button>
-            <div style="display:flex; gap:6px; margin-left: auto;">
-              <button class="btn btn-outline" id="btnCancelPlannedExpense">إلغاء</button>
-              <button id="savePlannedExpenseBtn" class="btn btn-primary" style="background: var(--success); border-color: var(--success);">حفظ</button>
+          <div class="form-group">
+            <label class="form-label" style="display:flex; justify-content:space-between; align-items:center;">
+              <span>صورة الفاتورة / الوصل (اختياري)</span>
+              <span style="font-size: 10px; color: var(--subtext-color); font-weight: 500;">مزامنة مباشرة ☁️</span>
+            </label>
+
+            <!-- زر التقاط كاميرا مباشر + زر اختيار ملف + إمكانية اللصق والسحب -->
+            <div class="image-upload-zone" id="plannedImageUploadDropzone">
+              <input id="plannedExpenseCameraInput" type="file" accept="image/*" capture="environment" style="display:none;" />
+              <input id="plannedExpenseImageInput" type="file" accept="image/*" style="display:none;" />
+              
+              <div class="image-upload-actions">
+                <button type="button" class="btn-image-action btn-camera-action" id="btnTriggerPlannedCamera">
+                  <i class="fa-solid fa-camera"></i>
+                  <span>التقاط بالكاميرا</span>
+                </button>
+                <button type="button" class="btn-image-action btn-gallery-action" id="btnTriggerPlannedGallery">
+                  <i class="fa-solid fa-images"></i>
+                  <span>من المعرض</span>
+                </button>
+              </div>
+              
+              <div class="image-drop-hint">
+                <span>أو اسحب الصورة هنا / إلصقها <code>Ctrl + V</code></span>
+              </div>
+            </div>
+
+            <!-- معاينة الصورة -->
+            <div id="plannedImagePreviewContainer" class="image-preview-container">
+              <div class="image-preview-box">
+                <img id="plannedImagePreviewImg" src="" alt="معاينة الصورة" />
+                <button type="button" id="btnExpandPreviewImg" class="btn-preview-zoom" title="تكبير">🔍</button>
+              </div>
+              <div class="image-preview-info">
+                <span class="image-preview-filename" id="plannedImagePreviewFilename"></span>
+                <span class="image-preview-size" id="plannedImagePreviewSize"></span>
+              </div>
+              <button type="button" id="plannedImagePreviewRemove" class="image-preview-remove">
+                ✕ إزالة الصورة
+              </button>
             </div>
           </div>
+        </div>
+        <div class="modal-footer">
+          <button id="deletePlannedExpenseBtn" class="btn-ghost btn-delete btn-sm" style="display:none;">
+            🗑️ حذف المصروف المخطط
+          </button>
+          <div style="display:flex; gap:8px; margin-left: auto; width: 100%; justify-content: flex-end; align-items: center;">
+            <button class="btn btn-outline" id="btnCancelPlannedExpense" style="min-height: 44px; padding: 0 16px;">إلغاء</button>
+            <button id="savePlannedExpenseBtn" class="btn-primary btn-save-modal btn" style="background: var(--success); border-color: var(--success); min-height: 44px; padding: 0 24px; font-weight: 800; flex: 1; max-width: 220px;">حفظ</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- مودال كتابة/تعديل الملاحظة (Bottom Sheet) -->
+    <div id="noteEditorBackdrop" class="note-editor-backdrop">
+      <div class="note-editor-modal" id="noteEditorModal">
+        <div class="note-editor-header">
+          <h3 id="noteEditorTitle">ملاحظة جديدة</h3>
+          <button type="button" id="btnCloseNoteEditor" class="note-editor-close">✕</button>
+        </div>
+        <div class="note-editor-body">
+          <input type="text" id="noteEditorTitleInput" class="note-editor-title-input" placeholder="العنوان" />
+          <textarea id="noteEditorContentInput" class="note-editor-content-input" placeholder="ابدأ بالكتابة..."></textarea>
+        </div>
+        <div class="note-editor-toolbar">
+          <div class="note-color-palette" id="noteColorPalette">
+            <div class="note-color-dot selected" data-color="default" title="افتراضي (أبيض)"></div>
+            <div class="note-color-dot" data-color="yellow" title="أصفر ذهبي"></div>
+            <div class="note-color-dot" data-color="emerald" title="أخضر زمردي"></div>
+            <div class="note-color-dot" data-color="cyan" title="سماوي زاهي"></div>
+            <div class="note-color-dot" data-color="blue" title="أزرق ملكي"></div>
+            <div class="note-color-dot" data-color="purple" title="بنفسجي"></div>
+            <div class="note-color-dot" data-color="pink" title="وردي زاهي"></div>
+            <div class="note-color-dot" data-color="red" title="أحمر مرجاني"></div>
+            <div class="note-color-dot" data-color="orange" title="برتقالي مشرق"></div>
+            <div class="note-color-dot" data-color="gray" title="رمادي معدني"></div>
+          </div>
+          <span class="note-char-counter" id="noteCharCounter">0 حرف</span>
+          <button type="button" id="btnSaveNoteEditor" class="note-editor-save-btn">حفظ</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- مودال تأكيد حذف الملاحظة -->
+    <div id="noteDeleteBackdrop" class="note-delete-backdrop">
+      <div class="note-delete-modal">
+        <div class="note-delete-icon">🗑️</div>
+        <div class="note-delete-title">حذف الملاحظة؟</div>
+        <div class="note-delete-msg" id="noteDeleteMsg">سيتم حذف هذه الملاحظة نهائياً ولا يمكن التراجع.</div>
+        <div class="note-delete-actions">
+          <button type="button" class="btn-delete-cancel" id="btnCancelDeleteNote">إلغاء</button>
+          <button type="button" class="btn-delete-confirm" id="btnConfirmDeleteNote">حذف</button>
         </div>
       </div>
     </div>
@@ -4297,114 +4379,223 @@
         // دالة قديمة - لا تفعل شيئاً الآن (الإدخال عبر الأزرار)
       }
 
-      // === نظام الملاحظات المطور ===
+      // =============================================
+      // === نظام الملاحظات الاحترافي V2 ===
+      // =============================================
       let editingNoteId = null;
+      let selectedNoteColor = 'default';
+      let pendingDeleteNoteId = null;
+      let notesSearchQuery = '';
 
-      function renderNotes(filter = '') {
+      // --- عرض الملاحظات ---
+      function renderNotes() {
         const list = document.getElementById('notesList');
         const placeholder = document.getElementById('notesPlaceholder');
-        const searchWrapper = document.getElementById('notesSearchWrapper');
         const totalCountEl = document.getElementById('notesTotalCount');
+        const badgeEl = document.getElementById('notesCountBadge');
 
         if (!list) return;
 
-        const filteredNotes = privateState.notes.filter(n => {
-          const search = filter.toLowerCase();
-          return (n.title || '').toLowerCase().includes(search) || (n.content || '').toLowerCase().includes(search);
-        });
+        let allNotes = privateState.notes.slice();
+        const query = notesSearchQuery.trim().toLowerCase();
 
-        // ترتيب: الأحدث أولاً
-        filteredNotes.sort((a, b) => (b.id || 0) - (a.id || 0));
+        if (query) {
+          allNotes = allNotes.filter(n =>
+            (n.title && n.title.toLowerCase().includes(query)) ||
+            (n.content && n.content.toLowerCase().includes(query))
+          );
+        }
+
+        // ترتيب: المثبتة أولاً ثم الأحدث
+        const pinned = allNotes.filter(n => n.pinned).sort((a, b) => (b.id || 0) - (a.id || 0));
+        const unpinned = allNotes.filter(n => !n.pinned).sort((a, b) => (b.id || 0) - (a.id || 0));
 
         list.innerHTML = '';
 
-        if (privateState.notes.length > 0) {
-          searchWrapper.style.display = 'block';
-        } else {
-          searchWrapper.style.display = 'none';
-        }
-
-        if (filteredNotes.length === 0) {
+        if (allNotes.length === 0) {
           placeholder.style.display = 'block';
-          if (filter) {
-            placeholder.innerHTML = `<div style="padding:20px; font-size:13px;">🔍 لا توجد نتائج للبحث عن "${filter}"</div>`;
+          if (query) {
+            placeholder.innerHTML = `
+              <div class="notes-empty-icon">🔍</div>
+              <div class="notes-empty-title">لا توجد نتائج بحث</div>
+              <div class="notes-empty-sub">لم نجد ملاحظات تطابق "${escapeHtml(query)}"</div>
+            `;
           } else {
             placeholder.innerHTML = `
-                <div style="font-size:32px; margin-bottom:10px;">📝</div>
-                <div style="font-size:14px; font-weight:600;">لا توجد ملاحظات حالياً</div>
-                <div style="font-size:12px; opacity:0.8;">ابدأ بتدوين أفكارك المهمة هنا</div>
-             `;
+              <div class="notes-empty-icon">📝</div>
+              <div class="notes-empty-title">لا توجد ملاحظات حالياً</div>
+              <div class="notes-empty-sub">ابدأ بتدوين أفكارك ومهامك المهمة هنا</div>
+            `;
           }
         } else {
           placeholder.style.display = 'none';
-          filteredNotes.forEach(note => {
-            const card = document.createElement('div');
-            card.className = 'note-card';
-            card.innerHTML = `
-              <div class="note-header">
-                <div class="note-title">${note.title || 'ملاحظة بدون عنوان'}</div>
-                <div class="note-timestamp">${note.timestamp}</div>
-              </div>
-              <div class="note-content">${note.content}</div>
-              <div class="note-actions">
-                <button class="note-btn note-btn-edit" onclick="editNote(${note.id})">✏️ تعديل</button>
-                <button class="note-btn note-btn-delete" onclick="deleteNote(${note.id})">🗑️ حذف</button>
-              </div>
-            `;
-            list.appendChild(card);
-          });
+
+          // قسم المثبتة
+          if (pinned.length > 0) {
+            const divider = document.createElement('div');
+            divider.className = 'notes-pinned-divider';
+            divider.textContent = '📌 مثبتة';
+            list.appendChild(divider);
+            pinned.forEach(note => list.appendChild(createNoteCard(note)));
+          }
+
+          // قسم الأخرى
+          if (unpinned.length > 0 && pinned.length > 0) {
+            const divider2 = document.createElement('div');
+            divider2.className = 'notes-pinned-divider';
+            divider2.textContent = 'أخرى';
+            divider2.style.marginTop = '8px';
+            list.appendChild(divider2);
+          }
+          unpinned.forEach(note => list.appendChild(createNoteCard(note)));
         }
 
-        if (totalCountEl) totalCountEl.textContent = `${privateState.notes.length} ملاحظات`;
+        if (totalCountEl) totalCountEl.textContent = `${privateState.notes.length} ملاحظة`;
+        if (badgeEl) {
+          badgeEl.textContent = privateState.notes.length;
+          badgeEl.style.display = privateState.notes.length > 0 ? 'inline-flex' : 'none';
+        }
       }
 
-      window.addNote = function () {
-        document.getElementById('newNoteForm').style.display = 'flex';
-        document.getElementById('noteFormTitle').textContent = 'ملاحظة جديدة';
-        document.getElementById('newNoteTitle').value = '';
-        document.getElementById('newNoteContent').value = '';
-        editingNoteId = null;
-        document.getElementById('newNoteTitle').focus();
-      };
+      // --- إنشاء بطاقة ملاحظة ---
+      function createNoteCard(note) {
+        const colorClass = `note-color-${note.color || 'default'}`;
+        const pinnedClass = note.pinned ? ' is-pinned' : '';
 
-      window.editNote = function (id) {
-        const note = privateState.notes.find(n => String(n.id) === String(id));
-        if (!note) return;
-        editingNoteId = id;
-        document.getElementById('newNoteForm').style.display = 'flex';
-        document.getElementById('noteFormTitle').textContent = 'تعديل الملاحظة';
-        document.getElementById('newNoteTitle').value = note.title || '';
-        document.getElementById('newNoteContent').value = note.content || '';
-        document.getElementById('newNoteContent').focus();
-        document.getElementById('newNoteForm').scrollIntoView({ behavior: 'smooth', block: 'center' });
-      };
+        const card = document.createElement('div');
+        card.className = `note-card ${colorClass}${pinnedClass}`;
+        card.dataset.noteId = note.id;
 
-      window.deleteNote = function (id) {
-        if (!confirm('هل أنت متأكد من حذف هذه الملاحظة؟')) return;
-        privateState.notes = privateState.notes.filter(n => String(n.id) !== String(id));
-        savePrivateState();
-        renderNotes(document.getElementById('notesSearchInput').value);
-        showToast('تم حذف الملاحظة 🗑️', 'success');
-      };
+        const contentText = note.content || '';
+        const lines = contentText.split('\n');
+        const needsExpand = contentText.length > 120 || lines.length > 3;
 
-      document.getElementById('btnAddNote').addEventListener('click', () => {
-        const form = document.getElementById('newNoteForm');
-        if (form.style.display === 'flex') {
-          form.style.display = 'none';
-        } else {
-          addNote();
+        card.innerHTML = `
+          <div class="note-header">
+            <div class="note-title" data-action="edit" data-id="${note.id}" style="cursor:pointer;">${escapeHtml(note.title || 'ملاحظة بدون عنوان')}</div>
+            <button type="button" class="note-pin-btn${note.pinned ? ' active' : ''}" data-action="pin" data-id="${note.id}" title="${note.pinned ? 'إلغاء التثبيت' : 'تثبيت'}">
+              📌
+            </button>
+          </div>
+          <div class="note-content" id="noteContent_${note.id}">${escapeHtml(contentText)}</div>
+          ${needsExpand ? `<button type="button" class="note-expand-btn" data-action="expand" data-id="${note.id}">عرض المزيد ▼</button>` : ''}
+          <div class="note-actions">
+            <div class="note-timestamp">${note.timestamp ? '🕒 ' + note.timestamp : ''}</div>
+            <div class="note-action-btns">
+              <button type="button" class="note-btn note-btn-edit" data-action="edit" data-id="${note.id}">✏️ تعديل</button>
+              <button type="button" class="note-btn note-btn-delete" data-action="delete" data-id="${note.id}">🗑️</button>
+            </div>
+          </div>
+        `;
+
+        return card;
+      }
+
+      // --- تأمين النصوص ---
+      function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+      }
+
+      // --- أحداث بطاقات الملاحظات (Event Delegation) ---
+      document.getElementById('notesList').addEventListener('click', (e) => {
+        const btn = e.target.closest('[data-action]');
+        if (!btn) return;
+        
+        const action = btn.dataset.action;
+        const id = btn.dataset.id;
+
+        if (action === 'edit') {
+          openNoteEditor(id);
+        } else if (action === 'delete') {
+          openDeleteNoteModal(id);
+        } else if (action === 'pin') {
+          togglePinNote(id);
+        } else if (action === 'expand') {
+          const contentEl = document.getElementById(`noteContent_${id}`);
+          if (contentEl) {
+            const isExpanded = contentEl.classList.toggle('expanded');
+            btn.textContent = isExpanded ? 'عرض أقل ▲' : 'عرض المزيد ▼';
+            if (!isExpanded) {
+              const card = btn.closest('.note-card');
+              if (card) card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }
+          }
         }
       });
 
-      document.getElementById('btnCancelNewNote').addEventListener('click', () => {
-        document.getElementById('newNoteForm').style.display = 'none';
-      });
+      // --- عداد الكلمات والأحرف ---
+      function updateNoteCounterUI(text) {
+        const chars = text.length;
+        const words = text.trim() ? text.trim().split(/\s+/).length : 0;
+        const counterEl = document.getElementById('noteCharCounter');
+        if (counterEl) {
+          counterEl.textContent = words > 0 ? `${words} كلمة | ${chars} حرف` : `${chars} حرف`;
+        }
+      }
 
-      document.getElementById('btnConfirmAddNote').addEventListener('click', () => {
-        const title = document.getElementById('newNoteTitle').value.trim();
-        const content = document.getElementById('newNoteContent').value.trim();
+      // --- فتح مودال الكتابة ---
+      function openNoteEditor(noteId) {
+        const backdrop = document.getElementById('noteEditorBackdrop');
+        const modal = document.getElementById('noteEditorModal');
+        const titleInput = document.getElementById('noteEditorTitleInput');
+        const contentInput = document.getElementById('noteEditorContentInput');
+        const titleEl = document.getElementById('noteEditorTitle');
 
-        if (!content) {
+        modal.classList.remove('closing');
+
+        if (noteId) {
+          const note = privateState.notes.find(n => String(n.id) === String(noteId));
+          if (!note) return;
+          editingNoteId = noteId;
+          titleEl.textContent = 'تعديل الملاحظة';
+          titleInput.value = note.title || '';
+          contentInput.value = note.content || '';
+          selectedNoteColor = note.color || 'default';
+        } else {
+          editingNoteId = null;
+          titleEl.textContent = 'ملاحظة جديدة';
+          titleInput.value = '';
+          contentInput.value = '';
+          selectedNoteColor = 'default';
+        }
+
+        // تحديث لوحة الألوان
+        updateColorPaletteUI();
+
+        // عداد الأحرف والكلمات
+        updateNoteCounterUI(contentInput.value);
+
+        backdrop.classList.add('active');
+
+        // Auto-resize textarea
+        autoResizeTextarea(contentInput);
+
+        setTimeout(() => {
+          if (noteId) contentInput.focus();
+          else titleInput.focus();
+        }, 350);
+      }
+
+      // --- إغلاق مودال الكتابة ---
+      function closeNoteEditor() {
+        const backdrop = document.getElementById('noteEditorBackdrop');
+        const modal = document.getElementById('noteEditorModal');
+        modal.classList.add('closing');
+        setTimeout(() => {
+          backdrop.classList.remove('active');
+          modal.classList.remove('closing');
+          editingNoteId = null;
+        }, 250);
+      }
+
+      // --- حفظ الملاحظة ---
+      function saveNoteFromEditor() {
+        const title = document.getElementById('noteEditorTitleInput').value.trim();
+        const content = document.getElementById('noteEditorContentInput').value.trim();
+
+        if (!content && !title) {
           showToast('يرجى كتابة محتوى للملاحظة', 'error');
           return;
         }
@@ -4417,6 +4608,7 @@
           if (idx !== -1) {
             privateState.notes[idx].title = title;
             privateState.notes[idx].content = content;
+            privateState.notes[idx].color = selectedNoteColor;
             privateState.notes[idx].timestamp = timeStr + ' (معدلة)';
           }
         } else {
@@ -4424,22 +4616,158 @@
             id: Date.now(),
             title: title,
             content: content,
+            color: selectedNoteColor,
+            pinned: false,
             timestamp: timeStr
           });
         }
 
         privateState.lastNotesUpdate = timeStr;
         savePrivateState();
-        renderNotes(document.getElementById('notesSearchInput').value);
-        document.getElementById('newNoteForm').style.display = 'none';
+        renderNotes();
+        closeNoteEditor();
         showToast(editingNoteId ? 'تم تحديث الملاحظة ✅' : 'تم إضافة الملاحظة ✅', 'success');
+        const privateNotesLastUpdate = document.getElementById('privateNotesLastUpdate');
         if (privateNotesLastUpdate) privateNotesLastUpdate.textContent = `آخر حفظ: ${timeStr}`;
-        editingNoteId = null;
+      }
+
+      // --- تثبيت/إلغاء تثبيت ملاحظة ---
+      function togglePinNote(id) {
+        const note = privateState.notes.find(n => String(n.id) === String(id));
+        if (!note) return;
+        note.pinned = !note.pinned;
+        savePrivateState();
+        renderNotes();
+        showToast(note.pinned ? '📌 تم تثبيت الملاحظة' : 'تم إلغاء التثبيت', 'success');
+        // اهتزاز خفيف
+        if (navigator.vibrate) navigator.vibrate(30);
+      }
+
+      // --- مودال تأكيد الحذف ---
+      function openDeleteNoteModal(id) {
+        pendingDeleteNoteId = id;
+        const note = privateState.notes.find(n => String(n.id) === String(id));
+        const msg = document.getElementById('noteDeleteMsg');
+        if (note && note.title) {
+          msg.textContent = `سيتم حذف "${note.title}" نهائياً ولا يمكن التراجع.`;
+        } else {
+          msg.textContent = 'سيتم حذف هذه الملاحظة نهائياً ولا يمكن التراجع.';
+        }
+        document.getElementById('noteDeleteBackdrop').classList.add('active');
+      }
+
+      function closeDeleteNoteModal() {
+        document.getElementById('noteDeleteBackdrop').classList.remove('active');
+        pendingDeleteNoteId = null;
+      }
+
+      function confirmDeleteNote() {
+        if (!pendingDeleteNoteId) return;
+        privateState.notes = privateState.notes.filter(n => String(n.id) !== String(pendingDeleteNoteId));
+        savePrivateState();
+        renderNotes();
+        closeDeleteNoteModal();
+        showToast('تم حذف الملاحظة 🗑️', 'success');
+        // اهتزاز عند الحذف
+        if (navigator.vibrate) navigator.vibrate([50, 30, 50]);
+      }
+
+      // --- تحديث واجهة لوحة الألوان ---
+      function updateColorPaletteUI() {
+        document.querySelectorAll('#noteColorPalette .note-color-dot').forEach(dot => {
+          dot.classList.toggle('selected', dot.dataset.color === selectedNoteColor);
+        });
+      }
+
+      // --- Auto-resize textarea ---
+      function autoResizeTextarea(textarea) {
+        textarea.style.height = 'auto';
+        textarea.style.height = Math.max(120, textarea.scrollHeight) + 'px';
+      }
+
+      // --- Event Listeners ---
+
+      // زر إضافة ملاحظة
+      document.getElementById('btnAddNote').addEventListener('click', () => {
+        openNoteEditor(null);
       });
 
-      document.getElementById('notesSearchInput').addEventListener('input', (e) => {
-        renderNotes(e.target.value);
+      // زر تبديل البحث
+      const btnToggleSearch = document.getElementById('btnToggleNotesSearch');
+      const searchContainer = document.getElementById('notesSearchContainer');
+      const notesSearchInputElem = document.getElementById('notesSearchInput');
+      const searchClear = document.getElementById('btnClearNotesSearch');
+
+      if (btnToggleSearch) {
+        btnToggleSearch.addEventListener('click', () => {
+          const isOpen = searchContainer.style.display !== 'none';
+          if (isOpen) {
+            searchContainer.style.display = 'none';
+            btnToggleSearch.classList.remove('active');
+            notesSearchQuery = '';
+            if (notesSearchInputElem) notesSearchInputElem.value = '';
+            if (searchClear) searchClear.style.display = 'none';
+            renderNotes();
+          } else {
+            searchContainer.style.display = 'block';
+            btnToggleSearch.classList.add('active');
+            if (notesSearchInputElem) notesSearchInputElem.focus();
+          }
+        });
+      }
+
+      if (notesSearchInputElem) {
+        notesSearchInputElem.addEventListener('input', function() {
+          notesSearchQuery = this.value;
+          if (searchClear) searchClear.style.display = this.value ? 'block' : 'none';
+          renderNotes();
+        });
+      }
+
+      if (searchClear) {
+        searchClear.addEventListener('click', () => {
+          notesSearchQuery = '';
+          if (notesSearchInputElem) notesSearchInputElem.value = '';
+          searchClear.style.display = 'none';
+          renderNotes();
+        });
+      }
+
+      // إغلاق مودال الكتابة
+      document.getElementById('btnCloseNoteEditor').addEventListener('click', closeNoteEditor);
+      document.getElementById('noteEditorBackdrop').addEventListener('click', (e) => {
+        if (e.target === e.currentTarget) closeNoteEditor();
       });
+
+      // حفظ الملاحظة
+      document.getElementById('btnSaveNoteEditor').addEventListener('click', saveNoteFromEditor);
+
+      // لوحة الألوان
+      document.getElementById('noteColorPalette').addEventListener('click', (e) => {
+        const dot = e.target.closest('.note-color-dot');
+        if (!dot) return;
+        selectedNoteColor = dot.dataset.color;
+        updateColorPaletteUI();
+      });
+
+      // عداد الأحرف والكلمات + auto-resize
+      document.getElementById('noteEditorContentInput').addEventListener('input', function() {
+        updateNoteCounterUI(this.value);
+        autoResizeTextarea(this);
+      });
+
+      // مودال الحذف
+      document.getElementById('btnCancelDeleteNote').addEventListener('click', closeDeleteNoteModal);
+      document.getElementById('btnConfirmDeleteNote').addEventListener('click', confirmDeleteNote);
+      document.getElementById('noteDeleteBackdrop').addEventListener('click', (e) => {
+        if (e.target === e.currentTarget) closeDeleteNoteModal();
+      });
+
+      // تعريض الدوال للنطاق العالمي (للتوافقية)
+      window.addNote = function() { openNoteEditor(null); };
+      window.editNote = function(id) { openNoteEditor(id); };
+      window.deleteNote = function(id) { openDeleteNoteModal(id); };
+      window.togglePinNote = togglePinNote;
 
       function openChangePinDialog() {
         const newPin = prompt("أدخل رقم PIN جديد (4-6 أرقام):");
@@ -8443,11 +8771,161 @@
       const btnCancelPlannedExpense = document.getElementById("btnCancelPlannedExpense");
       const btnClosePlannedExpense = document.getElementById("btnClosePlannedExpense");
 
+      // ===== Planned Expense Image Handling =====
+      const plannedImagePreviewContainer = document.getElementById("plannedImagePreviewContainer");
+      const plannedImagePreviewImg = document.getElementById("plannedImagePreviewImg");
+      const plannedImagePreviewFilename = document.getElementById("plannedImagePreviewFilename");
+      const plannedImagePreviewSize = document.getElementById("plannedImagePreviewSize");
+      const plannedImagePreviewRemove = document.getElementById("plannedImagePreviewRemove");
+      const btnTriggerPlannedCamera = document.getElementById("btnTriggerPlannedCamera");
+      const btnTriggerPlannedGallery = document.getElementById("btnTriggerPlannedGallery");
+      const plannedExpenseCameraInput = document.getElementById("plannedExpenseCameraInput");
+      const plannedExpenseImageInput = document.getElementById("plannedExpenseImageInput");
+      const plannedImageUploadDropzone = document.getElementById("plannedImageUploadDropzone");
+      const btnExpandPlannedPreviewImg = document.getElementById("btnExpandPlannedPreviewImg");
+
+      let plannedExpenseImageRemoved = false;
+      let currentPlannedExpenseImageDataUrl = null;
+      let isCompressingPlannedImage = false;
+
+      function handlePlannedImageFileInput(file) {
+        if (file && file.type && file.type.startsWith("image/")) {
+          const MAX_BYTES = 15 * 1024 * 1024;
+          if (file.size > MAX_BYTES) {
+            showAlertModal(
+              `حجم الصورة (${formatFileSize(file.size)}) كبير جداً.\nالحد الأقصى المسموح 15 MB.\nيرجى اختيار صورة أصغر.`,
+              '❌ الصورة كبيرة جداً',
+              '❌'
+            );
+            return;
+          }
+          plannedExpenseImageRemoved = false;
+          isCompressingPlannedImage = true;
+          
+          if (plannedImagePreviewFilename) plannedImagePreviewFilename.textContent = "جاري معالجة وضغط الصورة...";
+          if (plannedImagePreviewSize) plannedImagePreviewSize.textContent = "";
+          if (plannedImagePreviewContainer) plannedImagePreviewContainer.classList.add("active");
+          if (plannedImagePreviewImg) plannedImagePreviewImg.src = "";
+
+          const reader = new FileReader();
+          reader.onload = async function (event) {
+            try {
+              const rawDataUrl = event.target.result;
+              const compressedDataUrl = await compressImage(rawDataUrl, 800, 800, 0.6);
+              
+              currentPlannedExpenseImageDataUrl = compressedDataUrl;
+              if (plannedImagePreviewImg) plannedImagePreviewImg.src = compressedDataUrl;
+              if (plannedImagePreviewFilename) plannedImagePreviewFilename.textContent = file.name || "صورة الفاتورة";
+              
+              const origSize = file.size;
+              const compressedSize = Math.round(compressedDataUrl.length * 0.75);
+              const savedPct = origSize > 0 ? Math.max(0, Math.round((1 - (compressedSize / origSize)) * 100)) : 0;
+              
+              if (plannedImagePreviewSize) {
+                plannedImagePreviewSize.innerHTML = `
+                  <div style="display:flex; flex-direction:column; gap:2px; margin-top:3px;">
+                    <div style="font-weight:700; color:var(--text-color); font-size:11px;">
+                      📦 الحجم: <span style="opacity:0.85;">${formatFileSize(origSize)}</span> ➔ <span style="color:var(--success); font-weight:800;">${formatFileSize(compressedSize)}</span>
+                    </div>
+                    <div style="font-size:10px; color:var(--success); font-weight:800;">
+                      ⚡ تم تخفيض الحجم بنسبة ${savedPct}%
+                    </div>
+                  </div>
+                `;
+              }
+            } catch (err) {
+              console.error("Compression failed:", err);
+              if (plannedImagePreviewFilename) plannedImagePreviewFilename.textContent = "تم استخدام الصورة الأصلية";
+              currentPlannedExpenseImageDataUrl = event.target.result;
+              if (plannedImagePreviewImg) plannedImagePreviewImg.src = event.target.result;
+              if (plannedImagePreviewSize) plannedImagePreviewSize.textContent = formatFileSize(file.size);
+            } finally {
+              isCompressingPlannedImage = false;
+            }
+          };
+          reader.readAsDataURL(file);
+        } else if (file) {
+          showAlertModal('من فضلك اختر ملف صورة صحيح (JPG، PNG، WebP...)', 'ملف غير مقبول', '⚠️');
+        }
+      }
+
+      if (btnTriggerPlannedCamera && plannedExpenseCameraInput) {
+        btnTriggerPlannedCamera.addEventListener("click", () => plannedExpenseCameraInput.click());
+        plannedExpenseCameraInput.addEventListener("change", (e) => {
+          if (e.target.files && e.target.files[0]) handlePlannedImageFileInput(e.target.files[0]);
+        });
+      }
+
+      if (btnTriggerPlannedGallery && plannedExpenseImageInput) {
+        btnTriggerPlannedGallery.addEventListener("click", () => plannedExpenseImageInput.click());
+        plannedExpenseImageInput.addEventListener("change", (e) => {
+          if (e.target.files && e.target.files[0]) handlePlannedImageFileInput(e.target.files[0]);
+        });
+      }
+
+      if (plannedImageUploadDropzone) {
+        plannedImageUploadDropzone.addEventListener("dragover", (e) => {
+          e.preventDefault();
+          plannedImageUploadDropzone.classList.add("drag-over");
+        });
+        plannedImageUploadDropzone.addEventListener("dragleave", () => {
+          plannedImageUploadDropzone.classList.remove("drag-over");
+        });
+        plannedImageUploadDropzone.addEventListener("drop", (e) => {
+          e.preventDefault();
+          plannedImageUploadDropzone.classList.remove("drag-over");
+          if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0]) {
+            handlePlannedImageFileInput(e.dataTransfer.files[0]);
+          }
+        });
+      }
+
+      document.addEventListener("paste", (e) => {
+        if (modalPlannedExpense && modalPlannedExpense.style.display === "flex") {
+          const items = (e.clipboardData || e.originalEvent.clipboardData).items;
+          for (let index in items) {
+            const item = items[index];
+            if (item.kind === 'file' && item.type.startsWith('image/')) {
+              const blob = item.getAsFile();
+              handlePlannedImageFileInput(blob);
+              showToast('📋 تم لصق الصورة بنجاح!', 'success');
+              break;
+            }
+          }
+        }
+      });
+
+      if (plannedImagePreviewRemove) {
+        plannedImagePreviewRemove.addEventListener("click", (e) => {
+          e.preventDefault();
+          if (plannedExpenseImageInput) plannedExpenseImageInput.value = "";
+          if (plannedExpenseCameraInput) plannedExpenseCameraInput.value = "";
+          if (plannedImagePreviewContainer) plannedImagePreviewContainer.classList.remove("active");
+          if (plannedImagePreviewImg) plannedImagePreviewImg.src = "";
+          if (plannedImagePreviewFilename) plannedImagePreviewFilename.textContent = "";
+          if (plannedImagePreviewSize) plannedImagePreviewSize.textContent = "";
+          plannedExpenseImageRemoved = true;
+          currentPlannedExpenseImageDataUrl = null;
+          isCompressingPlannedImage = false;
+        });
+      }
+
+      if (btnExpandPlannedPreviewImg) {
+        btnExpandPlannedPreviewImg.addEventListener("click", () => {
+          if (currentPlannedExpenseImageDataUrl) {
+            openFullImageModal(currentPlannedExpenseImageDataUrl, "planned_expense_preview.jpg");
+          }
+        });
+      }
+
       let editingPlannedExpenseId = null;
       let plannedExpenseModalEscHandler = null;
 
       function openPlannedExpenseModal(plannedExpenseId = null) {
         editingPlannedExpenseId = plannedExpenseId;
+        plannedExpenseImageRemoved = false;
+        currentPlannedExpenseImageDataUrl = null;
+        isCompressingPlannedImage = false;
         if (!modalPlannedExpense) return;
         modalPlannedExpense.style.display = 'flex';
         
@@ -8466,6 +8944,19 @@
               plannedExpenseCategoryInput.value = pe.category || state.categories[0];
               plannedExpenseDateInput.value = pe.date || '';
               plannedExpenseNoteInput.value = pe.note || '';
+              if (plannedExpenseImageInput) plannedExpenseImageInput.value = "";
+              if (plannedExpenseCameraInput) plannedExpenseCameraInput.value = "";
+
+              if (pe.imageDataUrl) {
+                if (plannedImagePreviewImg) plannedImagePreviewImg.src = pe.imageDataUrl;
+                if (plannedImagePreviewFilename) plannedImagePreviewFilename.textContent = "صورة موجودة";
+                if (plannedImagePreviewSize) plannedImagePreviewSize.textContent = "";
+                if (plannedImagePreviewContainer) plannedImagePreviewContainer.classList.add("active");
+                currentPlannedExpenseImageDataUrl = pe.imageDataUrl;
+              } else {
+                if (plannedImagePreviewContainer) plannedImagePreviewContainer.classList.remove("active");
+                if (plannedImagePreviewImg) plannedImagePreviewImg.src = "";
+              }
             }
           }
         } else {
@@ -8477,6 +8968,10 @@
           const today = new Date().toISOString().split('T')[0];
           plannedExpenseDateInput.value = today;
           plannedExpenseNoteInput.value = '';
+          if (plannedExpenseImageInput) plannedExpenseImageInput.value = "";
+          if (plannedExpenseCameraInput) plannedExpenseCameraInput.value = "";
+          if (plannedImagePreviewContainer) plannedImagePreviewContainer.classList.remove("active");
+          if (plannedImagePreviewImg) plannedImagePreviewImg.src = "";
         }
         setTimeout(() => {
           attachNumericInputFormatting();
@@ -8490,6 +8985,11 @@
         if (!modalPlannedExpense) return;
         modalPlannedExpense.style.display = 'none';
         editingPlannedExpenseId = null;
+        if (plannedImagePreviewContainer) plannedImagePreviewContainer.classList.remove("active");
+        if (plannedImagePreviewImg) plannedImagePreviewImg.src = "";
+        plannedExpenseImageRemoved = false;
+        currentPlannedExpenseImageDataUrl = null;
+        isCompressingPlannedImage = false;
         if (plannedExpenseModalEscHandler) {
           document.removeEventListener('keydown', plannedExpenseModalEscHandler);
           plannedExpenseModalEscHandler = null;
@@ -8507,6 +9007,7 @@
         const category = plannedExpenseCategoryInput.value || 'أخرى';
         const date = plannedExpenseDateInput.value || '';
         const note = plannedExpenseNoteInput.value || '';
+        const imageDataUrl = plannedExpenseImageRemoved ? null : (currentPlannedExpenseImageDataUrl || null);
 
         if (amount <= 0) {
           alert('يرجى إدخال مبلغ صحيح أكبر من الصفر.');
@@ -8525,6 +9026,7 @@
             pe.category = category;
             pe.date = date;
             pe.note = note;
+            pe.imageDataUrl = imageDataUrl;
           }
         } else {
           month.plannedExpenses.push({
@@ -8533,7 +9035,8 @@
             amount,
             category,
             date,
-            note
+            note,
+            imageDataUrl
           });
         }
 
@@ -8610,102 +9113,106 @@
           return;
         }
 
-        peList.forEach(pe => {
-          const card = document.createElement('div');
-          card.className = 'goal-glass-card';
-          card.style.borderColor = 'rgba(16, 185, 129, 0.2)';
-          card.style.background = 'rgba(16, 185, 129, 0.03)';
-          card.style.display = 'flex';
-          card.style.flexDirection = 'column';
-          card.style.gap = '8px';
-          card.style.padding = '16px';
-          card.style.borderRadius = '16px';
+        peList.forEach((pe) => {
+          const item = document.createElement("div");
+          item.className = "expense-item";
+          item.style.borderRightColor = "#10b981";
 
-          // Header
-          const header = document.createElement('div');
-          header.style.display = 'flex';
-          header.style.justifyContent = 'space-between';
-          header.style.alignItems = 'center';
+          const main = document.createElement("div");
+          main.className = "expense-main";
 
-          const titleSpan = document.createElement('span');
-          titleSpan.style.fontWeight = '800';
-          titleSpan.style.color = 'var(--text-color)';
-          titleSpan.textContent = '📝 ' + (pe.title || 'مصروف مخطط');
+          const title = document.createElement("div");
+          title.className = "expense-title";
+          title.textContent = pe.title || "مصروف مخطط";
 
-          const amountSpan = document.createElement('span');
-          amountSpan.style.fontWeight = '800';
-          amountSpan.style.color = '#10b981';
-          amountSpan.textContent = formatNumber(pe.amount || 0);
+          const meta = document.createElement("div");
+          meta.className = "expense-meta";
+          const catSpan = document.createElement("span");
+          catSpan.textContent = pe.category || "غير محدد";
+          const dateSpan = document.createElement("span");
+          dateSpan.textContent = pe.date || "بدون تاريخ";
+          meta.appendChild(catSpan);
+          meta.appendChild(document.createTextNode(" · "));
+          meta.appendChild(dateSpan);
 
-          header.appendChild(titleSpan);
-          header.appendChild(amountSpan);
-          card.appendChild(header);
+          const note = document.createElement("div");
+          note.className = "expense-note";
+          note.textContent = pe.note || "";
 
-          // Details Row
-          const details = document.createElement('div');
-          details.style.display = 'flex';
-          details.style.gap = '8px';
-          details.style.fontSize = '12px';
-          details.style.color = 'var(--subtext-color)';
-          
-          const catBadge = document.createElement('span');
-          catBadge.style.background = 'rgba(255,255,255,0.5)';
-          catBadge.style.padding = '2px 8px';
-          catBadge.style.borderRadius = '8px';
-          catBadge.textContent = pe.category || 'غير محدد';
+          main.appendChild(title);
+          main.appendChild(meta);
+          if (pe.note) main.appendChild(note);
 
-          const dateBadge = document.createElement('span');
-          dateBadge.style.background = 'rgba(255,255,255,0.5)';
-          dateBadge.style.padding = '2px 8px';
-          dateBadge.style.borderRadius = '8px';
-          dateBadge.textContent = pe.date || 'بدون تاريخ';
+          const actions = document.createElement("div");
+          actions.className = "expense-actions";
+          const editBtn = document.createElement("button");
+          editBtn.className = "btn-ghost btn-edit";
+          editBtn.textContent = "✏️ تعديل";
+          editBtn.addEventListener("click", () => openPlannedExpenseModal(pe.id));
 
-          details.appendChild(catBadge);
-          details.appendChild(dateBadge);
-          card.appendChild(details);
+          const delBtn = document.createElement("button");
+          delBtn.className = "btn-ghost btn-delete";
+          delBtn.textContent = "🗑️ حذف";
+          delBtn.addEventListener("click", () => deletePlannedExpense(pe.id));
 
-          // Note if exists
-          if (pe.note) {
-            const noteEl = document.createElement('div');
-            noteEl.style.fontSize = '12px';
-            noteEl.style.color = 'var(--text-secondary)';
-            noteEl.style.fontStyle = 'italic';
-            noteEl.style.borderRight = '3px solid #10b981';
-            noteEl.style.paddingRight = '8px';
-            noteEl.textContent = pe.note;
-            card.appendChild(noteEl);
+          actions.appendChild(editBtn);
+          actions.appendChild(delBtn);
+          main.appendChild(actions);
+
+          item.appendChild(main);
+
+          // إذا كانت توجد صورة للمصروف المخطط، نضع معاينة سريعة صغيرة وجانبية (52x52)
+          if (pe.imageDataUrl) {
+            const thumbWrapper = document.createElement("div");
+            thumbWrapper.className = "expense-thumb-wrapper";
+            thumbWrapper.style.borderColor = "rgba(16, 185, 129, 0.4)";
+            thumbWrapper.title = "اضغط لتكبير الصورة وتحميلها";
+
+            const img = document.createElement("img");
+            img.src = pe.imageDataUrl;
+            img.alt = "صورة المصروف المخطط";
+
+            const badge = document.createElement("div");
+            badge.className = "expense-thumb-badge";
+            badge.style.background = "rgba(16, 185, 129, 0.85)";
+            badge.innerHTML = '<i class="fa-solid fa-camera"></i>';
+
+            thumbWrapper.appendChild(img);
+            thumbWrapper.appendChild(badge);
+
+            thumbWrapper.addEventListener("click", (evt) => {
+              evt.stopPropagation();
+              openFullImageModal(pe.imageDataUrl, (pe.title || 'planned_receipt') + '.jpg');
+            });
+
+            item.appendChild(thumbWrapper);
           }
 
-          // Actions
-          const actions = document.createElement('div');
-          actions.style.display = 'flex';
-          actions.style.gap = '8px';
-          actions.style.marginTop = '8px';
-          actions.style.justifyContent = 'flex-end';
+          const amountPill = document.createElement("div");
+          amountPill.className = "expense-amount-pill";
+          amountPill.style.background = "rgba(16, 185, 129, 0.08)";
+          amountPill.style.borderColor = "rgba(16, 185, 129, 0.2)";
 
-          const btnEdit = document.createElement('button');
-          btnEdit.className = 'btn btn-outline btn-sm';
-          btnEdit.innerHTML = '<i class="fa-solid fa-pen"></i> تعديل';
-          btnEdit.style.borderRadius = '10px';
-          btnEdit.addEventListener('click', () => openPlannedExpenseModal(pe.id));
+          const amountVal = document.createElement("span");
+          amountVal.className = "amount-val";
+          amountVal.style.color = "#10b981";
+          amountVal.textContent = formatNumber(pe.amount || 0);
 
-          const btnDel = document.createElement('button');
-          btnDel.className = 'btn btn-outline btn-sm';
-          btnDel.style.borderColor = 'rgba(239, 68, 68, 0.2)';
-          btnDel.style.color = 'var(--danger)';
-          btnDel.innerHTML = '<i class="fa-solid fa-trash"></i>';
-          btnDel.style.borderRadius = '10px';
-          btnDel.addEventListener('click', () => deletePlannedExpense(pe.id));
+          const amountCurr = document.createElement("span");
+          amountCurr.className = "amount-currency";
+          amountCurr.style.color = "#10b981";
+          amountCurr.style.background = "rgba(16, 185, 129, 0.16)";
+          amountCurr.textContent = "IQD";
 
-          actions.appendChild(btnEdit);
-          actions.appendChild(btnDel);
-          card.appendChild(actions);
+          amountPill.appendChild(amountVal);
+          amountPill.appendChild(amountCurr);
 
-          plannedExpensesContainer.appendChild(card);
+          item.appendChild(amountPill);
+          plannedExpensesContainer.appendChild(item);
         });
       }
 
-      // Event Listeners for Planned Expenses
+      // Event Listeners for Planned Expenses & Quick Save
       if (btnAddPlannedExpense) btnAddPlannedExpense.addEventListener("click", () => openPlannedExpenseModal(false));
       if (savePlannedExpenseBtn) savePlannedExpenseBtn.addEventListener("click", savePlannedExpense);
       if (deletePlannedExpenseBtn) deletePlannedExpenseBtn.addEventListener("click", () => { if (editingPlannedExpenseId) deletePlannedExpense(editingPlannedExpenseId); });
@@ -8716,6 +9223,40 @@
           if (e.target === modalPlannedExpense) closePlannedExpenseModal();
         });
       }
+
+      // Quick Save Buttons and Enter Key listeners for mobile ease of access
+      const btnQuickSaveExpense = document.getElementById("btnQuickSaveExpense");
+      if (btnQuickSaveExpense && saveExpenseBtn) {
+        btnQuickSaveExpense.addEventListener("click", () => saveExpenseBtn.click());
+      }
+
+      const btnQuickSavePlannedExpense = document.getElementById("btnQuickSavePlannedExpense");
+      if (btnQuickSavePlannedExpense && savePlannedExpenseBtn) {
+        btnQuickSavePlannedExpense.addEventListener("click", () => savePlannedExpenseBtn.click());
+      }
+
+      // Allow pressing Enter key on input fields to save immediately
+      [expenseTitleInput, expenseAmountInput].forEach(inputEl => {
+        if (inputEl) {
+          inputEl.addEventListener("keydown", (e) => {
+            if (e.key === "Enter") {
+              e.preventDefault();
+              saveExpenseBtn.click();
+            }
+          });
+        }
+      });
+
+      [plannedExpenseTitleInput, plannedExpenseAmountInput].forEach(inputEl => {
+        if (inputEl) {
+          inputEl.addEventListener("keydown", (e) => {
+            if (e.key === "Enter") {
+              e.preventDefault();
+              savePlannedExpenseBtn.click();
+            }
+          });
+        }
+      });
 
       (function init() {
         try {

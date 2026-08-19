@@ -1,10 +1,11 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl" data-theme="light">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>تقارير وتحليلات المصاريف - Report Generation System</title>
-  
+
   <!-- Font Integration -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -90,8 +91,21 @@
       opacity: 0.12;
     }
 
-    .orb-1 { width: 400px; height: 400px; background: var(--accent); top: -50px; right: 10%; }
-    .orb-2 { width: 450px; height: 450px; background: var(--success); bottom: -100px; left: 10%; }
+    .orb-1 {
+      width: 400px;
+      height: 400px;
+      background: var(--accent);
+      top: -50px;
+      right: 10%;
+    }
+
+    .orb-2 {
+      width: 450px;
+      height: 450px;
+      background: var(--success);
+      bottom: -100px;
+      left: 10%;
+    }
 
     /* Dashboard Layout Container */
     .dashboard-container {
@@ -167,7 +181,8 @@
       color: var(--subtext-color);
     }
 
-    .form-select, .form-input {
+    .form-select,
+    .form-input {
       width: 100%;
       padding: 12px 16px;
       border-radius: 14px;
@@ -181,7 +196,8 @@
       outline: none;
     }
 
-    .form-select:focus, .form-input:focus {
+    .form-select:focus,
+    .form-input:focus {
       border-color: var(--accent);
     }
 
@@ -395,17 +411,41 @@
     }
 
     /* Card Specific Colors */
-    .card-income .summary-icon { background: var(--success-bg); color: var(--success); }
-    .card-income .summary-val { color: var(--success); }
+    .card-income .summary-icon {
+      background: var(--success-bg);
+      color: var(--success);
+    }
 
-    .card-expense .summary-icon { background: var(--danger-bg); color: var(--danger); }
-    .card-expense .summary-val { color: var(--danger); }
+    .card-income .summary-val {
+      color: var(--success);
+    }
 
-    .card-savings .summary-icon { background: rgba(79, 70, 229, 0.1); color: var(--accent); }
-    .card-savings .summary-val { color: var(--accent); }
+    .card-expense .summary-icon {
+      background: var(--danger-bg);
+      color: var(--danger);
+    }
 
-    .card-rate .summary-icon { background: rgba(245, 158, 11, 0.1); color: var(--warning); }
-    .card-rate .summary-val { color: var(--warning); }
+    .card-expense .summary-val {
+      color: var(--danger);
+    }
+
+    .card-savings .summary-icon {
+      background: rgba(79, 70, 229, 0.1);
+      color: var(--accent);
+    }
+
+    .card-savings .summary-val {
+      color: var(--accent);
+    }
+
+    .card-rate .summary-icon {
+      background: rgba(245, 158, 11, 0.1);
+      color: var(--warning);
+    }
+
+    .card-rate .summary-val {
+      color: var(--warning);
+    }
 
     /* Analysis & Chart Layout Section */
     .charts-grid {
@@ -464,7 +504,8 @@
       text-align: right;
     }
 
-    .report-table th, .report-table td {
+    .report-table th,
+    .report-table td {
       padding: 14px 18px;
       font-size: 13px;
     }
@@ -502,14 +543,36 @@
       white-space: nowrap;
     }
 
-    .badge-success { background-color: var(--success-bg); color: var(--success); }
-    .badge-danger { background-color: var(--danger-bg); color: var(--danger); }
-    .badge-cat { background-color: rgba(79, 70, 229, 0.1); color: var(--accent); }
+    .badge-success {
+      background-color: var(--success-bg);
+      color: var(--success);
+    }
+
+    .badge-danger {
+      background-color: var(--danger-bg);
+      color: var(--danger);
+    }
+
+    .badge-cat {
+      background-color: rgba(79, 70, 229, 0.1);
+      color: var(--accent);
+    }
 
     /* Trend Icons */
-    .trend-up { color: var(--danger); font-weight: 700; }
-    .trend-down { color: var(--success); font-weight: 700; }
-    .trend-neutral { color: var(--subtext-color); font-weight: 600; }
+    .trend-up {
+      color: var(--danger);
+      font-weight: 700;
+    }
+
+    .trend-down {
+      color: var(--success);
+      font-weight: 700;
+    }
+
+    .trend-neutral {
+      color: var(--subtext-color);
+      font-weight: 600;
+    }
 
     /* Insights & Textual Evaluation Panel */
     .insights-card {
@@ -614,12 +677,21 @@
     }
 
     @keyframes spin {
-      to { transform: rotate(360deg); }
+      to {
+        transform: rotate(360deg);
+      }
     }
 
     @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(8px); }
-      to { opacity: 1; transform: translateY(0); }
+      from {
+        opacity: 0;
+        transform: translateY(8px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
 
     /* Toast Notification System */
@@ -650,12 +722,24 @@
       animation: slideUp 0.3s ease forwards;
     }
 
-    .toast-error { border-left: 4px solid var(--danger); }
-    .toast-success { border-left: 4px solid var(--success); }
+    .toast-error {
+      border-left: 4px solid var(--danger);
+    }
+
+    .toast-success {
+      border-left: 4px solid var(--success);
+    }
 
     @keyframes slideUp {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
 
     /* PDF Generation Layout Optimizations (STRICT 3-Page Split & Block Layout) */
@@ -668,6 +752,10 @@
       background: #ffffff !important;
       color: #0f172a !important;
       font-family: 'Cairo', sans-serif !important;
+      min-height: auto !important;
+      height: auto !important;
+      margin-bottom: 0 !important;
+      padding-bottom: 0 !important;
     }
 
     body.exporting-pdf {
@@ -744,15 +832,22 @@
     }
 
     body.exporting-pdf .summary-card {
-      padding: 14px 16px !important;
+      padding: 16px 18px !important;
       box-shadow: none !important;
-      border: 1px solid #cbd5e1 !important;
+      border: 1.5px solid #94a3b8 !important;
       border-radius: 14px !important;
       background: #f8fafc !important;
     }
 
+    body.exporting-pdf .summary-label {
+      font-size: 11pt !important;
+      font-weight: 700 !important;
+      color: #334155 !important;
+    }
+
     body.exporting-pdf .summary-val {
-      font-size: 1.3rem !important;
+      font-size: 1.55rem !important;
+      font-weight: 800 !important;
     }
 
     body.exporting-pdf .charts-grid {
@@ -768,7 +863,7 @@
       padding: 16px !important;
       border-radius: 14px !important;
       box-shadow: none !important;
-      border: 1px solid #cbd5e1 !important;
+      border: 1.5px solid #94a3b8 !important;
       background: #ffffff !important;
     }
 
@@ -784,21 +879,32 @@
       padding: 0 !important;
       border-radius: 14px !important;
       box-shadow: none !important;
-      border: 1px solid #cbd5e1 !important;
+      border: 1.5px solid #94a3b8 !important;
       background: #ffffff !important;
       width: 100% !important;
     }
 
-    body.exporting-pdf .report-table th, 
+    body.exporting-pdf .report-table th {
+      padding: 12px 14px !important;
+      font-size: 11.5pt !important;
+      font-weight: 800 !important;
+      background: #e2e8f0 !important;
+      color: #0f172a !important;
+      border-bottom: 2px solid #cbd5e1 !important;
+    }
+
     body.exporting-pdf .report-table td {
-      padding: 10px 14px !important;
-      font-size: 10pt !important;
+      padding: 11px 14px !important;
+      font-size: 11pt !important;
+      font-weight: 700 !important;
+      color: #0f172a !important;
       word-break: normal !important;
     }
 
     body.exporting-pdf .badge {
-      font-size: 9.5pt !important;
-      padding: 3px 8px !important;
+      font-size: 10.5pt !important;
+      font-weight: 800 !important;
+      padding: 4px 10px !important;
     }
 
     /* PAGE 3: Category Matrix Table & Recommendations (Explicit Page Break) */
@@ -815,27 +921,39 @@
       border-collapse: collapse !important;
     }
 
-    body.exporting-pdf .matrix-table th,
+    body.exporting-pdf .matrix-table th {
+      padding: 9px 7px !important;
+      font-size: 11pt !important;
+      font-weight: 800 !important;
+      background: #e2e8f0 !important;
+      color: #0f172a !important;
+      white-space: nowrap !important;
+    }
+
     body.exporting-pdf .matrix-table td {
-      padding: 7px 5px !important;
-      font-size: 9.5pt !important;
+      padding: 9px 7px !important;
+      font-size: 10.5pt !important;
+      font-weight: 700 !important;
+      color: #0f172a !important;
       white-space: nowrap !important;
     }
 
     body.exporting-pdf .insights-card {
       margin-top: 20px !important;
-      padding: 16px !important;
+      padding: 18px !important;
       border-radius: 14px !important;
       box-shadow: none !important;
-      border: 1px solid #cbd5e1 !important;
+      border: 1.5px solid #94a3b8 !important;
       background: #ffffff !important;
       page-break-inside: avoid !important;
       break-inside: avoid !important;
     }
 
     body.exporting-pdf .insight-item {
-      font-size: 10pt !important;
-      padding: 10px 14px !important;
+      font-size: 11pt !important;
+      line-height: 1.6 !important;
+      padding: 12px 16px !important;
+      color: #0f172a !important;
     }
 
     body.exporting-pdf .report-table tbody tr,
@@ -930,21 +1048,51 @@
       }
     }
 
-    /* ── Category-per-Month Matrix Table (Compact A4 Layout) ── */
+    /* Mobile vs Desktop Matrix Views */
+    .mobile-only-matrix {
+      display: none;
+    }
+
+    .desktop-only-matrix {
+      display: block;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-only-matrix {
+        display: block !important;
+        padding: 12px;
+      }
+      .desktop-only-matrix {
+        display: none !important;
+      }
+    }
+
+    body.exporting-pdf .mobile-only-matrix {
+      display: none !important;
+    }
+
+    body.exporting-pdf .desktop-only-matrix {
+      display: block !important;
+    }
+
+    /* ── Category-per-Month Matrix Table ── */
     .matrix-table {
       width: 100%;
       border-collapse: collapse;
-      text-align: right;
-      font-size: 9pt;
-      table-layout: auto;
+      text-align: center;
+      font-size: 13px;
     }
 
     .matrix-table th,
     .matrix-table td {
-      padding: 6px 4px;
+      padding: 10px 12px;
       white-space: nowrap;
-      font-size: 9pt;
+      font-size: 12.5px;
       border-bottom: 1px solid var(--border-color);
+      border-left: 1px solid var(--border-color);
+      box-sizing: border-box;
+      position: relative;
+      z-index: 1;
     }
 
     .matrix-table th {
@@ -952,35 +1100,65 @@
       font-weight: 800;
       color: var(--text-color);
       border-bottom: 2px solid var(--border-color);
+      text-align: center;
+      z-index: 2 !important;
     }
 
-    .matrix-table tbody tr:nth-child(even) {
+    .col-sticky-cat {
+      min-width: 140px !important;
+      width: 140px !important;
+      text-align: right !important;
+      font-weight: 800 !important;
+      background-color: var(--card-solid) !important;
+      border-left: 2px solid var(--border-color) !important;
+    }
+
+    th.col-sticky-cat {
+      background-color: #e0e7ff !important;
+      color: #3730a3 !important;
+    }
+
+    [data-theme="dark"] th.col-sticky-cat {
+      background-color: #312e81 !important;
+      color: #ffffff !important;
+    }
+
+    [data-theme="dark"] td.col-sticky-cat {
+      background-color: #1e293b !important;
+      color: #f8fafc !important;
+    }
+
+    .matrix-table tbody tr:nth-child(even) td:not(.col-sticky-cat) {
       background-color: rgba(79, 70, 229, 0.025);
     }
 
-    .matrix-table tbody tr {
-      transition: background-color 0.15s;
-      page-break-inside: avoid;
-      break-inside: avoid;
+    .matrix-table tbody tr:nth-child(even) td.col-sticky-cat {
+      background-color: #ffffff !important;
     }
 
-    .matrix-table .matrix-total-row {
+    [data-theme="dark"] .matrix-table tbody tr:nth-child(even) td.col-sticky-cat {
+      background-color: #1e293b !important;
+    }
+
+    .matrix-table .matrix-total-row td {
       background-color: #f1f5f9 !important;
       font-weight: 800;
       border-top: 2px solid var(--accent);
     }
 
-    [data-theme="dark"] .matrix-table .matrix-total-row {
-      background-color: rgba(79, 70, 229, 0.12) !important;
+    [data-theme="dark"] .matrix-table .matrix-total-row td {
+      background-color: rgba(79, 70, 229, 0.15) !important;
     }
 
     .matrix-table .col-ytd-total {
-      background-color: #f1f5f9;
+      background-color: rgba(239, 68, 68, 0.06);
       font-weight: 800;
+      min-width: 130px;
+      text-align: center;
     }
 
     [data-theme="dark"] .matrix-table .col-ytd-total {
-      background-color: rgba(79, 70, 229, 0.08);
+      background-color: rgba(239, 68, 68, 0.12);
     }
 
     #yearlyCategoryMatrixSection {
@@ -1003,17 +1181,67 @@
 
       .report-header-sticky {
         flex-direction: column;
-        align-items: flex-start;
+        align-items: stretch;
+        gap: 12px;
+        padding: 16px;
       }
 
       .report-actions {
         width: 100%;
-        justify-content: space-between;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
       }
 
-      .btn {
-        flex: 1;
+      .report-actions .btn {
+        flex: 1 1 calc(50% - 4px);
+        min-width: 0;
+        padding: 10px 8px;
+        font-size: 12px;
         justify-content: center;
+        text-align: center;
+        box-sizing: border-box;
+      }
+
+      .report-actions #btnSendTelegramPDF {
+        flex: 1 1 100%;
+        order: 3;
+        font-size: 13.5px;
+        padding: 12px 16px;
+        justify-content: center;
+        box-shadow: 0 4px 14px rgba(36, 161, 222, 0.3);
+      }
+
+      /* Mobile Table Responsiveness & Smooth Touch Scroll */
+      .table-container {
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+        border-radius: 16px !important;
+        border: 1px solid var(--border-color) !important;
+      }
+
+      .report-table {
+        min-width: 720px !important;
+      }
+
+      .matrix-table {
+        min-width: 980px !important;
+        font-size: 12.5px !important;
+      }
+
+      .report-table th,
+      .report-table td,
+      .matrix-table th,
+      .matrix-table td {
+        padding: 10px 12px !important;
+        font-size: 12px !important;
+        font-weight: 700 !important;
+        white-space: nowrap !important;
+        border: 1px solid var(--border-color) !important;
+      }
+
+      th.col-sticky-cat {
+        background: rgba(79, 70, 229, 0.14) !important;
       }
     }
 
@@ -1024,6 +1252,7 @@
     }
   </style>
 </head>
+
 <body>
 
   <!-- Floating Background Glow -->
@@ -1036,12 +1265,13 @@
   <div id="toastContainer" class="toast-container"></div>
 
   <div class="dashboard-container">
-    
+
     <!-- Top Navigation Header -->
     <header class="page-header">
       <div>
         <h1 class="page-title">نظام التقارير والتحليلات المالـيـة</h1>
-        <p style="font-size: 13px; color: var(--subtext-color); margin-top: 4px;">تصدير تقارير رسمية بدقة عالية واستخراج مؤشرات الأداء المالي.</p>
+        <p style="font-size: 13px; color: var(--subtext-color); margin-top: 4px;">تصدير تقارير رسمية بدقة عالية واستخراج
+          مؤشرات الأداء المالي.</p>
       </div>
       <div style="display: flex; gap: 10px; align-items: center;">
         <a href="index.html" class="theme-toggle" style="display: inline-flex; align-items: center; gap: 6px;">
@@ -1082,11 +1312,12 @@
 
     <!-- 2. Main Report Card View -->
     <main class="report-card" id="reportCard">
-      
+
       <!-- Loading Overlay -->
       <div id="loadingOverlay" class="loading-overlay" style="display: none;">
         <div class="spinner"></div>
-        <p style="font-size: 14px; font-weight: 700; color: var(--text-color);">جاري تحليل وتجهيز البيانات والمخططات...</p>
+        <p style="font-size: 14px; font-weight: 700; color: var(--text-color);">جاري تحليل وتجهيز البيانات والمخططات...
+        </p>
       </div>
 
       <!-- Sticky Action Header Bar -->
@@ -1096,18 +1327,19 @@
           <span id="reportHeaderPeriod">جاري التحميل...</span>
         </div>
         <div class="report-actions">
-          <button id="btnApplyFilter" class="btn btn-secondary">
-            <i class="fa-solid fa-rotate"></i> تحديث التقرير
-          </button>
           <button id="btnDownloadPDF" class="btn btn-primary">
             <i class="fa-solid fa-file-pdf"></i> تحميل PDF
+          </button>
+          <button id="btnSendTelegramPDF" class="btn btn-secondary"
+            style="background:#24a1de; color:#fff; border:none;">
+            <i class="fa-brands fa-telegram"></i> إرسال للتلغرام
           </button>
         </div>
       </div>
 
       <!-- Printable area containing report numbers & tables -->
       <div class="report-printable-area" id="reportPrintableArea">
-        
+
         <!-- Header Metadata (Print Header) -->
         <div class="report-meta-header" id="reportMetaHeader">
           <div class="report-meta-info">
@@ -1122,7 +1354,7 @@
 
         <!-- KPI Summary Cards Grid -->
         <div class="summary-grid" id="summaryGrid">
-          
+
           <!-- Income Card -->
           <div class="summary-card card-income">
             <div class="summary-icon"><i class="fa-solid fa-wallet"></i></div>
@@ -1163,7 +1395,7 @@
 
         <!-- Section: Charts & Breakdown Grid -->
         <div class="charts-grid" id="chartsGrid">
-          
+
           <!-- Chart Box -->
           <div class="chart-box">
             <div class="chart-box-title">
@@ -1181,7 +1413,8 @@
               <i class="fa-solid fa-list-check" style="color: var(--success);"></i>
               <span>نسب الإنفاق والتوزيع النسبي</span>
             </div>
-            <div id="categoryBarsContainer" style="display: flex; flex-direction: column; gap: 12px; justify-content: center; height: 100%;"></div>
+            <div id="categoryBarsContainer"
+              style="display: flex; flex-direction: column; gap: 12px; justify-content: center; height: 100%;"></div>
           </div>
 
         </div>
@@ -1200,14 +1433,24 @@
 
         <!-- Section: Monthly Category Matrix for Yearly Report -->
         <div class="table-container" id="yearlyCategoryMatrixSection" style="display: none;">
-          <div style="padding: 14px 16px; font-size: 13px; font-weight: 800; border-bottom: 2px solid var(--border-color); display: flex; align-items: center; gap: 8px; color: var(--text-color); background-color: rgba(79, 70, 229, 0.05);">
-            <i class="fa-solid fa-table-cells" style="color: var(--accent);"></i>
-            <span>مصفوفة توزيع مصاريف الفئات حسب الأشهر (Yearly Category Matrix)</span>
+          <div
+            style="padding: 14px 16px; font-size: 13px; font-weight: 800; border-bottom: 2px solid var(--border-color); display: flex; align-items: center; justify-content: space-between; gap: 8px; color: var(--text-color); background-color: rgba(79, 70, 229, 0.05);">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <i class="fa-solid fa-table-cells" style="color: var(--accent);"></i>
+              <span>توزيع مصاريف الفئات حسب الأشهر</span>
+            </div>
           </div>
-          <table class="matrix-table">
-            <thead id="yearlyMatrixHeader"></thead>
-            <tbody id="yearlyMatrixBody"></tbody>
-          </table>
+
+          <!-- Mobile View: Mobile-Optimized Category Cards (No horizontal scroll needed!) -->
+          <div id="yearlyMatrixMobileCards" class="mobile-only-matrix"></div>
+
+          <!-- Desktop View & PDF Print: Full 13-Column Matrix Table -->
+          <div class="desktop-only-matrix" style="overflow-x: auto;">
+            <table class="matrix-table">
+              <thead id="yearlyMatrixHeader"></thead>
+              <tbody id="yearlyMatrixBody"></tbody>
+            </table>
+          </div>
         </div>
 
         <!-- Section 3: Text-based Insights & Evaluation -->
@@ -1222,14 +1465,18 @@
         <!-- CRITICAL EMPTY STATE COMPONENT -->
         <div class="empty-state-container" id="emptyStateComponent" style="display: none;">
           <svg class="empty-state-svg" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <circle cx="60" cy="60" r="50" fill="rgba(79,70,229,0.06)" stroke="var(--border-color)" stroke-width="2" stroke-dasharray="4 4"/>
-            <path d="M40 45H80V75C80 77.2091 78.2091 79 76 79H44C41.7909 79 40 77.2091 40 75V45Z" fill="var(--card-solid)" stroke="var(--accent)" stroke-width="2.5"/>
-            <path d="M36 45C36 42.7909 37.7909 41 40 41H52L57 45H80C82.2091 45 84 46.7909 84 49V75" stroke="var(--accent)" stroke-width="2.5" stroke-linecap="round"/>
-            <circle cx="60" cy="62" r="8" fill="rgba(239,68,68,0.1)" stroke="var(--danger)" stroke-width="2"/>
-            <path d="M60 58V66M56 62H64" stroke="var(--danger)" stroke-width="2" stroke-linecap="round"/>
+            <circle cx="60" cy="60" r="50" fill="rgba(79,70,229,0.06)" stroke="var(--border-color)" stroke-width="2"
+              stroke-dasharray="4 4" />
+            <path d="M40 45H80V75C80 77.2091 78.2091 79 76 79H44C41.7909 79 40 77.2091 40 75V45Z"
+              fill="var(--card-solid)" stroke="var(--accent)" stroke-width="2.5" />
+            <path d="M36 45C36 42.7909 37.7909 41 40 41H52L57 45H80C82.2091 45 84 46.7909 84 49V75"
+              stroke="var(--accent)" stroke-width="2.5" stroke-linecap="round" />
+            <circle cx="60" cy="62" r="8" fill="rgba(239,68,68,0.1)" stroke="var(--danger)" stroke-width="2" />
+            <path d="M60 58V66M56 62H64" stroke="var(--danger)" stroke-width="2" stroke-linecap="round" />
           </svg>
           <div class="empty-state-title">لا توجد سجلات مالية لهذه الفترة</div>
-          <div class="empty-state-desc">لم يتم العثور على أية مصاريف أو معاملات في هذا التاريخ المحدّد. يمكنك العودة للشاشة الرئيسية لإضافة معاملات ومصاريف جديدة.</div>
+          <div class="empty-state-desc">لم يتم العثور على أية مصاريف أو معاملات في هذا التاريخ المحدّد. يمكنك العودة
+            للشاشة الرئيسية لإضافة معاملات ومصاريف جديدة.</div>
           <a href="index.html" class="btn btn-primary" style="margin-top: 8px;">
             <i class="fa-solid fa-plus-circle"></i> العودة لإضافة مصاريف
           </a>
@@ -1299,7 +1546,6 @@
     const emptyStateComponent = document.getElementById("emptyStateComponent");
     const loadingOverlay = document.getElementById("loadingOverlay");
 
-    const btnApplyFilter = document.getElementById("btnApplyFilter");
     const btnDownloadPDF = document.getElementById("btnDownloadPDF");
 
     let currentUserId = null;
@@ -1348,7 +1594,7 @@
       if (yearParam) reportYear.value = yearParam;
     }
 
-    // Filter Controls Toggle
+    // Filter Controls Toggle & Auto-Update
     filterType.addEventListener("change", () => {
       if (filterType.value === "month") {
         monthSelectorGroup.style.display = "flex";
@@ -1359,6 +1605,11 @@
       }
       loadReport();
     });
+
+    // Auto-update report automatically when month or year changes
+    reportMonth.addEventListener("change", loadReport);
+    reportMonth.addEventListener("input", loadReport);
+    reportYear.addEventListener("change", loadReport);
 
     // Authentication State Observer
     onAuthStateChanged(auth, async (user) => {
@@ -1374,7 +1625,7 @@
           try {
             state = JSON.parse(cachedRaw);
             loadReport();
-          } catch(e) {}
+          } catch (e) { }
         }
 
         try {
@@ -1395,7 +1646,7 @@
             metaUser.textContent = "ضيف (Guest)";
             loadReport();
             return;
-          } catch(e) {}
+          } catch (e) { }
         }
         metaUser.textContent = "مستعرض الديمو";
         currentUserId = "demo_user_id";
@@ -1412,9 +1663,28 @@
       themeToggle.innerHTML = nextTheme === "light" ? '<i class="fa-solid fa-moon"></i>' : '<i class="fa-solid fa-sun"></i>';
     });
 
+    function populateFilterSelectors() {
+      if (!state || !Array.isArray(state.months) || state.months.length === 0) return;
+
+      const activeMonth = state.selectedMonthId || state.months[state.months.length - 1].id;
+      if (activeMonth && reportMonth && (!reportMonth.value || reportMonth.value === "2026-08")) {
+        reportMonth.value = activeMonth;
+      }
+
+      const yearsSet = new Set();
+      state.months.forEach(m => {
+        if (m.year) yearsSet.add(m.year);
+      });
+      const yearsList = Array.from(yearsSet).sort((a, b) => b - a);
+      if (yearsList.length > 0 && reportYear) {
+        reportYear.innerHTML = yearsList.map(y => `<option value="${y}">${y}</option>`).join('');
+      }
+    }
+
     // Main Report Renderer
     async function loadReport() {
       if (!state) return;
+      populateFilterSelectors();
 
       // Show Loading State & Disable Export Button
       loadingOverlay.style.display = "flex";
@@ -1527,7 +1797,7 @@
       mainTableBody.innerHTML = sortedCats.map(([cat, amt]) => {
         const pct = totalExpense > 0 ? (amt / totalExpense) * 100 : 0;
         const prevAmt = prevCatMap[cat] || 0;
-        
+
         let trendHtml = `<span class="trend-neutral"><i class="fa-solid fa-minus"></i> 0.0%</span>`;
         if (prevAmt > 0) {
           const diffPct = ((amt - prevAmt) / prevAmt) * 100;
@@ -1565,13 +1835,13 @@
 
     // ── DYNAMIC FINANCIAL RECOMMENDATION ENGINE (DETAILED IRAQI DIALECT) ──────
     function generateFinancialInsights(data) {
-      const { 
-        income = 0, 
-        expenses = 0, 
-        savings = 0, 
-        categoryMap = {}, 
-        prevCategoryMap = null, 
-        reportType = 'month' 
+      const {
+        income = 0,
+        expenses = 0,
+        savings = 0,
+        categoryMap = {},
+        prevCategoryMap = null,
+        reportType = 'month'
       } = data;
 
       const insights = [];
@@ -1704,15 +1974,15 @@
 
       // Month-over-Month Summary Table Data with Category Breakdown per Month
       const monthNames = ["يناير", "فبراير", "مارس", "أبريل", "مايو", "يونيو", "يوليو", "أغسطس", "سبتمبر", "أكتوبر", "نوفمبر", "ديسمبر"];
-      
+
       mainTableHeader.innerHTML = `
         <tr>
-          <th>الشهر (Month)</th>
-          <th>فئات الإنفاق وتفاصيل المبالغ بهذا الشهر (Monthly Categories)</th>
-          <th>الدخل (Income)</th>
-          <th>المصاريف (Expense)</th>
-          <th>الادخار (Savings)</th>
-          <th>الحالة (Status)</th>
+          <th style="min-width: 90px; text-align: right;">الشهر (Month)</th>
+          <th style="min-width: 260px; text-align: right;">فئات الإنفاق وتفاصيل المبالغ بهذا الشهر (Monthly Categories)</th>
+          <th style="min-width: 120px; text-align: center;">الدخل (Income)</th>
+          <th style="min-width: 120px; text-align: center;">المصاريف (Expense)</th>
+          <th style="min-width: 120px; text-align: center;">الادخار (Savings)</th>
+          <th style="min-width: 100px; text-align: center;">الحالة (Status)</th>
         </tr>
       `;
 
@@ -1721,7 +1991,7 @@
         const mExpensesList = Array.isArray(m.expenses) ? m.expenses : [];
         const mExpense = mExpensesList.reduce((sum, e) => sum + (Number(e.amount) || 0), 0);
         const mSavings = mIncome - mExpense;
-        const statusBadge = mSavings >= 0 
+        const statusBadge = mSavings >= 0
           ? `<span class="badge badge-success"><i class="fa-solid fa-circle-check"></i> ممتاز</span>`
           : `<span class="badge badge-danger"><i class="fa-solid fa-circle-xmark"></i> عجز</span>`;
 
@@ -1733,17 +2003,21 @@
         });
 
         const mCatPills = Object.entries(mCatMap).sort((a, b) => b[1] - a[1]).map(([cat, amt]) => {
-          return `<span class="badge badge-cat" style="margin: 2px; font-size: 11px;">${cat}: ${formatCurrency(amt)}</span>`;
-        }).join(' ');
+          return `<span class="badge badge-cat" style="font-size: 11px; padding: 4px 8px; margin: 2px; white-space: nowrap; display: inline-block;">${cat}: ${formatCurrency(amt)}</span>`;
+        }).join('');
+
+        const mCatContainer = mCatPills 
+          ? `<div style="display: flex; flex-wrap: wrap; gap: 4px; max-width: 280px; align-items: center;">${mCatPills}</div>` 
+          : `<span style="color:var(--subtext-color); font-size:12px;">لا توجد مصاريف</span>`;
 
         return `
           <tr>
-            <td style="font-weight: 800; color: var(--text-color);">${monthNames[m.month - 1] || m.name || m.id}</td>
-            <td style="max-width: 320px;">${mCatPills || '<span style="color:var(--subtext-color); font-size:12px;">لا توجد مصاريف</span>'}</td>
-            <td style="color: var(--success); font-weight: 700;">${formatCurrency(mIncome)}</td>
-            <td style="color: var(--danger); font-weight: 700;">${formatCurrency(mExpense)}</td>
-            <td style="color: ${mSavings >= 0 ? 'var(--success)' : 'var(--danger)'}; font-weight: 700;">${formatCurrency(mSavings)}</td>
-            <td>${statusBadge}</td>
+            <td style="font-weight: 800; color: var(--text-color); min-width: 90px; text-align: right;">${monthNames[m.month - 1] || m.name || m.id}</td>
+            <td style="min-width: 260px; max-width: 300px; vertical-align: middle;">${mCatContainer}</td>
+            <td style="color: var(--success); font-weight: 700; min-width: 120px; text-align: center;">${formatCurrency(mIncome)}</td>
+            <td style="color: var(--danger); font-weight: 700; min-width: 120px; text-align: center;">${formatCurrency(mExpense)}</td>
+            <td style="color: ${mSavings >= 0 ? 'var(--success)' : 'var(--danger)'}; font-weight: 700; min-width: 120px; text-align: center;">${formatCurrency(mSavings)}</td>
+            <td style="min-width: 100px; text-align: center;">${statusBadge}</td>
           </tr>
         `;
       }).join('');
@@ -1776,9 +2050,9 @@
         // Header: Category | Month1 | Month2 | ... | Total YTD
         yearlyMatrixHeader.innerHTML = `
           <tr>
-            <th>الفئة (Category)</th>
-            ${sortedMonthKeys.map(mk => `<th>${monthDataMap[mk].monthName}</th>`).join('')}
-            <th class="col-ytd-total">إجمالي السنة (Total YTD)</th>
+            <th class="col-sticky-cat" style="min-width:140px; text-align:right;">الفئة (Category)</th>
+            ${sortedMonthKeys.map(mk => `<th class="col-month-cell" style="min-width:115px; text-align:center;">${monthDataMap[mk].monthName}</th>`).join('')}
+            <th class="col-ytd-total" style="min-width:130px; text-align:center;">إجمالي السنة (Total YTD)</th>
           </tr>
         `;
 
@@ -1794,33 +2068,80 @@
             catRowTotal += amt;
             monthTotals[mk] += amt;
             if (amt > 0) {
-              return `<td style="font-weight:700; color:var(--danger);">${formatCurrency(amt)}</td>`;
+              return `<td class="col-month-cell" style="font-weight:700; color:var(--danger); text-align:center; min-width:115px;">${formatCurrency(amt)}</td>`;
             }
-            return `<td style="color:var(--subtext-color);">-</td>`;
+            return `<td class="col-month-cell" style="color:var(--subtext-color); text-align:center; min-width:115px;">-</td>`;
           }).join('');
           yearGrandTotal += catRowTotal;
 
           return `
             <tr>
-              <td style="font-weight:800; color:var(--text-color);">${cat}</td>
+              <td class="col-sticky-cat" style="font-weight:800; color:var(--text-color); text-align:right;">${cat}</td>
               ${monthCells}
-              <td class="col-ytd-total" style="color:var(--danger);">${formatCurrency(catRowTotal)}</td>
+              <td class="col-ytd-total" style="color:var(--danger); font-weight:800; text-align:center; min-width:130px;">${formatCurrency(catRowTotal)}</td>
             </tr>
           `;
         }).join('');
 
         // Total row at bottom
         const totalMonthCells = sortedMonthKeys.map(mk => {
-          return `<td style="color:var(--danger);">${formatCurrency(monthTotals[mk])}</td>`;
+          return `<td class="col-month-cell" style="color:var(--danger); font-weight:800; text-align:center; min-width:115px;">${formatCurrency(monthTotals[mk])}</td>`;
         }).join('');
 
         yearlyMatrixBody.innerHTML += `
           <tr class="matrix-total-row">
-            <td>الإجمالي السنوي (YTD Total)</td>
+            <td class="col-sticky-cat" style="font-weight:800; text-align:right;">الإجمالي السنوي (YTD Total)</td>
             ${totalMonthCells}
-            <td class="col-ytd-total">${formatCurrency(yearGrandTotal)}</td>
+            <td class="col-ytd-total" style="font-weight:800; text-align:center; min-width:130px;">${formatCurrency(yearGrandTotal)}</td>
           </tr>
         `;
+
+        // Build Mobile Category Cards (Zero Horizontal Scroll on Mobile Phones!)
+        const mobileCardsContainer = document.getElementById("yearlyMatrixMobileCards");
+        if (mobileCardsContainer) {
+          mobileCardsContainer.innerHTML = allYearCategories.map(cat => {
+            let catTotal = 0;
+            const activeMonths = [];
+
+            sortedMonthKeys.forEach(mk => {
+              const amt = monthDataMap[mk].catMap[cat] || 0;
+              if (amt > 0) {
+                catTotal += amt;
+                activeMonths.push({
+                  name: monthDataMap[mk].monthName,
+                  amt: amt
+                });
+              }
+            });
+
+            const catPct = totalExpenseYTD > 0 ? ((catTotal / totalExpenseYTD) * 100) : 0;
+
+            const monthGrid = activeMonths.map(m => `
+              <div style="background: rgba(79, 70, 229, 0.04); border: 1px solid var(--border-color); border-radius: 10px; padding: 8px 10px; display: flex; justify-content: space-between; align-items: center;">
+                <span style="font-size: 12px; font-weight: 700; color: var(--text-color);">${m.name}</span>
+                <span style="font-size: 12px; font-weight: 800; color: var(--danger);">${formatCurrency(m.amt)}</span>
+              </div>
+            `).join('');
+
+            return `
+              <div style="background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 16px; padding: 14px; margin-bottom: 12px; box-shadow: 0 4px 14px rgba(0,0,0,0.03);">
+                <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px dashed var(--border-color); padding-bottom: 8px; margin-bottom: 10px;">
+                  <div style="display: flex; align-items: center; gap: 8px;">
+                    <span style="width: 8px; height: 8px; border-radius: 50%; background: var(--accent); display: inline-block;"></span>
+                    <span style="font-size: 14px; font-weight: 800; color: var(--text-color);">${cat}</span>
+                  </div>
+                  <div style="display: flex; align-items: center; gap: 8px;">
+                    <span style="font-size: 11px; font-weight: 700; color: var(--accent); background: rgba(79,70,229,0.1); padding: 2px 8px; border-radius: 8px;">${catPct.toFixed(1)}%</span>
+                    <span style="font-size: 13.5px; font-weight: 800; color: var(--danger);">${formatCurrency(catTotal)}</span>
+                  </div>
+                </div>
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px;">
+                  ${monthGrid || '<span style="font-size:12px; color:var(--subtext-color);">لا تتوفر بيانات مصاريف</span>'}
+                </div>
+              </div>
+            `;
+          }).join('');
+        }
       } else {
         yearlyCategoryMatrixSection.style.display = "none";
       }
@@ -1923,9 +2244,9 @@
       const type = filterType.value;
       const periodLabel = reportHeaderPeriod.textContent.trim().replace(/\s+/g, '_');
       const isYearly = (type === "year");
-      
-      const fileName = isYearly 
-        ? `Yearly_Report_${reportYear.value}.pdf` 
+
+      const fileName = isYearly
+        ? `Yearly_Report_${reportYear.value}.pdf`
         : `Monthly_Report_${periodLabel}.pdf`;
 
       const orientation = isYearly ? 'landscape' : 'portrait';
@@ -1934,9 +2255,9 @@
         margin: isYearly ? [8, 8, 8, 8] : [10, 8, 10, 8],
         filename: fileName,
         image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { 
-          scale: 2, 
-          useCORS: true, 
+        html2canvas: {
+          scale: 2,
+          useCORS: true,
           logging: false,
           letterRendering: true,
           scrollX: 0,
@@ -1969,7 +2290,289 @@
       });
     });
 
-    btnApplyFilter.addEventListener("click", loadReport);
+    // ImageStore Helper for IndexedDB access in reports.html
+    const ImageStore = {
+      dbName: 'expense_images_db',
+      storeName: 'images',
+      db: null,
+      async init() {
+        if (this.db) return this.db;
+        return new Promise((resolve) => {
+          try {
+            const req = indexedDB.open(this.dbName, 1);
+            req.onupgradeneeded = (e) => {
+              const db = e.target.result;
+              if (!db.objectStoreNames.contains(this.storeName)) db.createObjectStore(this.storeName);
+            };
+            req.onsuccess = (e) => { this.db = e.target.result; resolve(this.db); };
+            req.onerror = () => resolve(null);
+          } catch(e) { resolve(null); }
+        });
+      },
+      async get(id) {
+        try {
+          const db = await this.init();
+          if (!db) return null;
+          return new Promise((resolve) => {
+            const tx = db.transaction(this.storeName, 'readonly');
+            const store = tx.objectStore(this.storeName);
+            const req = store.get(String(id));
+            req.onsuccess = () => resolve(req.result || null);
+            req.onerror = () => resolve(null);
+          });
+        } catch(e) { return null; }
+      }
+    };
+
+    const btnSendTelegramPDF = document.getElementById("btnSendTelegramPDF");
+    if (btnSendTelegramPDF) {
+      btnSendTelegramPDF.addEventListener("click", async () => {
+        const element = document.getElementById("reportCard");
+        const type = filterType.value;
+        const periodLabel = reportHeaderPeriod.textContent.trim().replace(/\s+/g, '_');
+        const isYearly = (type === "year");
+        const reportFileName = isYearly ? `Yearly_Financial_Report_${reportYear.value}.pdf` : `Monthly_Financial_Report_${periodLabel}.pdf`;
+        const photosFileName = isYearly ? `Yearly_Receipt_Photos_${reportYear.value}.pdf` : `Monthly_Receipt_Photos_${periodLabel}.pdf`;
+        const orientation = isYearly ? 'landscape' : 'portrait';
+
+        btnSendTelegramPDF.disabled = true;
+        btnSendTelegramPDF.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> جاري تجهيز الملفات...';
+        showToast("جاري تجهيز وتصدير التقرير المالي بملف PDF...", "success");
+
+        try {
+          let tgToken = '';
+          let tgChatId = '';
+          if (db) {
+            try {
+              const snap = await get(ref(db, 'settings/telegram'));
+              if (snap.exists()) {
+                tgToken = snap.val().token || '';
+                tgChatId = snap.val().chatId || '';
+              }
+            } catch (err) {
+              console.warn('Could not fetch Telegram settings:', err);
+            }
+          }
+
+          if (!tgToken || !tgChatId) {
+            showToast("لم يتم إعداد بوت التلغرام في السيرفر. يرجى إعداد البوت في الإعدادات.", "error");
+            btnSendTelegramPDF.disabled = false;
+            btnSendTelegramPDF.innerHTML = '<i class="fa-brands fa-telegram"></i> إرسال للتلغرام';
+            return;
+          }
+
+          // ── FILE 1: FINANCIAL REPORT PDF ────────────────────────────
+          const opt1 = {
+            margin: isYearly ? [8, 8, 8, 8] : [10, 8, 10, 8],
+            filename: reportFileName,
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { scale: 2, useCORS: true, logging: false, letterRendering: true },
+            jsPDF: { unit: 'mm', format: 'a4', orientation: orientation },
+            pagebreak: { mode: ['css', 'legacy'], avoid: ['.summary-card', '.chart-box', '.insight-item', 'tr'] }
+          };
+
+          document.body.classList.add("exporting-pdf");
+          if (isYearly) document.body.classList.add("pdf-landscape");
+
+          await document.fonts.ready;
+          await new Promise(r => setTimeout(r, 400));
+
+          const reportPdfBlob = await html2pdf().from(element).set(opt1).output('blob');
+          document.body.classList.remove("exporting-pdf", "pdf-landscape");
+
+          if (!reportPdfBlob) {
+            showToast("فشل إنشاء ملف PDF التقرير المالي.", "error");
+            btnSendTelegramPDF.disabled = false;
+            btnSendTelegramPDF.innerHTML = '<i class="fa-brands fa-telegram"></i> إرسال للتلغرام';
+            return;
+          }
+
+          // Send File #1: Financial Report
+          const form1 = new FormData();
+          form1.append('chat_id', tgChatId);
+          form1.append('document', reportPdfBlob, reportFileName);
+
+          let caption1 = `📄 *ملف (1): التقرير المالي الشامل (${isYearly ? 'سنوي' : 'شهري'})*\n`;
+          caption1 += `🗓️ *الفترة:* ${reportHeaderPeriod.textContent.trim()}\n`;
+          caption1 += `💰 *إجمالي الدخل:* ${valTotalIncome.textContent.trim()}\n`;
+          caption1 += `📉 *إجمالي المصاريف:* ${valTotalExpense.textContent.trim()}\n`;
+          caption1 += `💵 *صافي الادخار:* ${valNetSavings.textContent.trim()}`;
+
+          form1.append('caption', caption1);
+          form1.append('parse_mode', 'Markdown');
+
+          const resp1 = await fetch(`https://api.telegram.org/bot${tgToken}/sendDocument`, {
+            method: 'POST',
+            body: form1
+          });
+
+          if (resp1.ok) {
+            showToast("✅ تم إرسال ملف التقرير المالي (1) بنجاح!", "success");
+          }
+
+          // ── FILE 2: RECEIPT PHOTOS ALBUM PDF (FILTERED STRICTLY BY SELECTED PERIOD) ─────
+          const allPhotoExpenses = [];
+          if (state && Array.isArray(state.months)) {
+            let targetMonths = [];
+            if (isYearly) {
+              const selectedYearNum = parseInt(reportYear.value);
+              targetMonths = state.months.filter(m => m.year === selectedYearNum);
+            } else {
+              const selectedMonthId = reportMonth.value; // e.g. "2026-08"
+              targetMonths = state.months.filter(m => m.id === selectedMonthId);
+            }
+
+            for (const monthItem of targetMonths) {
+              const expensesList = Array.isArray(monthItem.expenses) ? monthItem.expenses : [];
+              for (const exp of expensesList) {
+                let imgData = exp.imageDataUrl;
+                if (!imgData && (exp.hasImage || exp.id)) {
+                  try {
+                    imgData = await ImageStore.get(exp.id);
+                  } catch (e) {}
+                }
+                if (imgData && imgData.startsWith('data:image')) {
+                  allPhotoExpenses.push({
+                    expense: exp,
+                    monthName: monthItem.name || monthItem.id,
+                    imageDataUrl: imgData
+                  });
+                }
+              }
+            }
+          }
+
+          if (allPhotoExpenses.length > 0) {
+            btnSendTelegramPDF.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> جاري تجهيز ألبوم الصور...';
+            showToast(`جاري إنشاء وتصدير ملف (2): ألبوم الفواتير المرفقة (${allPhotoExpenses.length} فاتورة)...`, "success");
+
+            // Build Receipts HTML Container with explicit row wrappers to guarantee no pagebreak splits
+            let receiptsContainer = document.getElementById("receiptsPdfContainer");
+            if (!receiptsContainer) {
+              receiptsContainer = document.createElement("div");
+              receiptsContainer.id = "receiptsPdfContainer";
+              document.body.appendChild(receiptsContainer);
+            }
+            receiptsContainer.style.display = "block";
+
+            const rowsHtml = [];
+            for (let i = 0; i < allPhotoExpenses.length; i += 2) {
+              const item1 = allPhotoExpenses[i];
+              const item2 = allPhotoExpenses[i + 1];
+
+              const card1Html = `
+                <div class="pdf-receipt-card" style="border: 1.5px solid #94a3b8; border-radius: 12px; padding: 12px; background: #ffffff; page-break-inside: avoid !important; break-inside: avoid !important; display: flex; flex-direction: column; gap: 6px;">
+                  <div style="font-size: 11px; font-weight: 700; color: #64748b; border-bottom: 1px solid #e2e8f0; padding-bottom: 4px;">
+                    فاتورة رقم #${i + 1} - شهر ${item1.monthName}
+                  </div>
+                  <div style="width: 100%; height: 180px; display: flex; align-items: center; justify-content: center; background: #f8fafc; border-radius: 8px; overflow: hidden; border: 1px solid #cbd5e1;">
+                    <img src="${item1.imageDataUrl}" style="max-width: 100%; max-height: 100%; object-fit: contain;" />
+                  </div>
+                  <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 4px;">
+                    <span style="font-size: 13px; font-weight: 800; color: #0f172a; word-break: break-word;">${item1.expense.title || 'مصروف'}</span>
+                    <span style="font-size: 12px; font-weight: 800; color: #ef4444; background: #fee2e2; padding: 2px 8px; border-radius: 10px; flex-shrink:0;">${formatCurrency(item1.expense.amount || 0)}</span>
+                  </div>
+                  <div style="display: flex; justify-content: space-between; font-size: 10.5px; font-weight: 600; color: #475569;">
+                    <span>🏷️ ${item1.expense.category || 'عام'}</span>
+                    <span>📅 ${item1.expense.date || ''}</span>
+                  </div>
+                  ${item1.expense.note ? `<div style="font-size: 10.5px; color: #334155; background: #f1f5f9; padding: 5px 8px; border-radius: 6px; border-right: 3px solid #6366f1;">📝 ${item1.expense.note}</div>` : ''}
+                </div>
+              `;
+
+              let card2Html = '';
+              if (item2) {
+                card2Html = `
+                  <div class="pdf-receipt-card" style="border: 1.5px solid #94a3b8; border-radius: 12px; padding: 12px; background: #ffffff; page-break-inside: avoid !important; break-inside: avoid !important; display: flex; flex-direction: column; gap: 6px;">
+                    <div style="font-size: 11px; font-weight: 700; color: #64748b; border-bottom: 1px solid #e2e8f0; padding-bottom: 4px;">
+                      فاتورة رقم #${i + 2} - شهر ${item2.monthName}
+                    </div>
+                    <div style="width: 100%; height: 180px; display: flex; align-items: center; justify-content: center; background: #f8fafc; border-radius: 8px; overflow: hidden; border: 1px solid #cbd5e1;">
+                      <img src="${item2.imageDataUrl}" style="max-width: 100%; max-height: 100%; object-fit: contain;" />
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 4px;">
+                      <span style="font-size: 13px; font-weight: 800; color: #0f172a; word-break: break-word;">${item2.expense.title || 'مصروف'}</span>
+                      <span style="font-size: 12px; font-weight: 800; color: #ef4444; background: #fee2e2; padding: 2px 8px; border-radius: 10px; flex-shrink:0;">${formatCurrency(item2.expense.amount || 0)}</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; font-size: 10.5px; font-weight: 600; color: #475569;">
+                      <span>🏷️ ${item2.expense.category || 'عام'}</span>
+                      <span>📅 ${item2.expense.date || ''}</span>
+                    </div>
+                    ${item2.expense.note ? `<div style="font-size: 10.5px; color: #334155; background: #f1f5f9; padding: 5px 8px; border-radius: 6px; border-right: 3px solid #6366f1;">📝 ${item2.expense.note}</div>` : ''}
+                  </div>
+                `;
+              }
+
+              rowsHtml.push(`
+                <div class="pdf-receipt-row" style="display: table; width: 100%; table-layout: fixed; margin-bottom: 16px; page-break-inside: avoid !important; break-inside: avoid !important;">
+                  <div style="display: table-cell; width: 49%; vertical-align: top; padding-left: 6px;">
+                    ${card1Html}
+                  </div>
+                  <div style="display: table-cell; width: 49%; vertical-align: top; padding-right: 6px;">
+                    ${card2Html}
+                  </div>
+                </div>
+              `);
+            }
+
+            receiptsContainer.innerHTML = `
+              <div style="padding: 20px; font-family: 'Cairo', sans-serif; direction: rtl; background: #ffffff; color: #0f172a; width: 190mm; box-sizing: border-box;">
+                <div style="text-align: center; border-bottom: 2px solid #cbd5e1; padding-bottom: 12px; margin-bottom: 20px; page-break-inside: avoid !important;">
+                  <h2 style="font-size: 20px; font-weight: 800; color: #0f172a; margin: 0 0 6px 0;">📸 ألبوم صور الفواتير والوصولات المرفقة</h2>
+                  <p style="font-size: 12px; font-weight: 600; color: #64748b; margin: 0;">الفترة: ${reportHeaderPeriod.textContent.trim()} | إجمالي الفواتير الموثقة: ${allPhotoExpenses.length} فاتورة</p>
+                </div>
+                <div>
+                  ${rowsHtml.join('')}
+                </div>
+              </div>
+            `;
+
+            const opt2 = {
+              margin: [10, 8, 10, 8],
+              filename: photosFileName,
+              image: { type: 'jpeg', quality: 0.95 },
+              html2canvas: { scale: 2, useCORS: true, logging: false, letterRendering: true },
+              jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+              pagebreak: { mode: ['css', 'legacy'], avoid: ['.pdf-receipt-row', '.pdf-receipt-card'] }
+            };
+
+            const photosPdfBlob = await html2pdf().from(receiptsContainer).set(opt2).output('blob');
+            receiptsContainer.style.display = "none";
+
+            if (photosPdfBlob) {
+              const form2 = new FormData();
+              form2.append('chat_id', tgChatId);
+              form2.append('document', photosPdfBlob, photosFileName);
+
+              let caption2 = `🖼️ *ملف (2): ألبوم صور الفواتير والوصولات المرفقة*\n`;
+              caption2 += `🗓️ *الفترة:* ${reportHeaderPeriod.textContent.trim()}\n`;
+              caption2 += `📑 *عدد الفواتير الموثقة داخل الملف:* ${allPhotoExpenses.length} فاتورة`;
+
+              form2.append('caption', caption2);
+              form2.append('parse_mode', 'Markdown');
+
+              const resp2 = await fetch(`https://api.telegram.org/bot${tgToken}/sendDocument`, {
+                method: 'POST',
+                body: form2
+              });
+
+              if (resp2.ok) {
+                showToast("✅ تم إرسال ملف (2) ألبوم صور الفواتير بنجاح إلى التلغرام!", "success");
+              }
+            }
+          } else {
+            showToast("ℹ️ التقرير المالي أُرسِل بنجاح (لا توجد صور فواتير مرفقة لهذه الفترة).", "success");
+          }
+        } catch (err) {
+          console.error("Telegram PDF export error:", err);
+          document.body.classList.remove("exporting-pdf", "pdf-landscape");
+          showToast("حدث خطأ أثناء إرسال التقرير لتلغرام.", "error");
+        } finally {
+          btnSendTelegramPDF.disabled = false;
+          btnSendTelegramPDF.innerHTML = '<i class="fa-brands fa-telegram"></i> إرسال للتلغرام';
+        }
+      });
+    }
 
     // Demo Data Provider
     function getDemoState() {
@@ -2005,4 +2608,5 @@
     }
   </script>
 </body>
+
 </html>

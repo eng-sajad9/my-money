@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <script id="fouc-fix-script">
-    (function() {
+    (function () {
       try {
         // Apply theme immediately to prevent dark-mode white flashes
         const savedTheme = localStorage.getItem("expense_manager_theme") || "light";
@@ -18,7 +18,7 @@
           style.innerHTML = '#loginView { display: none !important; } #appView { display: block !important; }';
           document.head.appendChild(style);
         }
-      } catch (e) {}
+      } catch (e) { }
     })();
   </script>
   <link rel="manifest" href="/my-money" />
@@ -710,10 +710,108 @@
       }
     }
 
-    /* ===== Wide Desktop (1024px+) ===== */
+    /* ===== Executive Wide Desktop Layout (1024px+) ===== */
     @media (min-width: 1024px) {
+      body {
+        padding: 24px 0;
+        background: var(--bg-color);
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+      }
+
       .app-container {
-        max-width: 600px;
+        max-width: 1200px !important;
+        width: 95% !important;
+        padding: 32px 36px !important;
+        border-radius: 24px !important;
+        box-shadow: var(--shadow-soft) !important;
+        border: 1px solid var(--border-color) !important;
+        margin: 0 auto !important;
+        min-height: calc(100vh - 48px) !important;
+      }
+
+      /* Desktop Header Bar */
+      header {
+        margin-bottom: 24px !important;
+        padding-bottom: 18px !important;
+        border-bottom: 1px solid var(--border-color) !important;
+      }
+
+      .header-left h2 {
+        font-size: 24px !important;
+      }
+
+      .header-actions {
+        gap: 10px !important;
+      }
+
+      /* Desktop Navigation Tabs */
+      .tabs {
+        gap: 10px !important;
+        margin-bottom: 24px !important;
+      }
+
+      .tab-btn {
+        padding: 10px 24px !important;
+        font-size: 14px !important;
+        font-weight: 700 !important;
+        border-radius: 14px !important;
+      }
+
+      /* Desktop Month Selection Toolbar */
+      .month-row {
+        gap: 12px !important;
+        margin-bottom: 24px !important;
+      }
+
+      .month-select {
+        font-size: 14px !important;
+        min-height: 42px !important;
+        max-width: 320px !important;
+      }
+
+      /* Desktop Cards & Grids */
+      .card {
+        border-radius: 20px !important;
+        padding: 24px !important;
+        margin-bottom: 20px !important;
+      }
+
+      .summary-grid {
+        display: grid !important;
+        grid-template-columns: repeat(3, 1fr) !important;
+        gap: 20px !important;
+      }
+
+      .summary-item {
+        padding: 20px 24px !important;
+        border-radius: 18px !important;
+      }
+
+      .summary-value {
+        font-size: 24px !important;
+      }
+
+      /* Desktop Planning & Compare Multi-column Grids */
+      .goals-container,
+      .buckets-container,
+      #compareContainer {
+        display: grid !important;
+        grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)) !important;
+        gap: 20px !important;
+      }
+
+      /* Desktop Expense Item Formatting */
+      .expense-item {
+        padding: 16px 24px !important;
+        border-radius: 16px !important;
+        transition: transform 0.2s ease, box-shadow 0.2s ease !important;
+      }
+
+      .expense-item:hover {
+        transform: translateY(-2px) !important;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06) !important;
       }
     }
 
@@ -849,7 +947,8 @@
           <div class="card-loader-content">
             <div class="loader-shield-wrap">
               <div class="loader-shield-glow"></div>
-              <svg class="loader-shield-svg" width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <svg class="loader-shield-svg" width="64" height="64" viewBox="0 0 64 64" fill="none"
+                xmlns="http://www.w3.org/2000/svg">
                 <defs>
                   <linearGradient id="shieldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
                     <stop offset="0%" stop-color="#4f46e5" />
@@ -857,7 +956,8 @@
                   </linearGradient>
                 </defs>
                 <path d="M32 6L12 14V28C12 42.8 24.8 54 32 58C39.2 54 52 42.8 52 28V14L32 6Z" fill="url(#shieldGrad)" />
-                <path d="M26 31L30 35L38 25" stroke="white" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
+                <path d="M26 31L30 35L38 25" stroke="white" stroke-width="4" stroke-linecap="round"
+                  stroke-linejoin="round" />
               </svg>
             </div>
             <div class="loader-text-status">جاري تأمين الاتصال...</div>
@@ -870,7 +970,8 @@
 
         <!-- الشعار والعنوان -->
         <div class="login-brand">
-          <svg class="login-brand-icon" width="60" height="60" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <svg class="login-brand-icon" width="60" height="60" viewBox="0 0 64 64" fill="none"
+            xmlns="http://www.w3.org/2000/svg">
             <defs>
               <linearGradient id="logoGrad" x1="0%" y1="0%" x2="100%" y2="100%">
                 <stop offset="0%" stop-color="#4f46e5" />
@@ -878,10 +979,13 @@
               </linearGradient>
             </defs>
             <rect x="2" y="2" width="60" height="60" rx="18" fill="url(#logoGrad)" />
-            <path d="M18 36V28C18 25.7909 19.7909 24 22 24H42C44.2091 24 46 25.7909 46 28V36C46 38.2091 44.2091 40 42 40H22C19.7909 40 18 38.2091 18 36Z" stroke="white" stroke-width="3.5" stroke-linejoin="round" />
+            <path
+              d="M18 36V28C18 25.7909 19.7909 24 22 24H42C44.2091 24 46 25.7909 46 28V36C46 38.2091 44.2091 40 42 40H22C19.7909 40 18 38.2091 18 36Z"
+              stroke="white" stroke-width="3.5" stroke-linejoin="round" />
             <path d="M46 30H36C34.8954 30 34 30.8954 34 32C34 33.1046 34.8954 34 36 34H46V30Z" fill="white" />
             <circle cx="39" cy="32" r="2" fill="#06b6d4" />
-            <path d="M25 31L29 27L33 31" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M25 31L29 27L33 31" stroke="white" stroke-width="2.5" stroke-linecap="round"
+              stroke-linejoin="round" />
           </svg>
           <h1 class="login-brand-title">مصروفاتي</h1>
           <p class="login-brand-sub">إدارة مصاريفك بذكاء وأمان من أي جهاز</p>
@@ -962,17 +1066,21 @@
           <span class="sync-dot"></span>
           <span class="sync-label">مزامن</span>
         </div>
-        
+
         <!-- قائمة الإعدادات والتقارير⚙️ -->
         <div class="settings-dropdown-wrapper" style="position: relative; display: inline-block;">
-          <button id="btnDesktopSettings" class="btn btn-outline btn-sm" style="min-height: 36px; gap: 6px; font-weight: 700;" title="الإعدادات والتقارير">
+          <button id="btnDesktopSettings" class="btn btn-outline btn-sm"
+            style="min-height: 36px; gap: 6px; font-weight: 700;" title="الإعدادات والتقارير">
             ⚙️ الإعدادات
           </button>
-          <div id="desktopSettingsMenu" class="settings-menu-dropdown" style="display: none; position: absolute; top: calc(100% + 6px); left: 0; background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 14px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); z-index: 500; min-width: 220px; overflow: hidden; backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);">
-            <a class="settings-menu-item" href="reports.html?type=month" style="text-decoration: none; display: flex; align-items: center; gap: 10px; padding: 12px 16px; color: var(--text-color); font-weight: 700; font-size: 13.5px; border-bottom: 1px solid var(--border-color); transition: background 0.15s;">
+          <div id="desktopSettingsMenu" class="settings-menu-dropdown"
+            style="display: none; position: absolute; top: calc(100% + 6px); left: 0; background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 14px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); z-index: 500; min-width: 220px; overflow: hidden; backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);">
+            <a class="settings-menu-item" href="reports.html?type=month"
+              style="text-decoration: none; display: flex; align-items: center; gap: 10px; padding: 12px 16px; color: var(--text-color); font-weight: 700; font-size: 13.5px; border-bottom: 1px solid var(--border-color); transition: background 0.15s;">
               <span>📅</span> التقرير الشهري (Monthly)
             </a>
-            <a class="settings-menu-item" href="reports.html?type=year" style="text-decoration: none; display: flex; align-items: center; gap: 10px; padding: 12px 16px; color: var(--text-color); font-weight: 700; font-size: 13.5px; border-bottom: 1px solid var(--border-color); transition: background 0.15s;">
+            <a class="settings-menu-item" href="reports.html?type=year"
+              style="text-decoration: none; display: flex; align-items: center; gap: 10px; padding: 12px 16px; color: var(--text-color); font-weight: 700; font-size: 13.5px; border-bottom: 1px solid var(--border-color); transition: background 0.15s;">
               <span>📆</span> التقرير السنوي (Yearly)
             </a>
           </div>
@@ -1000,10 +1108,12 @@
           <button id="btnMobileSettings" class="btn btn-outline btn-sm" style="min-height:36px;" aria-haspopup="true"
             aria-expanded="false">⚙️</button>
           <div id="settingsMenu" role="menu">
-            <a class="settings-menu-item" href="reports.html?type=month" style="text-decoration: none; display: flex; align-items: center; gap: 10px; color: inherit; font-weight: 700;">
+            <a class="settings-menu-item" href="reports.html?type=month"
+              style="text-decoration: none; display: flex; align-items: center; gap: 10px; color: inherit; font-weight: 700;">
               <span>📅</span> التقرير الشهري (Monthly)
             </a>
-            <a class="settings-menu-item" href="reports.html?type=year" style="text-decoration: none; display: flex; align-items: center; gap: 10px; color: inherit; font-weight: 700;">
+            <a class="settings-menu-item" href="reports.html?type=year"
+              style="text-decoration: none; display: flex; align-items: center; gap: 10px; color: inherit; font-weight: 700;">
               <span>📆</span> التقرير السنوي (Yearly)
             </a>
             <button class="settings-menu-item" id="menuToggleThemeMob">الوضع الداكن</button>
@@ -1233,7 +1343,8 @@
     <!-- تبويب مقارنة الأشهر -->
     <div id="tab-compare" style="display:none;">
       <!-- زر المقارنة المفصلة -->
-      <button id="btnOpenDetailedCompare" class="btn btn-primary" style="width: 100%; margin-bottom: 12px; display: flex; align-items: center; justify-content: center; gap: 8px; font-weight: 700;">
+      <button id="btnOpenDetailedCompare" class="btn btn-primary"
+        style="width: 100%; margin-bottom: 12px; display: flex; align-items: center; justify-content: center; gap: 8px; font-weight: 700;">
         <i class="fa-solid fa-code-compare"></i> مقارنة مفصلة بين شهرين
       </button>
 
@@ -1312,45 +1423,65 @@
 
     <!-- تبويب التخطيط والأهداف -->
     <div id="tab-planning" class="planning-tab-bg" style="display:none;">
-      
+
       <!-- قسم الأهداف -->
       <div class="glass-card" style="margin-bottom: 24px;">
         <div class="glass-header">
-          <h3 style="display:flex; align-items:center; gap:8px; font-size:1.3rem; color: var(--text-color); font-weight: 800;">
-            <div style="background: linear-gradient(135deg, #3b82f6, #8b5cf6); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;"><i class="fa-solid fa-bullseye"></i></div> أهدافي المستقبلية
+          <h3
+            style="display:flex; align-items:center; gap:8px; font-size:1.3rem; color: var(--text-color); font-weight: 800;">
+            <div
+              style="background: linear-gradient(135deg, #3b82f6, #8b5cf6); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;">
+              <i class="fa-solid fa-bullseye"></i></div> أهدافي المستقبلية
           </h3>
-          <button id="btnAddGoal" class="btn btn-primary" style="border-radius: 14px; font-weight: 800; padding: 8px 16px; background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); box-shadow: 0 4px 15px rgba(37,99,235,0.3); border: none; transition: transform 0.2s, box-shadow 0.2s;">+ هدف جديد</button>
+          <button id="btnAddGoal" class="btn btn-primary"
+            style="border-radius: 14px; font-weight: 800; padding: 8px 16px; background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); box-shadow: 0 4px 15px rgba(37,99,235,0.3); border: none; transition: transform 0.2s, box-shadow 0.2s;">+
+            هدف جديد</button>
         </div>
-        <div id="goalsContainer" class="goals-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; margin-top: 16px;">
+        <div id="goalsContainer" class="goals-grid"
+          style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; margin-top: 16px;">
           <!-- Goals injected via JS -->
-          <div class="empty-state" id="goalsEmpty" style="grid-column: 1 / -1; background: rgba(255,255,255,0.5); backdrop-filter: blur(4px); border-radius: 16px; padding: 24px;">لا توجد أهداف حالياً. ابدأ بالتخطيط لمستقبلك!</div>
+          <div class="empty-state" id="goalsEmpty"
+            style="grid-column: 1 / -1; background: rgba(255,255,255,0.5); backdrop-filter: blur(4px); border-radius: 16px; padding: 24px;">
+            لا توجد أهداف حالياً. ابدأ بالتخطيط لمستقبلك!</div>
         </div>
       </div>
 
       <!-- قسم حدود الصرف -->
       <div class="glass-card">
         <div class="glass-header">
-          <h3 style="display:flex; align-items:center; gap:8px; font-size:1.3rem; color: var(--text-color); font-weight: 800;">
-            <div style="background: linear-gradient(135deg, #ef4444, #f97316); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;"><i class="fa-solid fa-shield-halved"></i></div> حدود الصرف
+          <h3
+            style="display:flex; align-items:center; gap:8px; font-size:1.3rem; color: var(--text-color); font-weight: 800;">
+            <div
+              style="background: linear-gradient(135deg, #ef4444, #f97316); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;">
+              <i class="fa-solid fa-shield-halved"></i></div> حدود الصرف
           </h3>
-          <button id="btnOpenCategoryLimits" class="btn btn-outline" style="border-radius: 14px; font-weight: 800; background: rgba(255,255,255,0.6); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.8); color: var(--text-color); box-shadow: 0 4px 10px rgba(0,0,0,0.05); transition: all 0.2s;">إدارة الحدود</button>
+          <button id="btnOpenCategoryLimits" class="btn btn-outline"
+            style="border-radius: 14px; font-weight: 800; background: rgba(255,255,255,0.6); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.8); color: var(--text-color); box-shadow: 0 4px 10px rgba(0,0,0,0.05); transition: all 0.2s;">إدارة
+            الحدود</button>
         </div>
         <div style="margin-top: 8px; font-size: 13px; color: var(--subtext-color); margin-bottom: 16px;">
           ضع حداً أقصى للصرف في فئات معينة لمراقبة ميزانيتك بدقة.
         </div>
         <div id="limitsContainer" style="display: flex; flex-direction: column; gap: 12px;">
           <!-- Limits injected via JS -->
-          <div class="empty-state" id="limitsEmpty" style="background: rgba(255,255,255,0.5); backdrop-filter: blur(4px); border-radius: 16px; padding: 24px;">لم تقم بتعيين حدود صرف لأي فئة حتى الآن.</div>
+          <div class="empty-state" id="limitsEmpty"
+            style="background: rgba(255,255,255,0.5); backdrop-filter: blur(4px); border-radius: 16px; padding: 24px;">
+            لم تقم بتعيين حدود صرف لأي فئة حتى الآن.</div>
         </div>
       </div>
 
       <!-- قسم المصاريف المخططة (التجريبية) -->
       <div class="glass-card" style="margin-top: 24px;">
         <div class="glass-header">
-          <h3 style="display:flex; align-items:center; gap:8px; font-size:1.3rem; color: var(--text-color); font-weight: 800;">
-            <div style="background: linear-gradient(135deg, #10b981, #059669); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;"><i class="fa-solid fa-list-check"></i></div> مصاريف مخططة
+          <h3
+            style="display:flex; align-items:center; gap:8px; font-size:1.3rem; color: var(--text-color); font-weight: 800;">
+            <div
+              style="background: linear-gradient(135deg, #10b981, #059669); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;">
+              <i class="fa-solid fa-list-check"></i></div> مصاريف مخططة
           </h3>
-          <button id="btnAddPlannedExpense" class="btn btn-primary" style="border-radius: 14px; font-weight: 800; padding: 8px 16px; background: linear-gradient(135deg, #10b981 0%, #059669 100%); box-shadow: 0 4px 15px rgba(16,185,129,0.3); border: none; transition: transform 0.2s, box-shadow 0.2s;">+ مصروف مخطط</button>
+          <button id="btnAddPlannedExpense" class="btn btn-primary"
+            style="border-radius: 14px; font-weight: 800; padding: 8px 16px; background: linear-gradient(135deg, #10b981 0%, #059669 100%); box-shadow: 0 4px 15px rgba(16,185,129,0.3); border: none; transition: transform 0.2s, box-shadow 0.2s;">+
+            مصروف مخطط</button>
         </div>
         <div style="margin-top: 8px; font-size: 13px; color: var(--subtext-color); margin-bottom: 16px;">
           خطط لمصاريفك المستقبلية أو التقديرية لهذا الشهر دون التأثير على الراتب الفعلي.
@@ -1383,7 +1514,9 @@
         </div>
         <div id="plannedExpensesContainer" style="display: flex; flex-direction: column; gap: 12px;">
           <!-- Planned Expenses injected via JS -->
-          <div class="empty-state" id="plannedExpensesEmpty" style="background: rgba(255,255,255,0.5); backdrop-filter: blur(4px); border-radius: 16px; padding: 24px;">لا توجد مصاريف مخططة لهذا الشهر. خطط الآن!</div>
+          <div class="empty-state" id="plannedExpensesEmpty"
+            style="background: rgba(255,255,255,0.5); backdrop-filter: blur(4px); border-radius: 16px; padding: 24px;">
+            لا توجد مصاريف مخططة لهذا الشهر. خطط الآن!</div>
         </div>
       </div>
 
@@ -1512,7 +1645,8 @@
         <!-- قسم الملاحظات الاحترافي V2 -->
         <div class="private-card" style="display:flex;flex-direction:column;gap:12px;">
           <div class="notes-section-header">
-            <div class="private-card-title">📝 ملاحظاتي <span class="notes-count-badge" id="notesCountBadge">0</span></div>
+            <div class="private-card-title">📝 ملاحظاتي <span class="notes-count-badge" id="notesCountBadge">0</span>
+            </div>
             <div style="display:flex; gap:8px; align-items:center;">
               <button id="btnToggleNotesSearch" class="btn-notes-search-toggle" title="بحث في الملاحظات">
                 <i class="fa-solid fa-magnifying-glass"></i>
@@ -1527,13 +1661,15 @@
           <div id="notesSearchContainer" class="notes-search-container" style="display:none;">
             <div class="notes-search-input-wrap">
               <i class="fa-solid fa-magnifying-glass notes-search-icon"></i>
-              <input type="text" id="notesSearchInput" class="notes-search-input" placeholder="بحث في العنوان أو المحتوى..." />
+              <input type="text" id="notesSearchInput" class="notes-search-input"
+                placeholder="بحث في العنوان أو المحتوى..." />
               <button type="button" id="btnClearNotesSearch" class="notes-search-clear" style="display:none;">✕</button>
             </div>
           </div>
 
           <!-- قائمة الملاحظات -->
-          <div id="notesList" style="display:flex; flex-direction:column; gap:10px; padding:2px; -webkit-overflow-scrolling: touch;">
+          <div id="notesList"
+            style="display:flex; flex-direction:column; gap:10px; padding:2px; -webkit-overflow-scrolling: touch;">
             <!-- يتم التعبئة بواسطة JS -->
           </div>
 
@@ -1771,9 +1907,13 @@
           <button id="btnCloseSelectCategoryLimit" class="btn btn-outline btn-sm" style="border:none;">✕</button>
         </div>
         <div class="modal-body">
-          <label style="font-size: 12px; font-weight: 700; color: var(--subtext-color); display: block; margin-bottom: 8px;">اختر الفئة التي تريد وضع حد لها:</label>
-          <select id="selectCategoryForLimit" class="form-select" style="width: 100%; border-radius: 12px; margin-bottom: 16px; padding: 10px;"></select>
-          <button id="btnProceedCategoryLimit" class="btn btn-primary" style="width: 100%; border-radius: 12px; font-weight: 700;">إعداد الحد</button>
+          <label
+            style="font-size: 12px; font-weight: 700; color: var(--subtext-color); display: block; margin-bottom: 8px;">اختر
+            الفئة التي تريد وضع حد لها:</label>
+          <select id="selectCategoryForLimit" class="form-select"
+            style="width: 100%; border-radius: 12px; margin-bottom: 16px; padding: 10px;"></select>
+          <button id="btnProceedCategoryLimit" class="btn btn-primary"
+            style="width: 100%; border-radius: 12px; font-weight: 700;">إعداد الحد</button>
         </div>
       </div>
     </div>
@@ -1909,7 +2049,7 @@
             <div class="image-upload-zone" id="imageUploadDropzone">
               <input id="expenseCameraInput" type="file" accept="image/*" capture="environment" style="display:none;" />
               <input id="expenseImageInput" type="file" accept="image/*" style="display:none;" />
-              
+
               <div class="image-upload-actions">
                 <button type="button" class="btn-image-action btn-camera-action" id="btnTriggerCamera">
                   <i class="fa-solid fa-camera"></i>
@@ -1920,7 +2060,7 @@
                   <span>من المعرض</span>
                 </button>
               </div>
-              
+
               <div class="image-drop-hint">
                 <span>أو اسحب الصورة هنا / إلصقها <code>Ctrl + V</code></span>
               </div>
@@ -1946,25 +2086,32 @@
           <button id="deleteExpenseBtn" class="btn-ghost btn-delete btn-sm" style="display:none;">
             🗑️ حذف المصروف
           </button>
-          <div style="display:flex; gap:8px; margin-left: auto; width: 100%; justify-content: flex-end; align-items: center;">
-            <button class="btn btn-outline" id="btnCancelExpense" style="min-height: 44px; padding: 0 16px;">إلغاء</button>
-            <button id="saveExpenseBtn" class="btn btn-primary btn-save-modal" style="min-height: 44px; padding: 0 24px; font-weight: 800; flex: 1; max-width: 220px;">حفظ المصروف</button>
+          <div
+            style="display:flex; gap:8px; margin-left: auto; width: 100%; justify-content: flex-end; align-items: center;">
+            <button class="btn btn-outline" id="btnCancelExpense"
+              style="min-height: 44px; padding: 0 16px;">إلغاء</button>
+            <button id="saveExpenseBtn" class="btn btn-primary btn-save-modal"
+              style="min-height: 44px; padding: 0 24px; font-weight: 800; flex: 1; max-width: 220px;">حفظ
+              المصروف</button>
           </div>
         </div>
       </div>
     </div>
 
     <!-- نافذة المصروف المخطط -->
-    <div id="modalPlannedExpense" class="modal-backdrop" style="display: none; z-index: 10001; align-items: center; justify-content: center;">
+    <div id="modalPlannedExpense" class="modal-backdrop"
+      style="display: none; z-index: 10001; align-items: center; justify-content: center;">
       <div class="modal" style="max-width: 450px;">
         <div class="modal-header">
           <div style="display:flex; align-items:center; gap:10px;">
             <h3 id="plannedExpenseModalTitle">إضافة مصروف مخطط</h3>
-            <button type="button" id="btnQuickSavePlannedExpense" class="btn-quick-save btn-quick-save-success" title="حفظ سريع للمصروف المخطط">
+            <button type="button" id="btnQuickSavePlannedExpense" class="btn-quick-save btn-quick-save-success"
+              title="حفظ سريع للمصروف المخطط">
               <span>حفظ</span>
             </button>
           </div>
-          <button id="btnClosePlannedExpense" class="btn btn-outline btn-sm" style="border: none; background: var(--muted-bg); border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;">✕</button>
+          <button id="btnClosePlannedExpense" class="btn btn-outline btn-sm"
+            style="border: none; background: var(--muted-bg); border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;">✕</button>
         </div>
         <div class="modal-body-scroll" style="display: flex; flex-direction: column; gap: 12px;">
           <div class="form-group">
@@ -1995,9 +2142,10 @@
 
             <!-- زر التقاط كاميرا مباشر + زر اختيار ملف + إمكانية اللصق والسحب -->
             <div class="image-upload-zone" id="plannedImageUploadDropzone">
-              <input id="plannedExpenseCameraInput" type="file" accept="image/*" capture="environment" style="display:none;" />
+              <input id="plannedExpenseCameraInput" type="file" accept="image/*" capture="environment"
+                style="display:none;" />
               <input id="plannedExpenseImageInput" type="file" accept="image/*" style="display:none;" />
-              
+
               <div class="image-upload-actions">
                 <button type="button" class="btn-image-action btn-camera-action" id="btnTriggerPlannedCamera">
                   <i class="fa-solid fa-camera"></i>
@@ -2008,7 +2156,7 @@
                   <span>من المعرض</span>
                 </button>
               </div>
-              
+
               <div class="image-drop-hint">
                 <span>أو اسحب الصورة هنا / إلصقها <code>Ctrl + V</code></span>
               </div>
@@ -2034,9 +2182,12 @@
           <button id="deletePlannedExpenseBtn" class="btn-ghost btn-delete btn-sm" style="display:none;">
             🗑️ حذف المصروف المخطط
           </button>
-          <div style="display:flex; gap:8px; margin-left: auto; width: 100%; justify-content: flex-end; align-items: center;">
-            <button class="btn btn-outline" id="btnCancelPlannedExpense" style="min-height: 44px; padding: 0 16px;">إلغاء</button>
-            <button id="savePlannedExpenseBtn" class="btn-primary btn-save-modal btn" style="background: var(--success); border-color: var(--success); min-height: 44px; padding: 0 24px; font-weight: 800; flex: 1; max-width: 220px;">حفظ</button>
+          <div
+            style="display:flex; gap:8px; margin-left: auto; width: 100%; justify-content: flex-end; align-items: center;">
+            <button class="btn btn-outline" id="btnCancelPlannedExpense"
+              style="min-height: 44px; padding: 0 16px;">إلغاء</button>
+            <button id="savePlannedExpenseBtn" class="btn-primary btn-save-modal btn"
+              style="background: var(--success); border-color: var(--success); min-height: 44px; padding: 0 24px; font-weight: 800; flex: 1; max-width: 220px;">حفظ</button>
           </div>
         </div>
       </div>
@@ -2051,7 +2202,8 @@
         </div>
         <div class="note-editor-body">
           <input type="text" id="noteEditorTitleInput" class="note-editor-title-input" placeholder="العنوان" />
-          <textarea id="noteEditorContentInput" class="note-editor-content-input" placeholder="ابدأ بالكتابة..."></textarea>
+          <textarea id="noteEditorContentInput" class="note-editor-content-input"
+            placeholder="ابدأ بالكتابة..."></textarea>
         </div>
         <div class="note-editor-toolbar">
           <div class="note-color-palette" id="noteColorPalette">
@@ -2086,7 +2238,8 @@
     </div>
 
     <!-- مودال عرض الصورة المطور والمناسب للهاتف -->
-    <div id="modalImage" class="modal-backdrop" style="display: none; z-index: 10005; align-items: center; justify-content: center; background: rgba(0,0,0,0.92); backdrop-filter: blur(10px);">
+    <div id="modalImage" class="modal-backdrop"
+      style="display: none; z-index: 10005; align-items: center; justify-content: center; background: rgba(0,0,0,0.92); backdrop-filter: blur(10px);">
       <div class="modal image-modal-container">
         <div class="image-modal-toolbar">
           <div class="image-modal-title">
@@ -2094,7 +2247,8 @@
             <span>صورة الفاتورة</span>
           </div>
           <div style="display: flex; gap: 8px; align-items: center;">
-            <a id="btnDownloadImageModal" href="" download="expense_receipt.jpg" class="image-modal-btn btn-download-img" title="تحميل الصورة للجهاز">
+            <a id="btnDownloadImageModal" href="" download="expense_receipt.jpg"
+              class="image-modal-btn btn-download-img" title="تحميل الصورة للجهاز">
               <i class="fa-solid fa-download"></i>
               <span>تحميل</span>
             </a>
@@ -2156,31 +2310,46 @@
     <!-- AI Chat Removed — AI is now integrated into stats and comparison sections -->
 
     <!-- نافذة المقارنة المفصلة بين شهرين -->
-    <div id="modalDetailedCompare" class="modal-backdrop" style="display:none; z-index: 10002; align-items: center; justify-content: center;">
+    <div id="modalDetailedCompare" class="modal-backdrop"
+      style="display:none; z-index: 10002; align-items: center; justify-content: center;">
       <div class="modal" style="max-width: 480px; padding: 20px; border-radius: 24px;">
         <div class="modal-header" style="margin-bottom: 20px;">
-          <h3 style="font-size: 1.2rem; display: flex; align-items: center; gap: 8px;"><i class="fa-solid fa-code-compare" style="color: var(--accent);"></i> مقارنة مفصلة</h3>
-          <button id="btnCloseDetailedCompare" class="btn btn-outline btn-sm" style="border:none; background: var(--muted-bg); border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;">✕</button>
+          <h3 style="font-size: 1.2rem; display: flex; align-items: center; gap: 8px;"><i
+              class="fa-solid fa-code-compare" style="color: var(--accent);"></i> مقارنة مفصلة</h3>
+          <button id="btnCloseDetailedCompare" class="btn btn-outline btn-sm"
+            style="border:none; background: var(--muted-bg); border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;">✕</button>
         </div>
         <div class="modal-body">
-          <div style="background: var(--muted-bg); border: 1px solid var(--border-color); border-radius: 16px; padding: 16px; margin-bottom: 20px;">
+          <div
+            style="background: var(--muted-bg); border: 1px solid var(--border-color); border-radius: 16px; padding: 16px; margin-bottom: 20px;">
             <div style="display: flex; flex-direction: column; gap: 12px;">
               <div>
-                <label style="font-size: 12px; font-weight: 700; color: var(--text-color); display: block; margin-bottom: 6px;">الشهر المراد تحليله (الشهر الحالي)</label>
-                <select id="detailedCompareMonth1" class="form-select" style="width: 100%; border-radius: 12px; border-color: rgba(37, 99, 235, 0.3); background-color: var(--card-bg);"></select>
+                <label
+                  style="font-size: 12px; font-weight: 700; color: var(--text-color); display: block; margin-bottom: 6px;">الشهر
+                  المراد تحليله (الشهر الحالي)</label>
+                <select id="detailedCompareMonth1" class="form-select"
+                  style="width: 100%; border-radius: 12px; border-color: rgba(37, 99, 235, 0.3); background-color: var(--card-bg);"></select>
               </div>
               <div style="display: flex; align-items: center; justify-content: center; margin: -4px 0;">
-                <div style="background: var(--card-bg); padding: 4px 12px; border-radius: 20px; font-size: 10px; font-weight: 700; color: var(--subtext-color); border: 1px solid var(--border-color); z-index: 1;">مقارنة مع</div>
+                <div
+                  style="background: var(--card-bg); padding: 4px 12px; border-radius: 20px; font-size: 10px; font-weight: 700; color: var(--subtext-color); border: 1px solid var(--border-color); z-index: 1;">
+                  مقارنة مع</div>
               </div>
               <div>
-                <label style="font-size: 12px; font-weight: 700; color: var(--text-color); display: block; margin-bottom: 6px;">الشهر المرجعي (الشهر السابق)</label>
-                <select id="detailedCompareMonth2" class="form-select" style="width: 100%; border-radius: 12px; background-color: var(--card-bg);"></select>
+                <label
+                  style="font-size: 12px; font-weight: 700; color: var(--text-color); display: block; margin-bottom: 6px;">الشهر
+                  المرجعي (الشهر السابق)</label>
+                <select id="detailedCompareMonth2" class="form-select"
+                  style="width: 100%; border-radius: 12px; background-color: var(--card-bg);"></select>
               </div>
             </div>
           </div>
-          <button id="btnRunDetailedCompare" class="btn btn-primary" style="width: 100%; border-radius: 14px; font-weight: 700; padding: 12px; font-size: 1rem; margin-bottom: 8px; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);">🚀 ابدأ المقارنة</button>
-          
-          <div id="detailedCompareResults" style="display: none; border-top: 1px solid var(--border-color); margin-top: 20px; padding-top: 20px;">
+          <button id="btnRunDetailedCompare" class="btn btn-primary"
+            style="width: 100%; border-radius: 14px; font-weight: 700; padding: 12px; font-size: 1rem; margin-bottom: 8px; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);">🚀
+            ابدأ المقارنة</button>
+
+          <div id="detailedCompareResults"
+            style="display: none; border-top: 1px solid var(--border-color); margin-top: 20px; padding-top: 20px;">
             <!-- Results injected via JS -->
           </div>
         </div>
@@ -2279,6 +2448,8 @@
       let isOnline = navigator.onLine;
       let isSyncing = false;
       let syncQueue = [];
+      let _lastWriteSeq = 0;
+      let _lastProcessedSeq = 0;
 
       // تهيئة لون المؤشر فوراً حسب حالة المتصفح الحالية
       setTimeout(updateConnectionUI, 50);
@@ -2534,6 +2705,88 @@
         });
       }
 
+      // ── IndexedDB Store for Expense Images ─────────────────────────────────
+      const ImageStore = {
+        dbName: 'expense_images_db',
+        storeName: 'images',
+        db: null,
+        async init() {
+          if (this.db) return this.db;
+          return new Promise((resolve) => {
+            try {
+              const req = indexedDB.open(this.dbName, 1);
+              req.onupgradeneeded = (e) => {
+                const db = e.target.result;
+                if (!db.objectStoreNames.contains(this.storeName)) db.createObjectStore(this.storeName);
+              };
+              req.onsuccess = (e) => { this.db = e.target.result; resolve(this.db); };
+              req.onerror = () => resolve(null);
+            } catch(e) { resolve(null); }
+          });
+        },
+        async get(key) {
+          if (!key) return null;
+          const db = await this.init();
+          if (!db) return null;
+          return new Promise((resolve) => {
+            try {
+              const tx = db.transaction(this.storeName, 'readonly');
+              const store = tx.objectStore(this.storeName);
+              const req = store.get(String(key));
+              req.onsuccess = () => resolve(req.result || null);
+              req.onerror = () => resolve(null);
+            } catch(e) { resolve(null); }
+          });
+        },
+        async put(key, value) {
+          if (!key || !value) return false;
+          const db = await this.init();
+          if (!db) return false;
+          return new Promise((resolve) => {
+            try {
+              const tx = db.transaction(this.storeName, 'readwrite');
+              const store = tx.objectStore(this.storeName);
+              const req = store.put(value, String(key));
+              req.onsuccess = () => resolve(true);
+              req.onerror = () => resolve(false);
+            } catch(e) { resolve(false); }
+          });
+        },
+        async delete(key) {
+          if (!key) return false;
+          const db = await this.init();
+          if (!db) return false;
+          return new Promise((resolve) => {
+            try {
+              const tx = db.transaction(this.storeName, 'readwrite');
+              const store = tx.objectStore(this.storeName);
+              const req = store.delete(String(key));
+              req.onsuccess = () => resolve(true);
+              req.onerror = () => resolve(false);
+            } catch(e) { resolve(false); }
+          });
+        }
+      };
+
+      // Migrate Inline Base64 Images to IndexedDB safely
+      async function migrateInlineImagesToIndexedDB(stateData) {
+        if (!stateData || !Array.isArray(stateData.months)) return;
+        for (const monthItem of stateData.months) {
+          if (!Array.isArray(monthItem.expenses)) continue;
+          for (const exp of monthItem.expenses) {
+            if (exp && exp.imageDataUrl && exp.imageDataUrl.startsWith('data:image')) {
+              try {
+                const saved = await ImageStore.put(String(exp.id), exp.imageDataUrl);
+                if (saved) {
+                  exp.hasImage = true;
+                  delete exp.imageDataUrl;
+                }
+              } catch (e) {}
+            }
+          }
+        }
+      }
+
       // Format number with commas as thousand separators (e.g., "1,234,567")
       function formatNumberWithCommas(value) {
         const s = String(value || "").replace(/\D/g, "");
@@ -2751,23 +3004,26 @@
         if (!firebaseEnabled || !currentUser || !userRef) return;
         try {
           // Signal the onValue listener to ignore the echo from our own write
-          _ignoreNextRemoteUpdate = true;
+          _lastWriteSeq++;
           await set(userRef, state);
           // تسجيل وقت آخر مزامنة ناجحة
           try { localStorage.setItem(LAST_SYNC_KEY, Date.now().toString()); } catch (e) { /* ignore */ }
           return true;
         } catch (e) {
-          _ignoreNextRemoteUpdate = false; // reset flag on failure
           console.warn("Failed to sync with Firebase:", e);
-          if (e && e.name === 'QuotaExceededError') {
-            stripImagesFromState();
+          if (e && ((e.message || '').toLowerCase().includes('data_payload_exceeded') ||
+                    (e.name === 'QuotaExceededError') ||
+                    (e.message || '').toLowerCase().includes('too large'))) {
+            console.warn('[Sync] Data too large, sending copy without images');
             try {
-              _ignoreNextRemoteUpdate = true;
-              await set(userRef, state);
+              const lightCopy = createStateWithoutImages(state);
+              _lastWriteSeq++;
+              await set(userRef, lightCopy);
+              console.log('[Sync] ✅ Saved without images to Firebase');
+              try { localStorage.setItem(LAST_SYNC_KEY, Date.now().toString()); } catch (e3) { }
               return true;
             } catch (e2) {
-              _ignoreNextRemoteUpdate = false;
-              console.error('Still failed remote after stripping images', e2);
+              console.error('Still failed remote after stripping images from copy', e2);
             }
           }
           return false;
@@ -2778,7 +3034,6 @@
       // are pulled in immediately (fixes issue with laptop not showing
       // changes made on phone).
       let remoteListenerUnsubscribe = null;
-      let _ignoreNextRemoteUpdate = false; // suppress onValue echo after our own save
       let _remoteUpdateTimer = null; // debounce rapid onValue callbacks
 
       function startRemoteListener() {
@@ -2787,11 +3042,12 @@
         if (remoteListenerUnsubscribe) {
           remoteListenerUnsubscribe();
         }
+        _lastProcessedSeq = _lastWriteSeq;
         remoteListenerUnsubscribe = onValue(userRef, (snap) => {
           if (!snap.exists()) return;
-          // If we just saved to Firebase ourselves, skip this callback
-          if (_ignoreNextRemoteUpdate) {
-            _ignoreNextRemoteUpdate = false;
+          // إذا كان هذا صدى لكتابتنا الخاصة، تجاهله
+          if (_lastWriteSeq > _lastProcessedSeq) {
+            _lastProcessedSeq = _lastWriteSeq;
             return;
           }
           // Debounce: wait a bit before applying to avoid rapid-fire re-renders
@@ -2804,22 +3060,34 @@
             if (remoteJson !== localJson) {
               const remoteRevision = remoteData.revision || 0;
               const localRevision = state.revision || 0;
+              // الاحتفاظ بالشهر الذي يتصفحه المستخدم حالياً على هذا الجهاز
+              const currentLocalMonthId = state.selectedMonthId;
+
               if (remoteRevision > localRevision) {
-                // البيانات البعيدة أحدث: استخدمها
-                state = remoteData;
+                // البيانات البعيدة أحدث: ادمجها مع الحفاظ على الشهر الحالي للجهاز
+                state = normalizeState(mergeStates(state, remoteData));
+                state.revision = remoteRevision;
+                if (currentLocalMonthId && state.months.some(m => m.id === currentLocalMonthId)) {
+                  state.selectedMonthId = currentLocalMonthId;
+                }
                 saveStateLocal();
+                migrateInlineImagesToIndexedDB(remoteData).catch(() => {});
                 refreshUI({ noAnimate: true });
-                console.log(`✅ تم تحديث الحالة من السحابة (مراجعة سحابة: ${remoteRevision}, محلي: ${localRevision})`);
+                console.log(`✅ تم دمج الحالة من السحابة (مراجعة سحابة: ${remoteRevision}, محلي: ${localRevision})`);
               } else if (localRevision > remoteRevision) {
-                // البيانات المحلية أحدث: ارفعها للسحابة
+                // البيانات المحلية أحدث: ارفعها للسحابة (بدون تغيير الشهر المفتوح)
                 console.log(`⏳ البيانات المحلية أحدث، جاري الرفع (مراجعة محلي: ${localRevision}, سحابة: ${remoteRevision})`);
-                saveState();
+                saveStateRemote();
               } else {
-                // المراجعات متساوية ولكن البيانات مختلفة (حدوث تعارض): دمج ذكي للبيانات لمنع الفقدان
+                // المراجعات متساوية والبيانات مختلفة: دمج ذكي مع الحفاظ على شهر الجهاز المحلي
                 console.log(`🔄 المراجعات متساوية والبيانات مختلفة، جاري الدمج (مراجعة: ${localRevision})`);
                 state = normalizeState(mergeStates(state, remoteData));
                 state.revision = Math.max(localRevision, remoteRevision) + 1;
-                saveState();
+                if (currentLocalMonthId && state.months.some(m => m.id === currentLocalMonthId)) {
+                  state.selectedMonthId = currentLocalMonthId;
+                }
+                saveStateLocal();
+                saveStateRemote();
                 refreshUI({ noAnimate: true });
               }
             }
@@ -3302,6 +3570,31 @@
         return msg;
       }
 
+      function dataURLtoBlob(dataurl) {
+        try {
+          if (!dataurl || typeof dataurl !== 'string') return null;
+          const arr = dataurl.split(',');
+          if (arr.length < 2) return null;
+          const mimeMatch = arr[0].match(/:(.*?);/);
+          const mime = mimeMatch ? mimeMatch[1] : 'image/jpeg';
+          const bstr = atob(arr[1]);
+          let n = bstr.length;
+          const u8arr = new Uint8Array(n);
+          while (n--) {
+            u8arr[n] = bstr.charCodeAt(n);
+          }
+          return new Blob([u8arr], { type: mime });
+        } catch (e) {
+          console.warn('dataURLtoBlob failed:', e);
+          return null;
+        }
+      }
+
+      function sanitizeTgMarkdown(str) {
+        if (!str) return '';
+        return String(str).replace(/[*_`\[\]]/g, ' ');
+      }
+
       async function _sendMonthToTelegram(monthData, includeAI = false) {
         try {
           // جلب الإعدادات من Firebase أولاً
@@ -3327,7 +3620,7 @@
 
           // إعداد مهلة زمنية (Timeout) للطلب لضمان عدم تعليق التطبيق
           const controller = new AbortController();
-          const timeoutId = setTimeout(() => controller.abort(), 6000); // 6 ثوانٍ كحد أقصى
+          const timeoutId = setTimeout(() => controller.abort(), 12000);
 
           const resp = await fetch(url, {
             method: 'POST',
@@ -3342,7 +3635,68 @@
           clearTimeout(timeoutId);
 
           if (resp.ok) {
-            console.log(`[Telegram] ✅ Sent: ${monthData.name} ${monthData.year}`);
+            console.log(`[Telegram] ✅ Sent text report: ${monthData.name} ${monthData.year}`);
+
+            // 📸 فحص وإرسال صور الفواتير المرفقة بهذا الشهر
+            const expenses = Array.isArray(monthData.expenses) ? monthData.expenses : [];
+            const expensesWithImages = [];
+
+            for (const exp of expenses) {
+              let imgUrl = exp.imageDataUrl;
+              if (!imgUrl && exp.id) {
+                try {
+                  imgUrl = await ImageStore.get(String(exp.id));
+                } catch (e) {}
+              }
+              if (imgUrl) {
+                expensesWithImages.push({ expense: exp, imageDataUrl: imgUrl });
+              }
+            }
+
+            if (expensesWithImages.length > 0) {
+              const progressLabel = document.getElementById('tgProgressLabel');
+              const photoUrl = `https://api.telegram.org/bot${TG_BOT_TOKEN}/sendPhoto`;
+
+              for (let i = 0; i < expensesWithImages.length; i++) {
+                const item = expensesWithImages[i];
+                const exp = item.expense;
+                if (progressLabel) {
+                  progressLabel.innerText = `جارِ إرسال الصورة (${i + 1}/${expensesWithImages.length}): ${exp.title || ''}...`;
+                }
+
+                try {
+                  const blob = dataURLtoBlob(item.imageDataUrl);
+                  if (blob) {
+                    const formData = new FormData();
+                    formData.append('chat_id', TG_CHAT_ID);
+                    formData.append('photo', blob, `receipt_${exp.id || Date.now()}.jpg`);
+                    
+                    const dateFormatted = exp.date ? exp.date.split('-').reverse().join('/') : '—';
+                    let caption = `🧾 *صورة فاتورة:* ${sanitizeTgMarkdown(exp.title || 'بدون عنوان')}\n`;
+                    caption += `💰 *المبلغ:* *${(exp.amount || 0).toLocaleString()}* د.ع\n`;
+                    caption += `🏷️ *التصنيف:* ${sanitizeTgMarkdown(exp.category || 'أخرى')}\n`;
+                    caption += `📅 *التاريخ:* ${dateFormatted}\n`;
+                    if (exp.note) {
+                      caption += `📝 *ملاحظة:* ${sanitizeTgMarkdown(exp.note)}\n`;
+                    }
+                    caption += `📅 *شهر:* ${monthData.name || ''} ${monthData.year || ''}`;
+
+                    formData.append('caption', caption);
+                    formData.append('parse_mode', 'Markdown');
+
+                    await fetch(photoUrl, {
+                      method: 'POST',
+                      body: formData
+                    });
+
+                    // تأخير قصير لتجنب حد التليجرام Rate Limit
+                    await new Promise(r => setTimeout(r, 400));
+                  }
+                } catch (imgErr) {
+                  console.warn(`[Telegram] Failed to send image for ${exp.title}:`, imgErr);
+                }
+              }
+            }
 
             // إذا أردنا إرسال تحليل الذكاء وتوفرت شروط ذلك
             if (includeAI && typeof aiAnalyzer !== 'undefined') {
@@ -3451,17 +3805,21 @@
 
               console.log(`[Sync] مصاريف محلية: ${localCount}, مصاريف بعيدة: ${remoteCount}`);
 
-              // دمج ذكي: يأخذ الأفضل من كل شهر
+              // دمج ذكي: يأخذ الأفضل من كل شهر مع الحفاظ على الشهر المفتوح محلياً
+              const currentLocalMonthId = state.selectedMonthId;
               const merged = mergeStates(localData, remoteData);
               const mergedCount = countTotalExpenses(merged);
               state = normalizeState(merged);
-              state.revision = Math.max(localData.revision || 0, remoteData.revision || 0) + 1; // تعيين رقم مراجعة أحدث للمدمج
+              if (currentLocalMonthId && state.months.some(m => m.id === currentLocalMonthId)) {
+                state.selectedMonthId = currentLocalMonthId;
+              }
+              state.revision = Math.max(localData.revision || 0, remoteData.revision || 0) + 1;
 
               // إذا كانت النتيجة المدمجة مختلفة عن Firebase، حدّثها
               if (mergedCount !== remoteCount) {
                 // نسخة احتياطية قبل الكتابة
                 await backupToFirebase('before_merge');
-                _ignoreNextRemoteUpdate = true;
+                _lastWriteSeq++;
                 await set(userRef, state);
                 console.log(`[Sync] ✅ تم دمج البيانات وتحديث Firebase (${mergedCount} مصروف)`);
                 showToast('✅ تم دمج البيانات بنجاح', 'success');
@@ -3485,7 +3843,7 @@
               const localData = normalizeState(JSON.parse(localRaw));
               state = localData;
               state.revision = (state.revision || 0) + 1; // تعيين رقم مراجعة جديد
-              _ignoreNextRemoteUpdate = true;
+              _lastWriteSeq++;
               await set(userRef, state);
               try { localStorage.setItem(LAST_SYNC_KEY, Date.now().toString()); } catch (e) { }
               showToast('تم رفع البيانات المحلية', 'success');
@@ -3499,7 +3857,7 @@
             showToast('✅ تم تحميل البيانات من السحابة', 'success');
           } else {
             // ─── لا يوجد بيانات: احفظ الحالة الافتراضية ───
-            _ignoreNextRemoteUpdate = true;
+            _lastWriteSeq++;
             await set(userRef, state);
           }
         } catch (e) {
@@ -3735,13 +4093,13 @@
         const fill = document.querySelector(".loader-progress-fill");
         const statusText = document.querySelector(".loader-text-status");
         if (!fill || !statusText) return;
-        
+
         // Reset progress and set initial status
         fill.style.width = "0%";
         statusText.textContent = "جاري تأمين الاتصال...";
-        
+
         if (loaderProgressInterval) clearInterval(loaderProgressInterval);
-        
+
         let progress = 0;
         loaderProgressInterval = setInterval(() => {
           if (progress < 30) {
@@ -4502,7 +4860,7 @@
       document.getElementById('notesList').addEventListener('click', (e) => {
         const btn = e.target.closest('[data-action]');
         if (!btn) return;
-        
+
         const action = btn.dataset.action;
         const id = btn.dataset.id;
 
@@ -4717,7 +5075,7 @@
       }
 
       if (notesSearchInputElem) {
-        notesSearchInputElem.addEventListener('input', function() {
+        notesSearchInputElem.addEventListener('input', function () {
           notesSearchQuery = this.value;
           if (searchClear) searchClear.style.display = this.value ? 'block' : 'none';
           renderNotes();
@@ -4751,7 +5109,7 @@
       });
 
       // عداد الأحرف والكلمات + auto-resize
-      document.getElementById('noteEditorContentInput').addEventListener('input', function() {
+      document.getElementById('noteEditorContentInput').addEventListener('input', function () {
         updateNoteCounterUI(this.value);
         autoResizeTextarea(this);
       });
@@ -4764,9 +5122,9 @@
       });
 
       // تعريض الدوال للنطاق العالمي (للتوافقية)
-      window.addNote = function() { openNoteEditor(null); };
-      window.editNote = function(id) { openNoteEditor(id); };
-      window.deleteNote = function(id) { openDeleteNoteModal(id); };
+      window.addNote = function () { openNoteEditor(null); };
+      window.editNote = function (id) { openNoteEditor(id); };
+      window.deleteNote = function (id) { openDeleteNoteModal(id); };
       window.togglePinNote = togglePinNote;
 
       function openChangePinDialog() {
@@ -5095,7 +5453,7 @@
           const spendPct = Math.round((total / salary) * 100);
           const monthPct = Math.round((daysPassed / daysInMonth) * 100);
           const diff = spendPct - monthPct;
-          
+
           let status = "ok";
           let label = "وتيرة ممتازة (تحت السيطرة)";
           let color = "#10b981";
@@ -5143,7 +5501,7 @@
           });
 
           const maxWeekAmount = Math.max(...weeklyAmounts, 1);
-          
+
           weeklyChartContainer.innerHTML = `
             <div class="weekly-chart-container">
               <div class="weekly-chart-title">📅 توزيع المصاريف أسبوعياً</div>
@@ -5788,7 +6146,7 @@
           card.appendChild(stats);
 
           // الشريط المتراكم
-          
+
           // العنوان الثابت للتفاصيل بدلاً من الزر المخفي
           const detailsTitle = document.createElement('div');
           detailsTitle.style.cssText = 'font-weight: 700; font-size: 14px; color: var(--text-color); margin: 16px 0 8px 0; display:flex; align-items:center; gap:6px; padding-bottom: 8px; border-bottom: 1px solid var(--border-color);';
@@ -5904,18 +6262,18 @@
             alert('تحتاج إلى شهرين على الأقل لإجراء المقارنة المفصلة.');
             return;
           }
-          
+
           detailedCompareMonth1.innerHTML = '';
           detailedCompareMonth2.innerHTML = '';
-          
+
           const sortedMonths = state.months.slice().sort((a, b) => b.year - a.year || b.month - a.month);
-          
+
           sortedMonths.forEach((m, idx) => {
             const label = `${m.name} ${m.year}`;
             detailedCompareMonth1.add(new Option(label, m.id));
             detailedCompareMonth2.add(new Option(label, m.id));
           });
-          
+
           // تحديد أول وثاني شهر افتراضياً
           if (sortedMonths.length >= 2) {
             detailedCompareMonth1.value = sortedMonths[0].id; // الشهر الحالي/الأحدث (المراد تحليله)
@@ -5937,17 +6295,17 @@
         btnRunDetailedCompare.addEventListener('click', () => {
           const id1 = detailedCompareMonth1.value;
           const id2 = detailedCompareMonth2.value;
-          
+
           if (id1 === id2) {
             alert('يرجى اختيار شهرين مختلفين للمقارنة.');
             return;
           }
-          
+
           const m1 = state.months.find(m => m.id == id1); // الشهر الحالي (التحليل)
           const m2 = state.months.find(m => m.id == id2); // الشهر السابق (المرجعي)
-          
+
           if (!m1 || !m2) return;
-          
+
           // تجميع الفئات
           const getTotals = (m) => {
             const totals = {};
@@ -5959,37 +6317,37 @@
             });
             return { totals, sum, salary: m.salary || 0, remaining: (m.salary || 0) - sum };
           };
-          
+
           const d1 = getTotals(m1);
           const d2 = getTotals(m2);
-          
+
           // m1 - m2
           const diffTotal = d1.sum - d2.sum;
-          
+
           const allCats = Array.from(new Set([...Object.keys(d1.totals), ...Object.keys(d2.totals)]));
-          
+
           let catRowsHtml = '';
           let biggestIncrease = { cat: '', amt: 0 };
           let biggestSaving = { cat: '', amt: 0 };
-          
+
           const catDiffs = [];
-          
+
           allCats.forEach(cat => {
             const v1 = d1.totals[cat] || 0;
             const v2 = d2.totals[cat] || 0;
             const diff = v1 - v2;
-            
+
             if (diff > 0 && diff > biggestIncrease.amt) biggestIncrease = { cat, amt: diff };
             if (diff < 0 && Math.abs(diff) > biggestSaving.amt) biggestSaving = { cat, amt: Math.abs(diff) };
-            
+
             catDiffs.push({ cat, v1, v2, diff });
           });
-          
+
           catDiffs.sort((a, b) => b.diff - a.diff); // ترتيب من أعلى زيادة إلى أعلى توفير
-          
+
           catDiffs.forEach(c => {
             if (c.v1 === 0 && c.v2 === 0) return;
-            
+
             let diffHtml = '';
             if (c.diff > 0) {
               diffHtml = `<div style="color: var(--danger); font-size: 11px; font-weight: 800; white-space: nowrap; direction: ltr;">▲ +${formatNumber(c.diff)}</div>`;
@@ -5998,7 +6356,7 @@
             } else {
               diffHtml = `<div style="color: var(--subtext-color); font-size: 11px; font-weight: 700; white-space: nowrap;">— متطابق</div>`;
             }
-            
+
             catRowsHtml += `
               <div style="display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--border-color);">
                 <div style="flex: 1.5; font-size: 13px; font-weight: 700;">${c.cat}</div>
@@ -6016,7 +6374,7 @@
               </div>
             `;
           });
-          
+
           // الملخص المالي
           let totalDiffHtml = '';
           if (diffTotal > 0) {
@@ -6026,7 +6384,7 @@
           } else {
             totalDiffHtml = 'الصرف الإجمالي <strong>متطابق</strong> بين الشهرين';
           }
-          
+
           detailedCompareResults.innerHTML = `
             <div style="background: linear-gradient(135deg, rgba(37,99,235,0.05) 0%, rgba(79,70,229,0.05) 100%); border: 1px solid rgba(37,99,235,0.15); border-radius: 16px; padding: 16px; margin-bottom: 16px; text-align: center;">
               <div style="font-size: 11px; font-weight: 700; color: var(--subtext-color); margin-bottom: 6px; text-transform: uppercase;">خلاصة المقارنة</div>
@@ -6056,7 +6414,7 @@
               ${catRowsHtml || '<div class="empty-state">لا توجد تفاصيل للمقارنة.</div>'}
             </div>
           `;
-          
+
           detailedCompareResults.style.display = 'block';
         });
       }
@@ -6393,13 +6751,26 @@
           expenseDateInput.value = exp.date || "";
           expenseNoteInput.value = exp.note || "";
           expenseImageInput.value = "";
-          // عرض معاينة الصورة القديمة إن وجدت
+          // عرض معاينة الصورة القديمة إن وجدت (سواء كانت inline أو في IndexedDB)
           if (exp.imageDataUrl) {
             imagePreviewImg.src = exp.imageDataUrl;
             imagePreviewFilename.textContent = "صورة موجودة";
             imagePreviewSize.textContent = "";
             imagePreviewContainer.classList.add("active");
             currentExpenseImageDataUrl = exp.imageDataUrl;
+          } else if (exp.id && (exp.hasImage || exp.imageDataUrl)) {
+            imagePreviewContainer.classList.remove("active");
+            imagePreviewImg.src = "";
+            ImageStore.get(String(exp.id)).then(cachedUrl => {
+              if (cachedUrl && editingExpenseId === expenseId && !expenseImageRemoved) {
+                imagePreviewImg.src = cachedUrl;
+                imagePreviewFilename.textContent = "صورة موجودة (محفوظة)";
+                imagePreviewSize.textContent = "";
+                imagePreviewContainer.classList.add("active");
+                currentExpenseImageDataUrl = cachedUrl;
+                exp.imageDataUrl = cachedUrl;
+              }
+            }).catch(() => {});
           } else {
             imagePreviewContainer.classList.remove("active");
             imagePreviewImg.src = "";
@@ -6572,7 +6943,7 @@
           }
           expenseImageRemoved = false;
           isCompressingImage = true;
-          
+
           imagePreviewFilename.textContent = "جاري معالجة وضغط الصورة...";
           imagePreviewSize.textContent = "";
           imagePreviewContainer.classList.add("active");
@@ -6583,15 +6954,15 @@
             try {
               const rawDataUrl = event.target.result;
               const compressedDataUrl = await compressImage(rawDataUrl, 800, 800, 0.6);
-              
+
               currentExpenseImageDataUrl = compressedDataUrl;
               imagePreviewImg.src = compressedDataUrl;
               imagePreviewFilename.textContent = file.name || "صورة الفاتورة";
-              
+
               const origSize = file.size;
               const compressedSize = Math.round(compressedDataUrl.length * 0.75);
               const savedPct = origSize > 0 ? Math.max(0, Math.round((1 - (compressedSize / origSize)) * 100)) : 0;
-              
+
               imagePreviewSize.innerHTML = `
                 <div style="display:flex; flex-direction:column; gap:2px; margin-top:3px;">
                   <div style="font-weight:700; color:var(--text-color); font-size:11px;">
@@ -6684,7 +7055,9 @@
         const idx = month.expenses.findIndex((e) => String(e.id) === String(expenseId));
         if (idx !== -1) {
           month.expenses.splice(idx, 1);
+          ImageStore.delete(String(expenseId)).catch(() => {});
           await refreshUI();
+          await saveState(); // رفع الحذف فوراً إلى Firebase والتخزين المحلي
         }
       }
 
@@ -6812,19 +7185,29 @@
           // إذا اختار المستخدم إزالة الصورة صراحةً
           if (expenseImageRemoved) {
             delete existing.imageDataUrl;
+            delete existing.hasImage;
+            ImageStore.delete(String(id)).catch(() => {});
           } else if (imageDataUrl) {
             existing.imageDataUrl = imageDataUrl;
+            existing.hasImage = true;
+            ImageStore.put(String(id), imageDataUrl).catch(() => {});
           }
         } else {
+          const newId = Date.now().toString();
           month.expenses.push({
-            id: Date.now().toString(),
+            id: newId,
             title,
             amount,
             category,
             date,
             note,
             imageDataUrl,
+            hasImage: !!imageDataUrl,
+            modifiedAt: now,
           });
+          if (imageDataUrl) {
+            ImageStore.put(newId, imageDataUrl).catch(() => {});
+          }
         }
         editingExpenseId = null;
         await refreshUI();
@@ -6898,21 +7281,39 @@
             item.style.background = 'rgba(46,204,113,0.05)';
           }
 
-          // العنوان
+          const remaining = Math.max(0, target - current);
+
+          // العنوان + نسبة الإنجاز
           const titleEl = document.createElement('div');
-          titleEl.style.cssText = 'font-size:16px; font-weight:800; color:var(--text-color); word-break:break-word; white-space:normal; line-height:1.4;';
-          titleEl.textContent = (isCompleted ? '🏆 ' : '🎯 ') + (g.title || 'هدف');
+          titleEl.style.cssText = 'display:flex; justify-content:space-between; align-items:center; font-size:15px; font-weight:800; color:var(--text-color); word-break:break-word; line-height:1.4;';
+          titleEl.innerHTML = `
+            <span>${isCompleted ? '🏆 ' : '🎯 '}${g.title || 'هدف'}</span>
+            <span style="font-size:12px; font-weight:800; color:${progressColor}; background:${progressColor}18; padding:3px 10px; border-radius:12px; flex-shrink:0;">${progress}%</span>
+          `;
           item.appendChild(titleEl);
 
-          // المبالغ + النسبة
+          // المبالغ (مُدخر | المتبقي | الهدف) - شبكة ثلاثية احترافية ومتناسقة مع الهواتف
           const amountsEl = document.createElement('div');
-          amountsEl.style.cssText = 'display:flex; justify-content:space-between; font-size:12px; color:var(--subtext-color); margin-top: 4px;';
-          amountsEl.innerHTML = `<span>مُدخر: <strong style="color:var(--text-color)">${formatNumber(current)}</strong></span><span style="font-weight:800; color:${progressColor};">${progress}%</span><span>الهدف: <strong style="color:var(--text-color)">${formatNumber(target)}</strong></span>`;
+          amountsEl.style.cssText = 'display:grid; grid-template-columns: repeat(3, 1fr); gap:6px; margin: 4px 0; text-align:center;';
+          amountsEl.innerHTML = `
+            <div style="background:var(--muted-bg); padding:6px 4px; border-radius:12px; border:1px solid var(--border-color); display:flex; flex-direction:column; justify-content:center;">
+              <div style="font-size:10px; color:var(--subtext-color); font-weight:600;">💰 المُدخر</div>
+              <div style="font-size:12px; font-weight:800; color:#2ecc71; margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="${formatNumber(current)}">${formatNumber(current)}</div>
+            </div>
+            <div style="background:${isCompleted ? 'rgba(46,204,113,0.1)' : 'rgba(245,158,11,0.1)'}; padding:6px 4px; border-radius:12px; border:1px solid ${isCompleted ? 'rgba(46,204,113,0.3)' : 'rgba(245,158,11,0.3)'}; display:flex; flex-direction:column; justify-content:center;">
+              <div style="font-size:10px; color:${isCompleted ? '#2ecc71' : '#d97706'}; font-weight:700;">⏳ المتبقي</div>
+              <div style="font-size:12px; font-weight:800; color:${isCompleted ? '#2ecc71' : '#d97706'}; margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="${formatNumber(remaining)}">${formatNumber(remaining)}</div>
+            </div>
+            <div style="background:var(--muted-bg); padding:6px 4px; border-radius:12px; border:1px solid var(--border-color); display:flex; flex-direction:column; justify-content:center;">
+              <div style="font-size:10px; color:var(--subtext-color); font-weight:600;">🎯 الهدف</div>
+              <div style="font-size:12px; font-weight:800; color:var(--text-color); margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="${formatNumber(target)}">${formatNumber(target)}</div>
+            </div>
+          `;
           item.appendChild(amountsEl);
 
           // شريط التقدم
           const progWrap = document.createElement('div');
-          progWrap.style.cssText = 'height:10px; border-radius:999px; background:var(--border-color); overflow:hidden; border: 1px solid rgba(255,255,255,0.2);';
+          progWrap.style.cssText = 'height:8px; border-radius:999px; background:var(--border-color); overflow:hidden; border: 1px solid rgba(255,255,255,0.2);';
           const prog = document.createElement('div');
           prog.style.cssText = `width:${progress}%; height:100%; border-radius:999px; background:${progressColor}; transition:width 0.5s ease;`;
           progWrap.appendChild(prog);
@@ -6921,7 +7322,7 @@
           // معلومات الوقت والادخار
           if (daysInfo || monthlyNeeded) {
             const infoRow = document.createElement('div');
-            infoRow.style.cssText = 'display:flex; flex-wrap:wrap; gap:6px; margin-top: 4px;';
+            infoRow.style.cssText = 'display:flex; flex-wrap:wrap; gap:6px; margin-top: 2px;';
             if (daysInfo) infoRow.innerHTML += `<span style="font-size:11px;font-weight:700;color:${daysInfo.color};background:${daysInfo.color}18;padding:4px 8px;border-radius:20px;">${daysInfo.text}</span>`;
             if (monthlyNeeded) infoRow.innerHTML += `<span style="font-size:11px;font-weight:700;color:#3498db;background:#3498db18;padding:4px 8px;border-radius:20px;">💡 ادخر ${formatNumber(monthlyNeeded)} شهرياً</span>`;
             item.appendChild(infoRow);
@@ -6930,7 +7331,7 @@
           // الأزرار
           const actions = document.createElement('div');
           actions.style.cssText = 'display:flex; flex-direction:row; gap:8px; margin-top: auto; padding-top: 8px;';
-          
+
           if (!isCompleted) {
             const btnAdd = document.createElement('button');
             btnAdd.className = 'btn btn-primary btn-sm';
@@ -7260,7 +7661,7 @@
           }
 
           const progress = Math.min(100, (spent / limitAmount) * 100);
-          
+
           let color = '#2ecc71'; // Green
           if (progress >= 100) color = '#e74c3c'; // Red
           else if (progress >= 80) color = '#e67e22'; // Orange
@@ -7268,10 +7669,10 @@
 
           const card = document.createElement('div');
           card.className = 'goal-glass-card';
-          
+
           const headerRow = document.createElement('div');
           headerRow.style.cssText = 'display: flex; justify-content: space-between; align-items: center;';
-          
+
           const titleWrap = document.createElement('div');
           titleWrap.innerHTML = `<div style="font-weight: 800; font-size: 15px; color: var(--text-color);">${cat}</div>
             <div style="font-size: 11px; color: var(--subtext-color);">${limitObj.hard ? '<span style="color:#e74c3c">حظر عند التجاوز</span>' : 'تنبيه فقط'}</div>`;
@@ -8758,7 +9159,7 @@
       const btnAddPlannedExpense = document.getElementById("btnAddPlannedExpense");
       const plannedExpensesContainer = document.getElementById("plannedExpensesContainer");
       const plannedExpensesTotal = document.getElementById("plannedExpensesTotal");
-      
+
       const modalPlannedExpense = document.getElementById("modalPlannedExpense");
       const plannedExpenseModalTitle = document.getElementById("plannedExpenseModalTitle");
       const plannedExpenseTitleInput = document.getElementById("plannedExpenseTitleInput");
@@ -8801,7 +9202,7 @@
           }
           plannedExpenseImageRemoved = false;
           isCompressingPlannedImage = true;
-          
+
           if (plannedImagePreviewFilename) plannedImagePreviewFilename.textContent = "جاري معالجة وضغط الصورة...";
           if (plannedImagePreviewSize) plannedImagePreviewSize.textContent = "";
           if (plannedImagePreviewContainer) plannedImagePreviewContainer.classList.add("active");
@@ -8812,15 +9213,15 @@
             try {
               const rawDataUrl = event.target.result;
               const compressedDataUrl = await compressImage(rawDataUrl, 800, 800, 0.6);
-              
+
               currentPlannedExpenseImageDataUrl = compressedDataUrl;
               if (plannedImagePreviewImg) plannedImagePreviewImg.src = compressedDataUrl;
               if (plannedImagePreviewFilename) plannedImagePreviewFilename.textContent = file.name || "صورة الفاتورة";
-              
+
               const origSize = file.size;
               const compressedSize = Math.round(compressedDataUrl.length * 0.75);
               const savedPct = origSize > 0 ? Math.max(0, Math.round((1 - (compressedSize / origSize)) * 100)) : 0;
-              
+
               if (plannedImagePreviewSize) {
                 plannedImagePreviewSize.innerHTML = `
                   <div style="display:flex; flex-direction:column; gap:2px; margin-top:3px;">
@@ -8928,7 +9329,7 @@
         isCompressingPlannedImage = false;
         if (!modalPlannedExpense) return;
         modalPlannedExpense.style.display = 'flex';
-        
+
         // Populate category options
         renderCategoryOptions();
 
@@ -8975,7 +9376,7 @@
         }
         setTimeout(() => {
           attachNumericInputFormatting();
-          try { plannedExpenseTitleInput && plannedExpenseTitleInput.focus(); } catch (e) {}
+          try { plannedExpenseTitleInput && plannedExpenseTitleInput.focus(); } catch (e) { }
           plannedExpenseModalEscHandler = (e) => { if (e.key === 'Escape') closePlannedExpenseModal(); };
           document.addEventListener('keydown', plannedExpenseModalEscHandler);
         }, 0);
@@ -9423,7 +9824,7 @@
                   // تشغيل أنيميشن الخروج لبطاقة الدخول والدخول للوحة التحكم
                   const loginCard = document.querySelector(".login-card");
                   const cardLoader = document.getElementById("cardLoaderOverlay");
-                  
+
                   const performTransition = () => {
                     if (loginCard) {
                       loginCard.classList.add("exit-active");
@@ -9431,7 +9832,7 @@
                     if (cardLoader) {
                       cardLoader.classList.add("fade-out");
                     }
-                    
+
                     setTimeout(() => {
                       if (loginView) loginView.style.display = "none";
                       if (loginCard) loginCard.classList.remove("loading", "exit-active");
@@ -9561,7 +9962,7 @@
         if (!('serviceWorker' in navigator)) return;
         try {
           const reg = await navigator.serviceWorker.register('/sw.js');
-          
+
           // المستمع لتحديثات الـ Service Worker
           reg.addEventListener('updatefound', () => {
             const newWorker = reg.installing;

@@ -3882,11 +3882,12 @@ header h2 span.icon {
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 300px;
-  background: linear-gradient(135deg, rgba(37, 99, 235, 0.08), rgba(79, 70, 229, 0.05));
-  border: 2px dashed var(--border-color);
-  border-radius: 14px;
-  padding: 20px;
+  min-height: 480px;
+  background: radial-gradient(circle at center, rgba(37, 99, 235, 0.12) 0%, rgba(15, 23, 42, 0.05) 100%), var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 24px;
+  padding: 30px 20px;
+  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.1);
   transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
@@ -3895,86 +3896,180 @@ header h2 span.icon {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 12px;
-  animation: fadeInUp 0.5s ease-out;
+  gap: 20px;
+  width: 100%;
+  max-width: 320px;
+  animation: fadeInUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.private-lock-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.private-lock-icon-wrapper {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, rgba(37, 99, 235, 0.15), rgba(79, 70, 229, 0.1));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(37, 99, 235, 0.25);
+  box-shadow: 0 8px 24px rgba(37, 99, 235, 0.15);
+  margin-bottom: 6px;
+  transition: transform 0.3s ease;
+}
+
+.private-lock-container:hover .private-lock-icon-wrapper {
+  transform: scale(1.05) rotate(5deg);
 }
 
 .private-lock-icon {
-  font-size: 48px;
-  animation: bounce 2s infinite;
-  transition: all 0.3s ease;
+  font-size: 32px;
+  display: inline-block;
 }
 
-.private-lock-text {
-  font-size: 14px;
+.private-lock-title {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--text-color);
+  margin: 0;
+}
+
+.private-lock-desc {
+  font-size: 12px;
   color: var(--subtext-color);
-  font-weight: 600;
-  transition: all 0.3s ease;
+  margin: 0;
+  line-height: 1.5;
 }
 
-.private-pin-input-group {
+/* مؤشرات النقاط */
+.pin-dots-container {
   display: flex;
-  gap: 6px;
+  gap: 16px;
+  justify-content: center;
   align-items: center;
-  transition: all 0.3s ease;
+  min-height: 24px;
+  margin: 10px 0;
 }
 
-.private-pin-input {
-  width: 120px;
-  padding: 10px;
+.pin-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
   border: 2px solid var(--border-color);
-  border-radius: 10px;
-  font-size: 16px;
-  text-align: center;
-  letter-spacing: 4px;
-  font-weight: bold;
-  background: var(--muted-bg);
-  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-  will-change: transform, border-color;
-  -webkit-text-security: disc;
-  /* إخفاء الأرقام كنقاط */
+  background: transparent;
+  transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-.private-pin-input:focus {
-  outline: none;
+.pin-dot.active {
+  background: linear-gradient(135deg, var(--accent) 0%, #4f46e5 100%);
   border-color: var(--accent);
-  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
-  transform: scale(1.05);
+  box-shadow: 0 0 10px rgba(37, 99, 235, 0.6);
+  transform: scale(1.2);
 }
 
-.btn-open-private {
-  padding: 8px 14px;
-  border-radius: 8px;
-  border: none;
-  background: var(--accent);
-  color: white;
+/* مدخل PIN المخفي */
+.hidden-pin-input {
+  position: absolute;
+  left: -9999px;
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+  pointer-events: none;
+}
+
+/* لوحة المفاتيح المرئية */
+.pin-keyboard {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  width: 100%;
+  margin-top: 10px;
+}
+
+.pin-key {
+  aspect-ratio: 1;
+  width: 64px;
+  height: 64px;
+  margin: 0 auto;
+  border-radius: 50%;
+  background: var(--muted-bg);
+  border: 1px solid var(--border-color);
+  color: var(--text-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  font-weight: 700;
   cursor: pointer;
-  font-weight: 600;
+  user-select: none;
+  transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
+}
+
+/* تأثير التفاعل والضغط للهواتف والكمبيوتر */
+@media (hover: hover) {
+  .pin-key:hover {
+    background: rgba(37, 99, 235, 0.08);
+    border-color: var(--accent);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.1);
+  }
+}
+
+.pin-key:active,
+.pin-key.pressed {
+  background: linear-gradient(135deg, var(--accent) 0%, #4f46e5 100%) !important;
+  border-color: var(--accent) !important;
+  color: white !important;
+  transform: scale(0.9) !important;
+  box-shadow: 0 0 12px rgba(37, 99, 235, 0.3) !important;
+}
+
+.pin-key-special {
   font-size: 13px;
-  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-  will-change: transform, background;
+  font-weight: 700;
+  background: transparent;
+  border-color: transparent;
+  box-shadow: none;
 }
 
-.btn-open-private:hover {
-  background: var(--accent-strong);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+@media (hover: hover) {
+  .pin-key-special:hover {
+    background: var(--muted-bg);
+    border-color: var(--border-color);
+    color: var(--text-color);
+  }
 }
 
-.btn-open-private:active {
-  transform: translateY(0);
+.btn-clear {
+  color: var(--danger);
 }
 
-.btn-open-private:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
+.btn-backspace {
+  color: var(--subtext-color);
+  font-size: 18px;
+}
+
+/* حركة الاهتزاز عند الخطأ */
+@keyframes shake-error {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-8px); }
+  40%, 80% { transform: translateX(8px); }
+}
+
+.shake-error {
+  animation: shake-error 0.4s ease-in-out;
 }
 
 .private-error-msg {
   color: var(--danger);
   font-size: 12px;
   min-height: 18px;
-  animation: shake 0.5s ease-in-out;
   transition: all 0.3s ease;
 }
 

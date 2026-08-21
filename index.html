@@ -1526,13 +1526,36 @@
     <div id="tab-private" style="display:none;">
       <div id="privateSection" class="private-section-locked">
         <div class="private-lock-container">
-          <div class="private-lock-icon">🔐</div>
-          <div class="private-lock-text">بيانات حساسة محمية برقم PIN</div>
-          <div class="private-pin-input-group">
-            <input id="privatePinInput" type="text" inputmode="numeric" pattern="[0-9]*" class="private-pin-input"
-              placeholder="0000" maxlength="6" />
-            <button id="btnOpenPrivate" class="btn-open-private">فتح</button>
+          <div class="private-lock-header">
+            <div class="private-lock-icon-wrapper">
+              <div class="private-lock-icon">🔐</div>
+            </div>
+            <h3 class="private-lock-title">بيانات حساسة محمية</h3>
+            <p class="private-lock-desc">يرجى إدخال رقم PIN للوصول إلى ملاحظاتك وحساباتك الخاصة</p>
           </div>
+          
+          <!-- مؤشرات الرمز السري (النقاط) -->
+          <div id="pinDotsContainer" class="pin-dots-container"></div>
+          
+          <!-- حقل إدخال PIN المخفي للحفاظ على توافق الكود البرمجي -->
+          <input id="privatePinInput" type="text" inputmode="none" pattern="[0-9]*" class="hidden-pin-input" maxlength="6" autocomplete="off" />
+
+          <!-- لوحة مفاتيح الأرقام المرئية -->
+          <div class="pin-keyboard">
+            <div class="pin-key" data-key="1">1</div>
+            <div class="pin-key" data-key="2">2</div>
+            <div class="pin-key" data-key="3">3</div>
+            <div class="pin-key" data-key="4">4</div>
+            <div class="pin-key" data-key="5">5</div>
+            <div class="pin-key" data-key="6">6</div>
+            <div class="pin-key" data-key="7">7</div>
+            <div class="pin-key" data-key="8">8</div>
+            <div class="pin-key" data-key="9">9</div>
+            <div class="pin-key pin-key-special btn-clear" data-key="clear">مسح</div>
+            <div class="pin-key" data-key="0">0</div>
+            <div class="pin-key pin-key-special btn-backspace" data-key="backspace">⌫</div>
+          </div>
+          
           <div id="privateErrorMsg" class="private-error-msg"></div>
         </div>
       </div>
@@ -2377,6 +2400,41 @@
           </div>
           <div id="modalPasswordMessage" style="font-size: 13px; margin-bottom: 12px; min-height: 18px;"></div>
           <button id="btnModalChangePassword" class="btn btn-primary" style="width: 100%;">✓ تحديث كلمة السر</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- مودال تغيير رقم PIN للملاحظات -->
+    <div id="changePinModal" class="modal-backdrop"
+      style="display: none; z-index: 10001; align-items: center; justify-content: center;">
+      <div class="modal" style="max-width: 400px; padding: 20px; border-radius: 24px;">
+        <div class="modal-header">
+          <h3>🔄 تغيير رقم PIN للملاحظات</h3>
+          <button id="btnCloseChangePinModal" class="btn-ghost" style="border:none; background:none; font-size:18px; cursor:pointer; color:var(--subtext-color);">✕</button>
+        </div>
+        <div class="modal-body" style="display:flex; flex-direction:column; gap:16px; padding-top:10px;">
+          <div style="font-size: 12px; color: var(--subtext-color); line-height: 1.5; text-align: center; background: var(--muted-bg); padding: 10px; border-radius: 12px;">
+            رقم PIN الجديد يجب أن يتكون من 4 إلى 6 أرقام فقط للوصول السريع والآمن.
+          </div>
+          
+          <div class="form-group" style="display:flex; flex-direction:column; gap:6px;">
+            <label class="form-label" style="font-weight:700;">رقم PIN الجديد</label>
+            <input id="modalNewPin" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="6" class="form-input"
+              placeholder="••••" style="text-align:center; font-size:20px; letter-spacing:8px; font-weight:bold;" />
+          </div>
+          
+          <div class="form-group" style="display:flex; flex-direction:column; gap:6px;">
+            <label class="form-label" style="font-weight:700;">تأكيد رقم PIN الجديد</label>
+            <input id="modalConfirmPin" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="6" class="form-input"
+              placeholder="••••" style="text-align:center; font-size:20px; letter-spacing:8px; font-weight:bold;" />
+          </div>
+          
+          <div id="modalPinMessage" style="font-size: 12px; text-align:center; min-height: 18px; font-weight: 700;"></div>
+          
+          <div style="display:flex; gap:10px; margin-top:10px;">
+            <button id="btnModalSavePin" class="btn btn-primary" style="flex:1;">✓ حفظ التغييرات</button>
+            <button id="btnModalCancelPin" class="btn btn-outline" style="flex:1;">إلغاء</button>
+          </div>
         </div>
       </div>
     </div>
@@ -4394,9 +4452,84 @@
         }
       }
 
+      let enteredPin = "";
+
+      // رسم وتحديث مؤشرات النقاط بناءً على طول الرمز
+      function renderPinDots() {
+        const pinDotsContainer = document.getElementById("pinDotsContainer");
+        if (!pinDotsContainer) return;
+        
+        pinDotsContainer.innerHTML = "";
+        const targetLength = (privateState.pinCode || "1234").length;
+        
+        for (let i = 0; i < targetLength; i++) {
+          const dot = document.createElement("div");
+          dot.className = "pin-dot";
+          if (i < enteredPin.length) {
+            dot.className += " active";
+          }
+          pinDotsContainer.appendChild(dot);
+        }
+      }
+
+      function handlePinInput(digit) {
+        const targetLength = (privateState.pinCode || "1234").length;
+        if (enteredPin.length < targetLength) {
+          enteredPin += digit;
+          privatePinInput.value = enteredPin;
+          renderPinDots();
+          
+          // ردود الفعل اللمسية للهواتف
+          try {
+            if (navigator.vibrate) navigator.vibrate(10);
+          } catch (e) {}
+
+          // التحقق التلقائي عند اكتمال كتابة الرمز
+          if (enteredPin.length === targetLength) {
+            setTimeout(() => {
+              unlockPrivateSection();
+            }, 100);
+          }
+        }
+      }
+
+      function handlePinBackspace() {
+        if (enteredPin.length > 0) {
+          enteredPin = enteredPin.slice(0, -1);
+          privatePinInput.value = enteredPin;
+          renderPinDots();
+          try {
+            if (navigator.vibrate) navigator.vibrate(10);
+          } catch (e) {}
+        }
+      }
+
+      function handlePinClear() {
+        enteredPin = "";
+        privatePinInput.value = "";
+        renderPinDots();
+        try {
+          if (navigator.vibrate) navigator.vibrate(15);
+        } catch (e) {}
+      }
+
+      // إحداث وميض بصري للزر عند استخدام لوحة المفاتيح الفعلية
+      function flashKey(key) {
+        const keyEl = document.querySelector(`.pin-key[data-key="${key}"]`);
+        if (keyEl) {
+          keyEl.classList.add("pressed");
+          setTimeout(() => {
+            keyEl.classList.remove("pressed");
+          }, 80);
+        }
+      }
+
       function resetPrivateUI() {
+        enteredPin = "";
         privatePinInput.value = "";
         privateErrorMsg.textContent = "";
+        renderPinDots();
+        
         // تهيئة الآلة الحاسبة
         initCalculator();
 
@@ -4445,9 +4578,6 @@
           renderAllocations();
           // إخفاء الكيبورد بإزالة التركيز مؤقتاً
           document.activeElement.blur();
-          setTimeout(() => {
-            // التركيز يتم بضغطة أزرار الآلة الحاسبة
-          }, 300);
           return;
         }
 
@@ -4461,8 +4591,19 @@
 
         if (pin !== privateState.pinCode) {
           privateErrorMsg.textContent = "❌ رقم PIN غير صحيح";
+          
+          // إضافة تأثير الاهتزاز عند الخطأ
+          const container = document.querySelector(".private-lock-container");
+          if (container) {
+            container.classList.add("shake-error");
+            setTimeout(() => {
+              container.classList.remove("shake-error");
+            }, 400);
+          }
+          
+          enteredPin = "";
           privatePinInput.value = "";
-          privatePinInput.focus();
+          renderPinDots();
           return;
         }
 
@@ -4473,9 +4614,6 @@
         renderAllocations();
         // إخفاء الكيبورد بإزالة التركيز مؤقتاً
         document.activeElement.blur();
-        setTimeout(() => {
-          // التركيز يتم بضغطة أزرار الآلة الحاسبة
-        }, 300);
       }
 
       function lockPrivateSection() {
@@ -5127,35 +5265,113 @@
       window.deleteNote = function (id) { openDeleteNoteModal(id); };
       window.togglePinNote = togglePinNote;
 
+      // منطق مودال تغيير PIN المخصص
+      const changePinModal = document.getElementById("changePinModal");
+      const modalNewPin = document.getElementById("modalNewPin");
+      const modalConfirmPin = document.getElementById("modalConfirmPin");
+      const btnModalSavePin = document.getElementById("btnModalSavePin");
+      const btnModalCancelPin = document.getElementById("btnModalCancelPin");
+      const btnCloseChangePinModal = document.getElementById("btnCloseChangePinModal");
+      const modalPinMessage = document.getElementById("modalPinMessage");
+
       function openChangePinDialog() {
-        const newPin = prompt("أدخل رقم PIN جديد (4-6 أرقام):");
-        if (!newPin) return;
+        if (!changePinModal) return;
+        modalNewPin.value = "";
+        modalConfirmPin.value = "";
+        modalPinMessage.textContent = "";
+        changePinModal.style.display = "flex";
+        setTimeout(() => {
+          modalNewPin.focus();
+        }, 80);
+      }
+
+      function closeChangePinDialog() {
+        if (changePinModal) {
+          changePinModal.style.display = "none";
+        }
+      }
+
+      async function saveNewPinFromModal() {
+        const newPin = modalNewPin.value.trim();
+        const confirmPin = modalConfirmPin.value.trim();
+
+        if (!newPin) {
+          modalPinMessage.textContent = "الرجاء إدخال رقم PIN الجديد";
+          modalPinMessage.style.color = "var(--danger)";
+          return;
+        }
 
         if (!/^\d{4,6}$/.test(newPin)) {
-          alert("رقم PIN يجب أن يكون 4-6 أرقام فقط");
+          modalPinMessage.textContent = "رقم PIN يجب أن يتكون من 4 إلى 6 أرقام فقط";
+          modalPinMessage.style.color = "var(--danger)";
+          return;
+        }
+
+        if (newPin !== confirmPin) {
+          modalPinMessage.textContent = "رقم PIN غير متطابق!";
+          modalPinMessage.style.color = "var(--danger)";
           return;
         }
 
         privateState.pinCode = newPin;
-        savePrivateState();
-        alert("✓ تم تحديث رقم PIN بنجاح");
+        await savePrivateState();
+        
+        modalPinMessage.textContent = "✓ تم تحديث رقم PIN بنجاح";
+        modalPinMessage.style.color = "var(--success)";
+        
+        setTimeout(() => {
+          closeChangePinDialog();
+          resetPrivateUI();
+        }, 1000);
       }
 
-      // مستمعي أحداث القسم المحمي
-      if (btnOpenPrivate) {
-        btnOpenPrivate.addEventListener("click", unlockPrivateSection);
-      }
-
-      if (privatePinInput) {
-        // تصفية الأرقام فقط من PIN input
-        privatePinInput.addEventListener("input", (e) => {
-          e.target.value = e.target.value.replace(/[^0-9]/g, "");
+      if (btnModalSavePin) btnModalSavePin.addEventListener("click", saveNewPinFromModal);
+      if (btnModalCancelPin) btnModalCancelPin.addEventListener("click", closeChangePinDialog);
+      if (btnCloseChangePinModal) btnCloseChangePinModal.addEventListener("click", closeChangePinDialog);
+      if (changePinModal) {
+        changePinModal.addEventListener("click", (e) => {
+          if (e.target === changePinModal) closeChangePinDialog();
         });
-
-        privatePinInput.addEventListener("keypress", (e) => {
-          if (e.key === "Enter") unlockPrivateSection();
-        });
       }
+
+      // ربط أزرار لوحة مفاتيح PIN المرئية على الشاشة
+      document.querySelectorAll(".pin-key").forEach((keyEl) => {
+        keyEl.addEventListener("click", (e) => {
+          e.preventDefault();
+          const key = keyEl.dataset.key;
+          if (key === "clear") {
+            handlePinClear();
+          } else if (key === "backspace") {
+            handlePinBackspace();
+          } else {
+            handlePinInput(key);
+          }
+        });
+      });
+
+      // مستمع لوحة المفاتيح الفيزيائية للكمبيوتر
+      document.addEventListener("keydown", (e) => {
+        const privateSection = document.getElementById("privateSection");
+        if (privateSection && privateSection.style.display !== "none") {
+          // نتجنب التقاط المفاتيح إذا كان هناك حقل نصي نشط آخر
+          if (document.activeElement && 
+              (document.activeElement.tagName === "INPUT" || document.activeElement.tagName === "TEXTAREA") && 
+              document.activeElement.id !== "privatePinInput") {
+            return;
+          }
+
+          if (e.key >= "0" && e.key <= "9") {
+            handlePinInput(e.key);
+            flashKey(e.key);
+          } else if (e.key === "Backspace") {
+            handlePinBackspace();
+            flashKey("backspace");
+          } else if (e.key === "Escape" || e.key === "Delete") {
+            handlePinClear();
+            flashKey("clear");
+          }
+        }
+      });
 
       if (btnPrivateLogout) {
         btnPrivateLogout.addEventListener("click", lockPrivateSection);
@@ -7182,6 +7398,7 @@
           existing.category = category;
           existing.date = date;
           existing.note = note;
+          existing.modifiedAt = Date.now();
           // إذا اختار المستخدم إزالة الصورة صراحةً
           if (expenseImageRemoved) {
             delete existing.imageDataUrl;
@@ -7203,7 +7420,7 @@
             note,
             imageDataUrl,
             hasImage: !!imageDataUrl,
-            modifiedAt: now,
+            modifiedAt: Date.now(),
           });
           if (imageDataUrl) {
             ImageStore.put(newId, imageDataUrl).catch(() => {});
